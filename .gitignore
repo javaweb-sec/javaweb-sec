@@ -1,0 +1,38 @@
+/**/target/
+!.mvn/wrapper/maven-wrapper.jar
+dependency-reduced-pom.xml
+/lingxe/**/*.jar
+*.class
+*.log
+access-log*.txt
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/build/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Gitbook ###
+gitbook/_book
+gitbook/*.log
+gitbook/node_modules

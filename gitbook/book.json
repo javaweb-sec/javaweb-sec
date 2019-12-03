@@ -1,0 +1,92 @@
+{
+  "title": "攻击Java Web应用-[Java Web安全]",
+  "author": "anbai-inc",
+  "description": "JavaWeb Sec",
+  "language": "zh-hans",
+  "gitbook": "3.2.3",
+  "styles": {
+    "website": "./styles/website.css"
+  },
+  "structure": {
+    "readme": "README.md"
+  },
+  "links": {
+
+  },
+  "plugins": [
+    "-lunr",
+    "-search",
+    "search-pro",
+    "-sharing",
+    "splitter",
+    "anchors",
+    "expandable-chapters-small",
+    "toggle-chapters",
+    "chapter-fold",
+    "github",
+    "github-buttons",
+    "donate",
+    "sharing-plus",
+    "anchor-navigation-ex",
+    "favicon"
+  ],
+  "pluginsConfig": {
+    "github": {
+      "url": "https://github.com/anbai-inc/javaweb-sec"
+    },
+    "github-buttons": {
+      "buttons": [{
+        "user": "anbai-inc",
+        "repo": "javaweb-sec",
+        "type": "star",
+        "size": "small",
+        "count": true
+      }
+      ]
+    },
+    "donate": {
+      "alipay": "http://p2j.cn/images/wechat-pay-qrcode.jpg",
+      "title": "",
+      "button": "赞赏",
+      "alipayText": " "
+    },
+    "sharing": {
+      "douban": false,
+      "facebook": false,
+      "google": false,
+      "hatenaBookmark": false,
+      "instapaper": false,
+      "line": false,
+      "linkedin": false,
+      "messenger": false,
+      "pocket": false,
+      "qq": false,
+      "qzone": false,
+      "stumbleupon": false,
+      "twitter": false,
+      "viber": false,
+      "vk": false,
+      "weibo": false,
+      "whatsapp": false,
+      "all": [
+        "google", "facebook", "weibo", "twitter",
+        "qq", "qzone", "linkedin", "pocket"
+      ]
+    },
+    "anchor-navigation-ex": {
+      "showLevel": false
+    },
+    "favicon":{
+      "shortcut": "./source/images/favicon.jpg",
+      "bookmark": "./source/images/favicon.jpg",
+      "appleTouch": "./source/images/apple-touch-icon.jpg",
+      "appleTouchMore": {
+        "120x120": "./source/images/apple-touch-icon.jpg",
+        "180x180": "./source/images/apple-touch-icon.jpg"
+      }
+    },
+    "theme-default": {
+      "showLevel": true
+    }
+  }
+}
