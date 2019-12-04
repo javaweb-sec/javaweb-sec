@@ -6,7 +6,7 @@ import java.io.*;
  * Creator: yz
  * Date: 2019/12/4
  */
-public class RandomAccessFileDemo {
+public class RandomAccessReadFileDemo {
 
 	public static void main(String[] args) {
 		File file = new File("/etc/passwd");

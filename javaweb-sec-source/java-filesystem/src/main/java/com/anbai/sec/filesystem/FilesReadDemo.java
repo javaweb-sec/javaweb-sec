@@ -9,7 +9,7 @@ import java.nio.file.Paths;
  * Creator: yz
  * Date: 2019/12/4
  */
-public class FilesDemo {
+public class FilesReadDemo {
 
 	public static void main(String[] args) {
 		// 通过File对象定义读取的文件路径

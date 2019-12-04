@@ -6,7 +6,7 @@
 
 ## FileInputStream
 
-使用FileInputStream实现文件读取Demo:
+**使用FileInputStream实现文件读取Demo:**
 
 ```java
 package com.anbai.sec.filesystem;
@@ -146,6 +146,46 @@ Java_java_io_FileInputStream_available0(JNIEnv *env, jobject this) {
 
 
 
+## FileOutputStream
+
+使用FileOutputStream实现写文件Demo:
+
+```java
+package com.anbai.sec.filesystem;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+/**
+ * Creator: yz
+ * Date: 2019/12/4
+ */
+public class FileOutputStreamDemo {
+
+	public static void main(String[] args) throws IOException {
+		// 定义写入文件路径
+		File file = new File("/tmp/1.txt");
+
+		// 定义待写入文件内容
+		String content = "Hello World.";
+
+		// 创建FileOutputStream对象
+		FileOutputStream fos = new FileOutputStream(file);
+
+		// 写入内容二进制到文件
+		fos.write(content.getBytes());
+		fos.flush();
+		fos.close();
+	}
+
+}
+```
+
+代码逻辑比较简单: 打开文件->写内容->关闭文件，调用链和底层实现分析请参考`FileInputStream`。
+
+
+
 ## RandomAccessFile
 
 Java提供了一个非常有趣的读取文件内容的类: `java.io.RandomAccessFile`,这个类名字面意思是任意文件内容访问，特别之处是这个类不仅可以像`java.io.FileInputStream`一样读取文件，而且还可以写文件。
@@ -211,13 +251,50 @@ private native void seek0(long pos) throws IOException;
 
 `java.io.RandomAccessFile`类中提供了几十个`readXXX`方法用以读取文件系统，最终都会调用到`read0`或者`readBytes`方法，我们只需要掌握如何利用`RandomAccessFile`读/写文件就行了。
 
+**RandomAccessFile写文件测试代码:**
+
+```java
+package com.anbai.sec.filesystem;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
+/**
+ * Creator: yz
+ * Date: 2019/12/4
+ */
+public class RandomAccessWriteFileDemo {
+
+	public static void main(String[] args) {
+		File file = new File("/tmp/test.txt");
+
+		// 定义待写入文件内容
+		String content = "Hello World.";
+
+		try {
+			// 创建RandomAccessFile对象,rw表示以读写模式打开文件，一共有:r(只读)、rw(读写)、
+			// rws(读写内容同步)、rwd(读写内容或元数据同步)四种模式。
+			RandomAccessFile raf = new RandomAccessFile(file, "rw");
+
+			// 写入内容二进制到文件
+			raf.write(content.getBytes());
+			raf.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+}
+```
+
 
 
 ## FileSystemProvider
 
 前面章节提到了JDK7新增的NIO.2的`java.nio.file.spi.FileSystemProvider`,利用`FileSystemProvider`我们可以利用支持异步的通道(`Channel`)模式读取文件内容。
 
-`java.nio.file.Files`读取文件内容示例:
+**FileSystemProvider读取文件内容示例:**
 
 ```java
 package com.anbai.sec.filesystem;
@@ -284,6 +361,46 @@ com.anbai.sec.filesystem.FilesDemo.main(FilesDemo.java:23)
 
 
 
-## 文件读取总结
+**FileSystemProvider写文件示例:**
 
-Java内置的文件读取方式大概就是这三种方式，其他的文件读取API可以说都是对这几种方式的封装而已(自写JNI接口不算，本人个人理解,如有其他途径还请告知)。本章我们通过深入基于IO和NIO的Java文件系统底层API，希望大家能够通过以上Demo深入了解到文件读取的原理和本质。
+```java
+package com.anbai.sec.filesystem;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+/**
+ * Creator: yz
+ * Date: 2019/12/4
+ */
+public class FilesWriteDemo {
+
+	public static void main(String[] args) {
+		// 通过File对象定义读取的文件路径
+//		File file  = new File("/etc/passwd");
+//		Path path1 = file.toPath();
+
+		// 定义读取的文件路径
+		Path path = Paths.get("/tmp/test.txt");
+
+		// 定义待写入文件内容
+		String content = "Hello World.";
+
+		try {
+			// 写入内容二进制到文件
+			Files.write(path, content.getBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+}
+```
+
+
+
+## 文件读写总结
+
+Java内置的文件读取方式大概就是这三种方式，其他的文件读取API可以说都是对这几种方式的封装而已(依赖数据库、命令执行、自写JNI接口不算，本人个人理解,如有其他途径还请告知)。本章我们通过深入基于IO和NIO的Java文件系统底层API，希望大家能够通过以上Demo深入了解到文件读写的原理和本质。
