@@ -17,7 +17,7 @@
 
 **Java 任意目录遍历漏洞示例代码:**
 
-```java
+```jsp
 <%@ page import="java.io.File" %><%--
   Created by IntelliJ IDEA.
   User: yz
@@ -56,7 +56,7 @@
 
 **检测用户参数合法性代码示例(请根据具体业务需求调整判定逻辑):**
 
-```java
+```jsp
 <%@ page import="java.io.File" %><%--
   Created by IntelliJ IDEA.
   User: yz
@@ -111,7 +111,7 @@
 
 **任意文件读取示例代码file-read.jsp:**
 
-```java
+```jsp
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.io.ByteArrayOutputStream" %>
 <%@ page import="java.io.File" %>
@@ -142,7 +142,7 @@
 
 **任意文件删除示例代码file-delete.jsp:**
 
-```java
+```jsp
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.io.File" %>
 <%

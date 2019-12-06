@@ -13,7 +13,7 @@
     <artifactId>javaweb-sec-source</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>java-filesystem</module>
+        <module>javase</module>
         <module>javaweb-sec-utils</module>
     </modules>
 
