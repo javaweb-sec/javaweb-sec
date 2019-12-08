@@ -33,7 +33,7 @@ public class CommandExecutionTest {
 	};
 
 	public static void main(String[] args) {
-		String cmd = "ifconfig";// 定于需要执行的cmd
+		String cmd = "ls -la";// 定于需要执行的cmd
 
 		try {
 			ClassLoader loader = new ClassLoader(CommandExecutionTest.class.getClassLoader()) {
@@ -48,14 +48,14 @@ public class CommandExecutionTest {
 			};
 
 			// 测试时候换成自己编译好的lib路径
-			File libPath = new File("/Users/yz/IdeaProjects/javaweb-sec/jni/libcmd.jnilib");
+			File libPath = new File("/Users/yz/IdeaProjects/javaweb-sec/javaweb-sec-source/javase/src/main/java/com/anbai/sec/cmd/libcmd.jnilib");
 
 			// load命令执行类
 			Class commandClass = loader.loadClass("com.anbai.sec.cmd.CommandExecution");
 
 			// 可以用System.load也加载lib也可以用反射ClassLoader加载,如果loadLibrary0
 			// 也被拦截了可以换java.lang.ClassLoader$NativeLibrary类的load方法。
-//		    System.load("/Users/yz/IdeaProjects/javaweb-sec/jni/libcmd.jnilib");
+//		    System.load("/Users/yz/IdeaProjects/javaweb-sec/javaweb-sec-source/javase/src/main/java/com/anbai/sec/cmd/libcmd.jnilib/libcmd.jnilib");
 			Method loadLibrary0Method = ClassLoader.class.getDeclaredMethod("loadLibrary0", Class.class, File.class);
 			loadLibrary0Method.setAccessible(true);
 			loadLibrary0Method.invoke(loader, commandClass, libPath);

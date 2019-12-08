@@ -17,7 +17,7 @@
     * [URLConnection](javase/URLConnection/README.md)
         * [SSRF攻击](README.md)
     * [Java XXE漏洞](javase/XXE/README.md)
-    * [JNI基础](javase/JNI/README.md)
+    * [JNI安全基础](javase/JNI/README.md)
     * [Java 类反序列化](javase/JavaDeserialization/README.md)
     * [Java 并发安全问题](javase/JavaConcurrency/README.md)
     * [Java 类字节码](javase/JavaByteCode/README.md)
