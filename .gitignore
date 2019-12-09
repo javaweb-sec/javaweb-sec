@@ -15,6 +15,11 @@ access-log*.txt
 .springBeans
 .sts4-cache
 
+
+### mac ###
+.DS_Store
+
+
 ### IntelliJ IDEA ###
 .idea
 *.iws

