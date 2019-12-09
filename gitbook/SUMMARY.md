@@ -132,14 +132,9 @@
 
 -----
 * [代码审计基础](java-code-review/README.md)
-    * [代码审计前置知识](README.md)
     * [准备环境和辅助工具](README.md)
-    * [Java类编译与反编译基础](README.md)
-        * [反编译整个Jar技巧](README.md)
-    * [IntelliJ IDEA技巧](README.md)
-        * [IDEA自定义范围搜索](README.md)
-        * [IDEA标记搜索](README.md)
-        * [Java调用链搜索](README.md)
+    * [Java类编译与反编译基础](java-code-review/Decompile.md)
+    * [IntelliJ IDEA技巧](java-code-review/IntelliJ IDEA.md)
     * [Java调试技巧](README.md)
     * [找Spring MVC控制器技巧](README.md)
     * [找Struts2 Action技巧](README.md)
