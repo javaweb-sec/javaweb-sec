@@ -12,6 +12,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>javaweb-sec-source</artifactId>
     <packaging>pom</packaging>
+
     <modules>
         <module>javase</module>
         <module>javaweb-sec-utils</module>

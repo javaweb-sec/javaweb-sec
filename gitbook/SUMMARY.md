@@ -11,6 +11,8 @@
         * [Java 文件名空字节截断漏洞](javase/FileSystem/JavaNullByteFileName.md)
     * [本地命令执行](javase/CommandExecution/README.md)
     * [JDBC](javase/JDBC/README.md)
+        * [JDBC Connection](javase/JDBC/Connection.md)
+        * [JDBC DataSource](javase/JDBC/DataSource.md)
         * [SQL注入](README.md)
         * [SQL注入-PrepareStatement](README.md)
         * [SQL防注入方式](README.md)
