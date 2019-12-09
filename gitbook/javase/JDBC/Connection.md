@@ -1,6 +1,6 @@
 # JDBC Connection
 
-Java通过`java.sql.DriverManager`来管理所有数据库的驱动注册，所以如果想要建立数据库链接需要先在`java.sql.DriverManager`中注册对应的驱动类，然后调用`getConnection`方法才能连接上数据库。
+Java通过`java.sql.DriverManager`来管理所有数据库的驱动注册，所以如果想要建立数据库连接需要先在`java.sql.DriverManager`中注册对应的驱动类，然后调用`getConnection`方法才能连接上数据库。
 
 JDBC定义了一个叫`java.sql.Driver`的接口类负责实现对数据库的连接，所有的数据库驱动包都必须实现这个接口才能够完成数据库的连接操作。`java.sql.DriverManager.getConnection(xx)`其实就是间接的调用了`java.sql.Driver`类的`connect`方法实现数据库连接的。数据库连接成功后会返回一个叫做`java.sql.Connection`的数据库连接对象，一切对数据库的查询操作都将依赖于这个`Connection`对象。
 
@@ -31,7 +31,7 @@ Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
 
 实际上这一步是利用了Java反射+类加载机制往`DriverManager`中注册了驱动包！
 
-![image-20191208225820692](/Users/yz/IdeaProjects/javaweb-sec/gitbook/images/image-20191208225820692.png)
+![image-20191208225820692](../../images/image-20191208225820692.png)
 
 `Class.forName("com.mysql.jdbc.Driver")`实际上会触发类加载，`com.mysql.jdbc.Driver`类将会被初始化，所以`static静态语句块`中的代码也将会被执行，所以看似毫无必要的`Class.forName`其实也是暗藏玄机的。如果反射某个类又不想初始化类方法有两种途径：
 
@@ -46,11 +46,11 @@ Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
 
 **Mysql驱动包示例:**
 
-![image-20191208232329364](/Users/yz/IdeaProjects/javaweb-sec/gitbook/images/image-20191208232329364.png)
+![image-20191208232329364](../../images/image-20191208232329364.png)
 
 
 
-## JDBC数据库链接总结
+## JDBC数据库连接总结
 
 使用JDBC连接数据相对于PHP直接使用`mysql_connect/mysqli_connect`函数就可以完成数据库连接来说的确难了很多，但是其中也暗藏了很多Java的特性需要我们去深入理解。
 
