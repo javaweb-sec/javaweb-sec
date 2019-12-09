@@ -17,10 +17,10 @@
         * [SQL注入-PrepareStatement](README.md)
         * [SQL防注入方式](README.md)
     * [URLConnection](javase/URLConnection/README.md)
-    * [Java XXE漏洞](javase/XXE/README.md)
     * [JNI安全基础](javase/JNI/README.md)
     * [Java 类序列化](javase/JavaDeserialization/README.md)
         * [Java 序列化与反序列化](javase/JavaDeserialization/JavaSerialization.md)
+    * [Java XXE漏洞](javase/XXE/README.md)
     * [Java 并发安全问题](javase/JavaConcurrency/README.md)
     * [Java 类字节码](javase/JavaByteCode/README.md)
     * [1.10 ClassLoader](javase/ClassLoader/README.md)
@@ -132,7 +132,6 @@
 
 -----
 * [代码审计基础](java-code-review/README.md)
-    * [准备环境和辅助工具](README.md)
     * [Java类编译与反编译基础](java-code-review/Decompile.md)
     * [IntelliJ IDEA技巧](java-code-review/IntelliJ IDEA.md)
     * [Java调试技巧](README.md)
