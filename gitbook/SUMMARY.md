@@ -3,7 +3,7 @@
 * [前言](README.md)
 
 -----
-* [Java 基础](javase/README.md)
+* [Java 基础](javase/README.md) 
     * [Java 文件系统安全](javase/FileSystem/README.md)
         * [Java IO/NIO.2文件系统](javase/FileSystem/FileSystem.md)
         * [Java IO/NIO多种读写文件方式](javase/FileSystem/JavaReadAndWriteFile.md)
@@ -19,7 +19,8 @@
     * [URLConnection](javase/URLConnection/README.md)
     * [Java XXE漏洞](javase/XXE/README.md)
     * [JNI安全基础](javase/JNI/README.md)
-    * [Java 类反序列化](javase/JavaDeserialization/README.md)
+    * [Java 类序列化](javase/JavaDeserialization/README.md)
+        * [Java 序列化与反序列化](javase/JavaDeserialization/JavaSerialization.md)
     * [Java 并发安全问题](javase/JavaConcurrency/README.md)
     * [Java 类字节码](javase/JavaByteCode/README.md)
     * [1.10 ClassLoader](javase/ClassLoader/README.md)

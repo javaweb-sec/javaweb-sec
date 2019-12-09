@@ -26,7 +26,7 @@ ObjectInputStream
 通过前面的代码片段中我们也能知道，我们一般使用`ObjectOutputStream`的`writeObject`方法把一个对象进行持久化。再使用`ObjectInputStream`的`readObject`从持久化存储中把对象读取出来。
 
 
-## 0x01. Java 序列化代码
+##  Java 序列化代码
 
 **Java 序列化Demo对象代码**
 
@@ -104,7 +104,7 @@ public class JavaSerializable {
 rO0ABXNyABBUZXN0U2VyaWFsaXphYmxl6vCgfrE2SbgCAAB4cA==
 ```
 
-## 0x02. Java 反序列化代码
+## Java 反序列化代码
 
 上面我们将对象序列化以后编码成了Base64编码，使用`getUnSerializableObject`方法将`TestSerializable`实现类通过反序列化进行对象还原。
 
@@ -166,9 +166,9 @@ TestSerializable testSer = (TestSerializable) objectInputStream.readObject()
 
 如果没有对反序列化的数据来源加以控制，将会触发`java反序列化漏洞`。
 
-## 0x03. Java 反序列化在Servlte(JSP)中的使用
+##  Java 反序列化在Servlet中的使用
 
-#### 1. JSP接收序列化数据进行处理及调用
+### JSP接收序列化数据进行处理及调用
 
 用于接收反序列化数据并执行，传入java序列化后数据进行反序列化调用
 
@@ -241,7 +241,7 @@ public class TestRunTime extends Test implements Serializable {
 代码都准备好了，整理下流程：
 
 1. 生成`TestRunTime`序列化数据
-2. 传递序列化数据给`Servlte(JSP)->ver.jsp`
+2. 传递序列化数据给`Servlet(JSP)->ver.jsp`
 3. 查看`ver.jsp`执行结果
 
 **1. 生成`TestRunTime`序列化数据**
@@ -285,9 +285,9 @@ public class JavaSerializable {
 rO0ABXNyAAtUZXN0UnVuVGltZUFRkUnGiDr6AgAAeHA=
 ```
 
-**2. 传递序列化数据给`Servlte(JSP)`**
+**2. 传递序列化数据给`Servlet(JSP)`**
 
-将生成好的序列化数据传递给`Servlte(JSP)`，也就是`ver.jsp`文件(园长常说的一切`jsp`都是`Servlte`)，
+将生成好的序列化数据传递给`Servlet(JSP)`，也就是`ver.jsp`文件(园长常说的一切`jsp`都是`Servlet`)，
 
 1. 通过`request.getParameter("ser")`，接收客户端传入参数`ser`的值；
 2. 通过`sun.misc.BASE64Decoder().decodeBuffer` 解码还原序列化后的字节码数组；
@@ -306,7 +306,7 @@ rO0ABXNyAAtUZXN0UnVuVGltZUFRkUnGiDr6AgAAeHA=
 
 ![image-20191209154331182](../../images/image-20191209154331182.png)
 
-#### 2. 使用系统类继承调用
+### 使用系统类继承调用
 
 由于很多原因，我们没办法再一个系统中定义一个我们自己的类，在这种情况下可以使用JVM中的类来继承
 
@@ -375,7 +375,9 @@ public class TestSer extends InitialContext implements Serializable {
 
 ![image-20191209162112431](../../images/image-20191209162112431.png)
 
-## 0x04. java序列化漏洞
+##  java序列化漏洞
+
+正在完善...
 
 
 
