@@ -43,11 +43,11 @@
 
 对于使用<font color='red'>一句话木马</font>，在其他语言如 PHP 中通常使用 eval/assert 等有能力将字符串转为代码执行的函数或方法，配合中国菜刀等管理工具能够很丝滑的通过一个简单的 Webshell 管控服务器，对于 Java 这个语言该如何实现这些功能呢？
 
-1. **实现菜刀协议**
+## 实现菜刀协议
 
 很长的时间对于 jsp 木马的使用都是实现了菜刀的协议，这本质上并不是任意代码执行，本质上还是 JSP 大马，这部分的代码在网上可以搜寻得到。
 
-2. **ClassLoader**
+## ClassLoader
 
 顾名思义，它是用来加载 Class 的。它负责将 Class 的字节码形式转换成内存形式的 Class 对象。字节码的本质就是一个字节数组 byte[]，它有特定的复杂的内部格式。
 
@@ -115,7 +115,7 @@ public class Test {
 
 ![image-20191206112613210](../../images/image-20191206112613210.png)
 
-3. **反序列化**
+## 反序列化
 
 反序列化也拥有可以将数据转换为类对象的能力，因此我们也可以使用反序列化来进行任意代码执行。
 
@@ -244,7 +244,7 @@ JSP 文件：
 
 ![image-20191206153040779](../../images/image-20191206153040779.png)
 
-4. **sun.misc.Unsafe**
+## sun.misc.Unsafe
 
 正常情况下我们可以重写 ClassLoader 类来实现定义任意的类，但是某些时候我们无法通过自定义 ClassLoader 来定义类的时候可以使用这种方式来定义一个 class ，但是前提条件是在 JDK11 之前的版本。
 
@@ -300,7 +300,7 @@ public class Unsafe {
 
 新版本的JDK已经把这个native方法移除了，可以使用使用`java.lang.invoke.MethodHandles.Lookup.defineClass`来代替，MethodHandles不过是间接的调用了ClassLoader的defineClass罢了。
 
-5. **jshell eval**
+## jshell eval
 
 JDK9 开始提供了一个叫 jshell 的功能，让开发者可以像 python 和 php 一样在命令行下愉快的写测试代码了。JDK9 已经发布距今 2 年时间了，但在生产环境下使用 JDK8 以上的应用依旧寥寥无几。不过我们只需要利用这一特性其实是可以实现任意代码执行了，也就是说正真意义上的原生的 java 一句话木马。
 
