@@ -10,6 +10,10 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.lang.reflect.InvocationTargetException" %>
 <style>
+    table {
+        border-collapse: collapse;
+    }
+
     th, td {
         border: 1px solid #C1DAD7;
         font-size: 12px;
