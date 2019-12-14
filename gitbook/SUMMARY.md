@@ -31,12 +31,10 @@
 
 -----
 * [Java Web基础](javaweb/README.md)
-    * [Java Web简介](javaweb/BriefIntroduction/README.md)
-    * [Java模块化开发](javaweb/ModularizationDevel/README.md)
+    * [Servlet](javaweb/Servlet/README.md)
     * [JSP & WebShell](javaweb/JSP&Webshell/README.md)
         * [JSP基础](javaweb/JSP&Webshell/JSP.md)
         * [Webshell](javaweb/JSP&Webshell/WEBSHELL.md)
-    * [Servlet](javaweb/Servlet/README.md)
     * [JSP、Servlet之间的关系](javaweb/JSP&Servlet/README.md)
     * [Request & Response](javaweb/Request&Response/README.md)
     * [Filter](javaweb/Filter/README.md)
