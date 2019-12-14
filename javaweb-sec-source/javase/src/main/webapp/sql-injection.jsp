@@ -45,14 +45,14 @@
 
             // 定义最终执行的SQL语句，这里会将用户从请求中传入的host字符串拼接到最终的SQL
             // 语句当中，从而导致了SQL注入漏洞。
-            String sql = "select host,user from mysql.user where user = ? ";
-//            String sql = "select host,user from mysql.user where user = '" + user + "'";
+//            String sql = "select host,user from mysql.user where user = ? ";
+            String sql = "select host,user from mysql.user where user = '" + user + "'";
             out.println("SQL:" + sql);
             out.println("<hr/>");
 
             // 创建预编译对象
             PreparedStatement pstt = connection.prepareStatement(sql);
-            pstt.setObject(1, user);
+//            pstt.setObject(1, user);
 
             // 执行SQL语句并获取返回结果对象
             ResultSet rs = pstt.executeQuery();
