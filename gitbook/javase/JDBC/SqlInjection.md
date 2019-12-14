@@ -297,7 +297,7 @@ mysql> select username,email from sys_user where id=1 union select 1, sleep(3);
 
 切记只过滤`'(单引号)`或`"(双引号)`并不能有效的防止整型注入，但是可以有效的防御字符型注入。解决注入的根本手段应该使用参数预编译的方式。
 
-### SQL预编译
+### PreparedStatement SQL预编译查询
 
 将上面存在注入的Java代码改为`?(问号)`占位的方式即可实现SQL预编译查询。
 
@@ -322,3 +322,90 @@ ResultSet rs = pstt.executeQuery();
 ```
 
 需要特别注意的是并不是使用`PreparedStatement`来执行SQL语句就没有注入漏洞，而是将用户传入部分使用`?(问号)`占位符表示并使用`PreparedStatement`预编译SQL语句才能够防止注入！
+
+### JDBC预编译
+
+可能很多人都会有一个疑问：`JDBC`中使用`PreparedStatement`对象的`SQL语句`究竟是如何实现预编译的？接下来我们将会以Mysql驱动包为例，深入学习`JDBC`预编译实现。
+
+`JDBC`预编译查询分为客户端预编译和服务器端预编译，对应的URL配置项是:`useServerPrepStmts`，当`useServerPrepStmts`为`false`时使用客户端(驱动包内完成SQL转义)预编译，`useServerPrepStmts`为`true`时使用数据库服务器端预编译。
+
+#### 数据库服务器端预编译
+
+JDBC URL配置示例:
+
+```java
+jdbc:mysql://localhost:3306/mysql?autoReconnect=true&zeroDateTimeBehavior=round&useUnicode=true&characterEncoding=UTF-8&useOldAliasMetadataBehavior=true&useOldAliasMetadataBehavior=true&useSSL=false&useServerPrepStmts=true
+```
+
+代码片段:
+
+```java
+String sql = "select host,user from mysql.user where user = ? ";
+PreparedStatement pstt = connection.prepareStatement(sql);
+pstt.setObject(1, user);
+```
+
+使用`JDBC`的`PreparedStatement`查询数据包如下：
+
+![image-20191215011503098](../../images/image-20191215011503098.png)
+
+#### 客户端预编译
+
+JDBC URL配置示例:
+
+```java
+jdbc:mysql://localhost:3306/mysql?autoReconnect=true&zeroDateTimeBehavior=round&useUnicode=true&characterEncoding=UTF-8&useOldAliasMetadataBehavior=true&useOldAliasMetadataBehavior=true&useSSL=false&useServerPrepStmts=false
+```
+
+代码片段:
+
+```java
+String sql = "select host,user from mysql.user where user = ? ";
+PreparedStatement pstt = connection.prepareStatement(sql);
+pstt.setObject(1, user);
+```
+
+使用`JDBC`的`PreparedStatement`查询数据包如下：
+
+![image-20191215011935278](../../images/image-20191215011935278.png)
+
+对应的Mysql客户端驱动包预编译代码在`com.mysql.jdbc.PreparedStatement`类的`setString`方法，如下：
+
+![image-20191215012554164](../../images/image-20191215012554164.png)
+
+预编译前的值为`root'`,预编译后的值为`'root''`，和我们通过`wireshark`抓包的结果一致。
+
+#### Mysql预编译
+
+Mysql默认提供了预编译命令:`prepare`,使用`prepare`命令可以在Mysql数据库服务端实现预编译查询。
+
+**`prepare`查询示例：**
+
+```sql
+prepare stmt from 'select host,user from mysql.user where user = ?';
+set @username='root';
+execute stmt using @username;
+```
+
+查询结果如下：
+
+```mysql
+mysql> prepare stmt from 'select host,user from mysql.user where user = ?';
+Query OK, 0 rows affected (0.00 sec)
+Statement prepared
+
+mysql> set @username='root';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> execute stmt using @username;
++-----------+------+
+| host      | user |
++-----------+------+
+| localhost | root |
++-----------+------+
+1 row in set (0.00 sec)
+```
+
+## JDBC SQL注入总结
+
+本章节通过浅显的方式学习了`JDBC`中的`SQL注入`漏洞基础知识和防注入方式，希望大家能够从本章节中了解到SQL注入的本质，在后续章节也将讲解`ORM`中的SQL注入。

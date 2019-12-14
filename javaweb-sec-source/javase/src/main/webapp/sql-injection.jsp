@@ -19,7 +19,7 @@
     public static final String CLASS_NAME = "com.mysql.jdbc.Driver";
 
     // 数据库链接字符串
-    public static final String URL = "jdbc:mysql://localhost:3306/mysql?autoReconnect=true&zeroDateTimeBehavior=round&useUnicode=true&characterEncoding=UTF-8&useOldAliasMetadataBehavior=true&useOldAliasMetadataBehavior=true&useSSL=false";
+    public static final String URL = "jdbc:mysql://localhost:3306/mysql?autoReconnect=true&zeroDateTimeBehavior=round&useUnicode=true&characterEncoding=UTF-8&useOldAliasMetadataBehavior=true&useOldAliasMetadataBehavior=true&useSSL=false&useServerPrepStmts=false";
 
     // 数据库用户名
     public static final String USERNAME = "root";
@@ -45,14 +45,14 @@
 
             // 定义最终执行的SQL语句，这里会将用户从请求中传入的host字符串拼接到最终的SQL
             // 语句当中，从而导致了SQL注入漏洞。
-//            String sql = "select host,user from mysql.user where user = ? ";
-            String sql = "select host,user from mysql.user where user = '" + user + "'";
+            String sql = "select host,user from mysql.user where user = ? ";
+//            String sql = "select host,user from mysql.user where user = '" + user + "'";
             out.println("SQL:" + sql);
             out.println("<hr/>");
 
             // 创建预编译对象
             PreparedStatement pstt = connection.prepareStatement(sql);
-//            pstt.setObject(1, user);
+            pstt.setObject(1, user);
 
             // 执行SQL语句并获取返回结果对象
             ResultSet rs = pstt.executeQuery();
