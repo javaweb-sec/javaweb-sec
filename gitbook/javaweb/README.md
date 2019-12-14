@@ -22,15 +22,3 @@
 
 由上表可知`Java EE`并不是`Java SE`的一部分(JDK不自带)，`Java EE`的版本也不完全是对应了JDK版本，我们通常最为关注的是`Java EE`对应的`Servlet`版本。不同的`Servlet`版本有着不一样的特性，`Servlet容器`(如`GlassFish/Tomcat/Jboss`)也会限制部署的`Servlet`版本。Java流行的`Spring MVC`(基于Servlet机制实现)、`Struts2`(基于Filter机制实现)等Web框架也是基于不同的`Java EE`版本封装了各自的框架。
 
-
-
-## Java Web 模块化开发
-
-如今的较为大型的 Java Web 项目通常都采用了模块化方式开发，借助于`Maven`、`Gradle`依赖管理工具，Java可以非常轻松的完成模块化开发。除此之外使用`OSGi`(`Open Service Gateway Initiative` 可实现模块热部署)技术开发来Java动态模块化系统也是较为常见的。
-
-> 采用模块化开发也会给我们做代码审计带来一定的难度，因为需要在更多的依赖库中去寻找需要我们审计的代码
-
-使用Maven开发的 JavaWeb 项目示例:
-
-![img](/Users/yz/IdeaProjects/javaweb-sec/gitbook/images/12.png)
-
