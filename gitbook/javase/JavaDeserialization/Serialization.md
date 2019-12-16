@@ -2,6 +2,13 @@
 
 在Java中实现对象反序列化非常简单，实现`java.io.Serializable(内部序列化)`或`java.io.Externalizable(外部序列化)`接口即可被序列化(请注意不只是`java.io.Serializable`接口)。
 
+反序列化类对象时有如下限制：
+
+1. 被反序列化的类必须存在。
+2. `serialVersionUID`值必须一致。
+
+除此之外，**反序列化类对象时不会调用该类构造方法**，因为在反序列化创建类实例时使用了`sun.reflect.ReflectionFactory.newConstructorForSerialization`创建了一个反序列化专用的`Constructor(反射构造方法对象)`，具体细节可参考 [不用构造方法也能创建对象](https://www.iteye.com/topic/850027)。
+
 ## `ObjectInputStream、ObjectOutputStream`
 
 `java.io.ByteArrayOutputStream`类最核心的方法是`writeObject`方法，即序列化类对象。
