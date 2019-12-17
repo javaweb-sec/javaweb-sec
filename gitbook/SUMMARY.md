@@ -4,6 +4,8 @@
 
 -----
 * [Java 基础](javase/README.md) 
+    * [ClassLoader](javase/ClassLoader/README.md)
+    * [Java反射机制](javase/Reflection.md)
     * [Java 文件系统安全](javase/FileSystem/README.md)
         * [Java IO/NIO.2文件系统](javase/FileSystem/FileSystem.md)
         * [Java IO/NIO多种读写文件方式](javase/FileSystem/JavaReadAndWriteFile.md)
@@ -22,9 +24,6 @@
     * [Java XXE漏洞](javase/XXE/README.md)
     * [Java 并发安全问题](javase/JavaConcurrency/README.md)
     * [Java 类字节码](javase/JavaByteCode/README.md)
-    * [1.10 ClassLoader](javase/ClassLoader/README.md)
-        * [1.10类加载和类定义](README.md)
-        * [1.10Java类字节码加密实现](README.md)
     * [Java Agent基础](javase/JavaAgent/README.md)
     * [Java 编码/加密](javase/JavaEncrypt/README.md)
 
