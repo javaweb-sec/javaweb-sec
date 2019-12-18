@@ -302,7 +302,7 @@ Windows可能并不适用，稍做调整应该就可以了。
 1. 使用`sun.misc.Unsafe.allocateInstance(Class)`特性可以无需`new`或者`newInstance`创建`UNIXProcess/ProcessImpl`类对象。
 2. 反射`UNIXProcess/ProcessImpl`类的`forkAndExec`方法。
 3. 构造`forkAndExec`需要的参数并调用。
-4. 反射`UNIXProcess/ProcessImpl`类的`initStreams`方法初始化输入输出结果流对象、`getInputStream`。
+4. 反射`UNIXProcess/ProcessImpl`类的`initStreams`方法初始化输入输出结果流对象。
 5. 反射`UNIXProcess/ProcessImpl`类的`getInputStream`方法获取本地命令执行结果(如果要输出流、异常流反射对应方法即可)。
 
 **`fork_and_exec.jsp`执行本地命令示例:**

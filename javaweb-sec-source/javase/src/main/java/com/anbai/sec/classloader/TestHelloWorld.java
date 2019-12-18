@@ -6,10 +6,6 @@ package com.anbai.sec.classloader;
  */
 public class TestHelloWorld {
 
-	static {
-		System.out.println(2123);
-	}
-
 	public String hello() {
 		return "Hello World~";
 	}
