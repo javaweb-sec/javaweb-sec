@@ -373,7 +373,7 @@ pstt.setObject(1, user);
 
 ![image-20191215012554164](../../images/image-20191215012554164.png)
 
-预编译前的值为`root'`,预编译后的值为`'root''`，和我们通过`wireshark`抓包的结果一致。
+预编译前的值为`root'`,预编译后的值为`'root\''`，和我们通过`WireShark`抓包的结果一致。
 
 #### Mysql预编译
 
