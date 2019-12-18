@@ -36,7 +36,7 @@ Class  runtimeClass3 = ClassLoader.getSystemClassLoader().loadClass(className);
 
 ```java
 // 输出命令执行结果
-			System.out.println(IOUtils.toString(Runtime.getRuntime().exec("whoami").getInputStream(), "UTF-8"));
+System.out.println(IOUtils.toString(Runtime.getRuntime().exec("whoami").getInputStream(), "UTF-8"));
 ```
 
 如上可以看到，我们可以使用一行代码完成本地命令执行操作，但是如果使用反射就会比较麻烦了，我们不得不需要间接性的调用`Runtime`的`exec`方法。
@@ -182,4 +182,4 @@ field.set(类实例对象, 修改后的值);
 
 ## Java反射机制总结
 
-Java反射机制是Java动态性中最为重要的体现，利用反射机制我们可以轻松的实现Java类的动态调用。反射在编写漏洞利用代码、代码审计、绕过RASP方法限制等中起到了至关重要的作用。
+Java反射机制是Java动态性中最为重要的体现，利用反射机制我们可以轻松的实现Java类的动态调用。Java的大部分框架都是采用了反射机制来实现的(如:`Spring MVC`、`ORM框架`等)，Java反射在编写漏洞利用代码、代码审计、绕过RASP方法限制等中起到了至关重要的作用。
