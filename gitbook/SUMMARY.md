@@ -19,6 +19,7 @@
         * [JDBC SQL注入](javase/JDBC/SqlInjection.md)
     * [URLConnection](javase/URLConnection/README.md)
     * [JNI安全基础](javase/JNI/README.md)
+    * [JShell](javase/JShell/.md)
     * [Java 类序列化](javase/JavaDeserialization/README.md)
         * [Java 序列化与反序列化](javase/JavaDeserialization/Serialization.md)
         * [Java反序列化漏洞](javase/JavaDeserialization/UnserializeVul.md)
@@ -68,7 +69,6 @@
     * [Java Native安全](README.md)
         * [JNI](README.md)
         * [JNA](README.md)
-        * [Jshell](README.md)
 
 -----
 * [Java容器安全](java-web-container/README.md)
