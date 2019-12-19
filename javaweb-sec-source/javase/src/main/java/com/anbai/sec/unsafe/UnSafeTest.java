@@ -4,6 +4,9 @@ import sun.misc.Unsafe;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
+import java.security.cert.Certificate;
 
 import static com.anbai.sec.classloader.TestClassLoader.TEST_CLASS_BYTES;
 import static com.anbai.sec.classloader.TestClassLoader.TEST_CLASS_NAME;
@@ -47,7 +50,21 @@ public class UnSafeTest {
 			System.out.println(test);
 
 			// 使用Unsafe向JVM中注册com.anbai.sec.classloader.TestHelloWorld类
-			Class helloWorldClass = unsafe1.defineClass(TEST_CLASS_NAME, TEST_CLASS_BYTES, 0, TEST_CLASS_BYTES.length);
+//			Class helloWorldClass = unsafe1.defineClass(TEST_CLASS_NAME, TEST_CLASS_BYTES, 0, TEST_CLASS_BYTES.length);
+
+			// 获取系统的类加载器
+			ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+
+			// 创建默认的保护域
+			ProtectionDomain domain = new ProtectionDomain(
+					new CodeSource(null, (Certificate[]) null), null, classLoader, null
+			);
+
+			// 使用Unsafe向JVM中注册com.anbai.sec.classloader.TestHelloWorld类
+			Class helloWorldClass = unsafe1.defineClass(
+					TEST_CLASS_NAME, TEST_CLASS_BYTES, 0, TEST_CLASS_BYTES.length, classLoader, domain
+			);
+
 			System.out.println(helloWorldClass);
 		} catch (Exception e) {
 			e.printStackTrace();

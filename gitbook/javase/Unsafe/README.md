@@ -104,6 +104,8 @@ Google的`GSON`库在JSON反序列化的时候就使用这个方式来创建类�
 
 `public native Class defineClass(String var1, byte[] var2, int var3, int var4);`
 
+`public native Class<?> defineClass(String var1, byte[] var2, int var3, int var4, ClassLoader var5, ProtectionDomain var6);`
+
 **使用Unsafe创建TestHelloWorld对象：**
 
 ```java
@@ -111,4 +113,25 @@ Google的`GSON`库在JSON反序列化的时候就使用这个方式来创建类�
 Class helloWorldClass = unsafe1.defineClass(TEST_CLASS_NAME, TEST_CLASS_BYTES, 0, TEST_CLASS_BYTES.length);
 ```
 
+或调用需要传入类加载器和保护域的方法：
+
+```java
+// 获取系统的类加载器
+ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+
+// 创建默认的保护域
+ProtectionDomain domain = new ProtectionDomain(
+	new CodeSource(null, (Certificate[]) null), null, classLoader, null
+);
+
+// 使用Unsafe向JVM中注册com.anbai.sec.classloader.TestHelloWorld类
+Class helloWorldClass = unsafe1.defineClass(
+	TEST_CLASS_NAME, TEST_CLASS_BYTES, 0, TEST_CLASS_BYTES.length, classLoader, domain
+);
+```
+
 `Unsafe`还可以通过`defineAnonymousClass`方法创建内部类，这里不再多做测试。
+
+**注意：**
+
+这个实例仅适用于`Java 8`以前的版本如果在`Java 8`中应该使用应该调用需要传类加载器和保护域的那个方法。`Java 11`开始`Unsafe`类已经把`defineClass`方法移除了(`defineAnonymousClass`方法还在)，虽然可以使用`java.lang.invoke.MethodHandles.Lookup.defineClass`来代替，但是`MethodHandles`只是间接的调用了`ClassLoader`的`defineClass`，所以一切也就回到了`ClassLoader`。
