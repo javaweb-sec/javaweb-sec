@@ -9,10 +9,10 @@ import java.lang.reflect.Method;
 public class TestClassLoader extends ClassLoader {
 
 	// TestHelloWorld类名
-	private static String testClassName = "com.anbai.sec.classloader.TestHelloWorld";
+	public static String TEST_CLASS_NAME = "com.anbai.sec.classloader.TestHelloWorld";
 
 	// TestHelloWorld类字节码
-	private static byte[] testClassBytes = new byte[]{
+	public static byte[] TEST_CLASS_BYTES = new byte[]{
 			-54, -2, -70, -66, 0, 0, 0, 51, 0, 17, 10, 0, 4, 0, 13, 8, 0, 14, 7, 0, 15, 7, 0,
 			16, 1, 0, 6, 60, 105, 110, 105, 116, 62, 1, 0, 3, 40, 41, 86, 1, 0, 4, 67, 111, 100,
 			101, 1, 0, 15, 76, 105, 110, 101, 78, 117, 109, 98, 101, 114, 84, 97, 98, 108, 101,
@@ -33,9 +33,9 @@ public class TestClassLoader extends ClassLoader {
 	@Override
 	public Class<?> findClass(String name) throws ClassNotFoundException {
 		// 只处理TestHelloWorld类
-		if (name.equals(testClassName)) {
+		if (name.equals(TEST_CLASS_NAME)) {
 			// 调用JVM的native方法定义TestHelloWorld类
-			return defineClass(testClassName, testClassBytes, 0, testClassBytes.length);
+			return defineClass(TEST_CLASS_NAME, TEST_CLASS_BYTES, 0, TEST_CLASS_BYTES.length);
 		}
 
 		return super.findClass(name);
@@ -55,7 +55,7 @@ public class TestClassLoader extends ClassLoader {
 
 		try {
 			// 使用自定义的类加载器加载TestHelloWorld类
-			Class testClass = loader.loadClass(testClassName);
+			Class testClass = loader.loadClass(TEST_CLASS_NAME);
 
 			// 反射创建TestHelloWorld类，等价于 TestHelloWorld t = new TestHelloWorld();
 			Object testInstance = testClass.newInstance();

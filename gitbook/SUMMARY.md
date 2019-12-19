@@ -6,6 +6,7 @@
 * [Java 基础](javase/README.md) 
     * [ClassLoader](javase/ClassLoader/README.md)
     * [Java反射机制](javase/Reflection/Reflection.md)
+    * [sun.misc.Unsafe](javase/Unsafe/README.md)
     * [Java 文件系统安全](javase/FileSystem/README.md)
         * [Java IO/NIO.2文件系统](javase/FileSystem/FileSystem.md)
         * [Java IO/NIO多种读写文件方式](javase/FileSystem/JavaReadAndWriteFile.md)
@@ -45,10 +46,7 @@
 
 -----
 * [Java语言的动态性](java-dynamic-feature/README.md)
-    * [Java反射机制特性](README.md)
     * [JDK7+ MethodHandle](README.md)
-    * [ClassLoader](README.md)
-        * [URLClassLoader](README.md)
     * [sun.misc.Unsafe](README.md)
     * [Groovy](README.md)
     * [Java表达式安全](README.md)
