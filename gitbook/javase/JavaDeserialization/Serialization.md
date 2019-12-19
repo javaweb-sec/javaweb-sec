@@ -7,17 +7,40 @@
 1. 被反序列化的类必须存在。
 2. `serialVersionUID`值必须一致。
 
-除此之外，**反序列化类对象时不会调用该类构造方法**，因为在反序列化创建类实例时使用了`sun.reflect.ReflectionFactory.newConstructorForSerialization`创建了一个反序列化专用的`Constructor(反射构造方法对象)`，具体细节可参考 [不用构造方法也能创建对象](https://www.iteye.com/topic/850027)。
+除此之外，**反序列化类对象是不会调用该类构造方法**，因为在反序列化创建类实例时使用了**基类**的`sun.reflect.ReflectionFactory.newConstructorForSerialization`创建了一个反序列化专用的`Constructor(反射构造方法对象)`。
 
-## `ObjectInputStream、ObjectOutputStream`
+* ReflectionFactory.newConstructorForSerialization() 例子
 
-`java.io.ByteArrayOutputStream`类最核心的方法是`writeObject`方法，即序列化类对象。
+```java
+Constructor superCons = TestClass.class.getSuperclass().getConstructor();  
+System.out.println(superCons);  // 反射构造方法对象，基类无参构造 
+ReflectionFactory reflFactory = ReflectionFactory.getReflectionFactory();  
+Constructor c = reflFactory.newConstructorForSerialization(TestClass.class,superCons);  
+System.out.println(c.newInstance());  // 生成了TestClass对象 
+```
+
+* 运行结果代码 
+
+```java
+public java.lang.Object()  
+TestClass@fd13b5  
+```
+
+**通过调用基类Object的`newConstructorForSerialization`方法生成了子类，创建了TestClass对象.**
+
+具体细节可参考 [不用构造方法也能创建对象](https://www.iteye.com/topic/850027)。
+
+
+
+## ObjectInputStream、ObjectOutputStream
+
+`java.io.ObjectOutputStream`类最核心的方法是`writeObject`方法，即序列化类对象。
 
 `java.io.ObjectInputStream`类最核心的功能是`readObject`方法，即反序列化类对象。
 
 所以，只需借助`ObjectInputStream`和`ObjectOutputStream`类我们就可以实现类的序列化和反序列化功能了。
 
-### `java.io.Serializable`
+### java.io.Serializable
 
 `java.io.Serializable`是一个空的接口,我们不需要实现`java.io.Serializable`的任何方法，代码如下:
 
@@ -111,7 +134,7 @@ DeserializationTest类序列化后的字节数组:[-84, -19, 0, 5, 115, 114, 0, 
 用户名:yz,邮箱:admin@javaweb.org
 ```
 
-核心逻辑其实就是使用`ObjectOutputStream`类的`writeObject`方法序列化`DeserializationTest`类和使用`ObjectInputStream`类的`readObject`方法反序列化`DeserializationTest`类而已。
+核心逻辑其实就是使用`ObjectOutputStream`类的`writeObject`方法序列化`DeserializationTest`类，使用`ObjectInputStream`类的`readObject`方法反序列化`DeserializationTest`类而已。
 
 简化后的代码片段如下：
 
@@ -129,7 +152,14 @@ DeserializationTest test = (DeserializationTest) in.readObject();
 
 ### java.io.Externalizable
 
-`java.io.Externalizable`和`java.io.Serializable`几乎一样，只是`java.io.Externalizable`接口定义了`writeExternal`和`readExternal`方法需要反序列化的类实现，其余的和`java.io.Serializable`并无差别。
+`java.io.Externalizable`和`java.io.Serializable`几乎一样，只是`java.io.Externalizable`接口定义了`writeExternal`和`readExternal`方法需要序列化和反序列化的类实现，
+
+```java
+void writeExternal(ObjectOutput out) // 需要序列化类实现
+void readExternal(ObjectInput in) // 需要反序列化类实现
+```
+
+其余的和`java.io.Serializable`并无差别。
 
 **`ExternalizableTest.java`测试代码如下：**
 
