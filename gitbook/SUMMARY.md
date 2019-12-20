@@ -22,7 +22,7 @@
     * [JShell](javase/JShell/README.md)
     * [Java 类序列化](javase/JavaDeserialization/README.md)
         * [Java 序列化与反序列化](javase/JavaDeserialization/Serialization.md)
-        * [Java反序列化漏洞](javase/JavaDeserialization/UnserializeVul.md)
+        * [Apache Commons Collections反序列化漏洞](javase/JavaDeserialization/Collections.md)
     * [Java XXE漏洞](javase/XXE/README.md)
     * [Java 并发安全问题](javase/JavaConcurrency/README.md)
     * [Java 类字节码](javase/JavaByteCode/README.md)
