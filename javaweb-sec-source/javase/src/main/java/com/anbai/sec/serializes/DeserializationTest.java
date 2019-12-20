@@ -13,6 +13,10 @@ public class DeserializationTest implements Serializable {
 
 	private String email;
 
+	public DeserializationTest() {
+		System.out.println("init...");
+	}
+
 	public String getUsername() {
 		return username;
 	}

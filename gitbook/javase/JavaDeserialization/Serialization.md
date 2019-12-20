@@ -1,36 +1,57 @@
 # Java 序列化/反序列化
 
-在Java中实现对象反序列化非常简单，实现`java.io.Serializable(内部序列化)`或`java.io.Externalizable(外部序列化)`接口即可被序列化(请注意不只是`java.io.Serializable`接口)。
+在Java中实现对象反序列化非常简单，实现`java.io.Serializable(内部序列化)`或`java.io.Externalizable(外部序列化)`接口即可被序列化(`Externalizable`接口只是实现了`java.io.Serializable`接口)。
 
 反序列化类对象时有如下限制：
 
 1. 被反序列化的类必须存在。
 2. `serialVersionUID`值必须一致。
 
-除此之外，**反序列化类对象是不会调用该类构造方法**，因为在反序列化创建类实例时使用了**基类**的`sun.reflect.ReflectionFactory.newConstructorForSerialization`创建了一个反序列化专用的`Constructor(反射构造方法对象)`。
+除此之外，**反序列化类对象是不会调用该类构造方法**的，因为在反序列化创建类实例时使用了`sun.reflect.ReflectionFactory.newConstructorForSerialization`创建了一个反序列化专用的`Constructor(反射构造方法对象)`，使用这个`Constructor`可以Java必须通过构造方法创建类实例的限制。
 
-* ReflectionFactory.newConstructorForSerialization() 例子
-
-```java
-Constructor superCons = TestClass.class.getSuperclass().getConstructor();  
-System.out.println(superCons);  // 反射构造方法对象，基类无参构造 
-ReflectionFactory reflFactory = ReflectionFactory.getReflectionFactory();  
-Constructor c = reflFactory.newConstructorForSerialization(TestClass.class,superCons);  
-System.out.println(c.newInstance());  // 生成了TestClass对象 
-```
-
-* 运行结果代码 
+**使用反序列化方式创建类实例代码片段：**
 
 ```java
-public java.lang.Object()  
-TestClass@fd13b5  
+package com.anbai.sec.serializes;
+
+import sun.reflect.ReflectionFactory;
+
+import java.lang.reflect.Constructor;
+
+/**
+ * 使用反序列化方式在不调用类构造方法的情况下创建类实例
+ * Creator: yz
+ * Date: 2019/12/20
+ */
+public class ReflectionFactoryTest {
+
+	public static void main(String[] args) {
+		try {
+			// 获取sun.reflect.ReflectionFactory对象
+			ReflectionFactory factory = ReflectionFactory.getReflectionFactory();
+
+			// 使用反序列化方式获取DeserializationTest类的构造方法
+			Constructor constructor = factory.newConstructorForSerialization(
+					DeserializationTest.class, Object.class.getConstructor()
+			);
+
+			// 实例化DeserializationTest对象
+			System.out.println(constructor.newInstance());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+}
 ```
 
-**通过调用基类Object的`newConstructorForSerialization`方法生成了子类，创建了TestClass对象.**
+程序运行结果：
+
+```java
+com.anbai.sec.serializes.DeserializationTest@2b650cea
+```
 
 具体细节可参考 [不用构造方法也能创建对象](https://www.iteye.com/topic/850027)。
-
-
 
 ## ObjectInputStream、ObjectOutputStream
 
@@ -49,7 +70,7 @@ public interface Serializable {
 }
 ```
 
-您可能会好奇我们实现一个空接口有什么意义？其实实现`java.io.Serializable`接口仅仅只用于`标识这个类可序列化`。实现了`java.io.Serializable`接口的类原则上都需要生产一个`serialVersionUID`常量，反序列化时如果双方的`serialVersionUID`不一致会导致`InvalidClassException` 异常。如果可序列化类未显式声明 serialVersionUID，则序列化运行时将基于该类的各个方面计算该类的默认 `serialVersionUID`值。
+您可能会好奇我们实现一个空接口有什么意义？其实实现`java.io.Serializable`接口仅仅只用于`标识这个类可序列化`。实现了`java.io.Serializable`接口的类原则上都需要生产一个`serialVersionUID`常量，反序列化时如果双方的`serialVersionUID`不一致会导致`InvalidClassException` 异常。如果可序列化类未显式声明 `serialVersionUID`，则序列化运行时将基于该类的各个方面计算该类的默认 `serialVersionUID`值。
 
 **`DeserializationTest.java`测试代码如下：**
 
@@ -69,21 +90,7 @@ public class DeserializationTest implements Serializable {
 
 	private String email;
 
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
+	// 省去get/set方法....
 
 	public static void main(String[] args) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -152,14 +159,19 @@ DeserializationTest test = (DeserializationTest) in.readObject();
 
 ### java.io.Externalizable
 
-`java.io.Externalizable`和`java.io.Serializable`几乎一样，只是`java.io.Externalizable`接口定义了`writeExternal`和`readExternal`方法需要序列化和反序列化的类实现，
+`java.io.Externalizable`和`java.io.Serializable`几乎一样，只是`java.io.Externalizable`接口定义了`writeExternal`和`readExternal`方法需要序列化和反序列化的类实现，其余的和`java.io.Serializable`并无差别。
+
+**java.io.Externalizable.java:**
 
 ```java
-void writeExternal(ObjectOutput out) // 需要序列化类实现
-void readExternal(ObjectInput in) // 需要反序列化类实现
+public interface Externalizable extends java.io.Serializable {
+  
+  void writeExternal(ObjectOutput out) throws IOException;
+  
+  void readExternal(ObjectInput in) throws IOException, ClassNotFoundException;
+  
+}
 ```
-
-其余的和`java.io.Serializable`并无差别。
 
 **`ExternalizableTest.java`测试代码如下：**
 
@@ -179,21 +191,7 @@ public class ExternalizableTest implements java.io.Externalizable {
 
 	private String email;
 
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
+	// 省去get/set方法....
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
