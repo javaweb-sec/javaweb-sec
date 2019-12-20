@@ -42,6 +42,11 @@ public class CommonsCollectionsTest {
 
 		// 创建Map对象
 		Map map = new HashMap();
+
+		// map的key名称必须对应创建AnnotationInvocationHandler时使用的注解方法名，比如创建
+		// AnnotationInvocationHandler时传入的注解是java.lang.annotation.Target，那么map
+		// 的key必须是@Target注解中的方法名，即：value，否则在反序列化AnnotationInvocationHandler
+		// 类调用其自身实现的readObject方法时无法通过if判断也就无法通过调用到setValue方法了。
 		map.put("value", "value");
 
 		// 使用TransformedMap创建一个含有
