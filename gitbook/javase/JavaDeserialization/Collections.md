@@ -349,7 +349,7 @@ public class CommonsCollectionsTest {
 反序列化`RCE`调用链如下：
 
 ```java
-ObjectInputStream.readObject
+ObjectInputStream.readObject()
   ->AnnotationInvocationHandler.readObject()
   	->TransformedMap.entrySet().iterator().next().setValue()
   		->TransformedMap.checkSetValue()
@@ -367,7 +367,4 @@ ObjectInputStream.readObject
                 ->Runtime.exec()
 ```
 
-
-
-
-
+`Apache Commons Collections`漏洞利用方式也不仅仅只有本节所讲解的利用`AnnotationInvocationHandler`触发`TransformedMap`构建调用链的这一种方式，[ysoserial](https://github.com/frohoff/ysoserial)还提供了多种基于`InstantiateTransformer/InvokerTransformer`构建调用链方式：[LazyMap](https://github.com/frohoff/ysoserial/blob/master/src/main/java/ysoserial/payloads/CommonsCollections1.java)、[PriorityQueue](https://github.com/frohoff/ysoserial/blob/master/src/main/java/ysoserial/payloads/CommonsCollections2.java)、[BadAttributeValueExpException](https://github.com/frohoff/ysoserial/blob/master/src/main/java/ysoserial/payloads/CommonsCollections5.java)、[HashSet](https://github.com/frohoff/ysoserial/blob/master/src/main/java/ysoserial/payloads/CommonsCollections6.java)、[Hashtable](https://github.com/frohoff/ysoserial/blob/master/src/main/java/ysoserial/payloads/CommonsCollections7.java)。
