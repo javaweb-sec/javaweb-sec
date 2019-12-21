@@ -222,3 +222,74 @@ ExternalizableTest类反序列化后的字符串:��sr+com.anbai.sec.seriali
 
 鉴于两者之间没有多大差别，这里就不再赘述。
 
+### 自定义序列化(writeObject)和反序列化(readObject)
+
+实现了`java.io.Serializable`接口的类还可以定义如下方法(非接口方法)将会在类序列化和反序列化过程中调用：
+
+1. **`private void writeObject(ObjectOutputStream oos)`,自定义序列化。**
+2. **`private void readObject(ObjectInputStream ois)`，自定义反序列化。**
+3. `private void readObjectNoData()`。
+4. `protected Object writeReplace()`，写入时替换对象。
+5. `protected Object readResolve()`。
+
+具体的方法名定义在`java.io.ObjectStreamClass#ObjectStreamClass(java.lang.Class<?>)`方法有详细的声明。
+
+**序列化时可自定义的方法示例代码：**
+
+```java
+public class DeserializationTest implements Serializable {
+
+/**
+	 * 自定义反序列化类对象
+	 *
+	 * @param ois 反序列化输入流对象
+	 * @throws IOException            IO异常
+	 * @throws ClassNotFoundException 类未找到异常
+	 */
+	private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+		System.out.println("readObject...");
+
+		// 调用ObjectInputStream默认反序列化方法
+		ois.defaultReadObject();
+
+		// 省去调用自定义反序列化逻辑...
+	}
+
+	/**
+	 * 自定义序列化类对象
+	 *
+	 * @param oos 序列化输出流对象
+	 * @throws IOException IO异常
+	 */
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.defaultWriteObject();
+
+		System.out.println("writeObject...");
+		// 省去调用自定义序列化逻辑...
+	}
+
+	private void readObjectNoData() {
+		System.out.println("readObjectNoData...");
+	}
+
+	/**
+	 * 写入时替换对象
+	 *
+	 * @return 替换后的对象
+	 */
+	protected Object writeReplace() {
+		System.out.println("writeReplace....");
+
+		return null;
+	}
+
+	protected Object readResolve() {
+		System.out.println("readResolve....");
+
+		return null;
+	}
+	
+}
+```
+
+当我们序列化`DeserializationTest`类时，会自动调用(反射)该类的`writeObject(ObjectOutputStream oos)`方法,反序列化时候也会自动调用`readObject(ObjectInputStream)`方法，也就是说我们可以通过在需要序列化/反序列化的类中定义`readObject`和`writeObject`方法从而实现自定义的序列化和反序列化操作，和当然前提是被序列化的类必须有此方法且方法的修饰符必须是`private`。
