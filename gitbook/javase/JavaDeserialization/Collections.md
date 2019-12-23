@@ -116,7 +116,7 @@ public static void main(String[] args) {
 1. 如何传入调用链。
 2. 如何调用`transform`方法执行本地命令。
 
-现在我们已经使用`InvokerTransformer`创建了一个含有恶意调用链的`Transformer`类对象，紧接着我们应该思考如何才能够将调用链窜起来并执行。
+现在我们已经使用`InvokerTransformer`创建了一个含有恶意调用链的`Transformer`类的Map对象，紧接着我们应该思考如何才能够将调用链窜起来并执行。
 
 `org.apache.commons.collections.map.TransformedMap`类间接的实现了`java.util.Map`接口，同时支持对`Map`的`key`或者`value`进行`Transformer`转换，调用`decorate`和`decorateTransform`方法就可以创建一个`TransformedMap`:
 
@@ -147,7 +147,7 @@ public static void main(String[] args) {
    Map map = new HashMap();
    map.put("value", "value");
 
-   // 使用TransformedMap创建一个含有恶意攻击链的Transformer
+   // 使用TransformedMap创建一个含有恶意调用链的Transformer类的Map对象
    Map transformedMap = TransformedMap.decorate(map, null, transformedChain);
 
    // transformedMap.put("v1", "v2");// 执行put也会触发transform
@@ -215,7 +215,7 @@ Map map = new HashMap();
 // 类调用其自身实现的readObject方法时无法通过if判断也就无法通过调用到setValue方法了。
 map.put("value", "value");
 
-// 使用TransformedMap创建一个含有
+// 使用TransformedMap创建一个含有恶意调用链的Transformer类的Map对象
 Map transformedMap = TransformedMap.decorate(map, null, transformedChain);
 
 // 获取AnnotationInvocationHandler类对象
@@ -283,7 +283,7 @@ public class CommonsCollectionsTest {
 		Map map = new HashMap();
 		map.put("value", "value");
 
-		// 使用TransformedMap创建一个含有恶意攻击链的Transformer
+		// 使用TransformedMap创建一个含有恶意调用链的Transformer类的Map对象
 		Map transformedMap = TransformedMap.decorate(map, null, transformedChain);
 
 //		// 遍历Map元素，并调用setValue方法

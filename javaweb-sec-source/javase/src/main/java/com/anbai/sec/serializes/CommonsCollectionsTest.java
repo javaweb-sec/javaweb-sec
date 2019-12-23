@@ -49,7 +49,7 @@ public class CommonsCollectionsTest {
 		// 类调用其自身实现的readObject方法时无法通过if判断也就无法通过调用到setValue方法了。
 		map.put("value", "value");
 
-		// 使用TransformedMap创建一个含有
+		// 使用TransformedMap创建一个含有恶意调用链的Transformer类的Map对象
 		Map transformedMap = TransformedMap.decorate(map, null, transformedChain);
 
 //		// 遍历Map元素，并调用setValue方法

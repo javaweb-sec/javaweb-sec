@@ -11,9 +11,14 @@ public class RMITestImpl extends UnicastRemoteObject implements RMITestInterface
 		super();
 	}
 
+	/**
+	 * RMI测试方法
+	 *
+	 * @return 返回测试字符串
+	 */
 	@Override
-	public void test() throws RemoteException {
-		System.out.println("Hello.RMI.");
+	public String test() throws RemoteException {
+		return "Hello RMI~";
 	}
 
 }
