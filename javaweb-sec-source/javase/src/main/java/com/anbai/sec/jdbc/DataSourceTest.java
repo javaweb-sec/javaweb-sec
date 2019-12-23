@@ -17,7 +17,7 @@ public class DataSourceTest {
 	 *
 	 * @return 返回数据源
 	 */
-	private static DataSource createDruidDataSource() {
+	public static DataSource createDruidDataSource() {
 		// 创建Druid数据源对象
 		DruidDataSource dataSource = new DruidDataSource();
 

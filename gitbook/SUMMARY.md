@@ -23,6 +23,8 @@
     * [Java 类序列化](javase/JavaDeserialization/README.md)
         * [Java 序列化与反序列化](javase/JavaDeserialization/Serialization.md)
         * [Apache Commons Collections反序列化漏洞](javase/JavaDeserialization/Collections.md)
+    * [JNDI](javase/JNDI/README.md)
+    * [RMI](javase/RMI/README.md)
     * [Java XXE漏洞](javase/XXE/README.md)
     * [Java 并发安全问题](javase/JavaConcurrency/README.md)
     * [Java 类字节码](javase/JavaByteCode/README.md)
