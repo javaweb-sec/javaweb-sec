@@ -22,7 +22,7 @@ public class LDAPFactoryTest {
 			// 创建环境变量对象
 			Hashtable<String, Object> env = new Hashtable<String, Object>();
 
-			// 设置JNDI初始化工程类名
+			// 设置JNDI初始化工厂类名
 			env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
 
 			// 设置JNDI提供服务的URL地址
@@ -37,8 +37,9 @@ public class LDAPFactoryTest {
 			// 设置用户密码
 			env.put(Context.SECURITY_CREDENTIALS, password);
 
-			// 建立LDAP连接
+			// 创建LDAP连接
 			DirContext ctx = new InitialDirContext(env);
+
 			ctx.close();
 		} catch (Exception e) {
 			e.printStackTrace();

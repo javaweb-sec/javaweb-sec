@@ -17,14 +17,14 @@ public class DNSContextFactoryTest {
 		// 创建环境变量对象
 		Hashtable env = new Hashtable();
 
-		// 设置JNDI初始化工程类名
+		// 设置JNDI初始化工厂类名
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
 
-		// 设置JNDI提供服务的URL地址
+		// 设置JNDI提供服务的URL地址，这里可以设置解析的DNS服务器地址
 		env.put(Context.PROVIDER_URL, "dns://223.6.6.6/");
 
 		try {
-			// 注册JNDI 目录服务
+			// 创建JNDI目录服务对象
 			DirContext context = new InitialDirContext(env);
 
 			// 获取DNS解析记录测试
