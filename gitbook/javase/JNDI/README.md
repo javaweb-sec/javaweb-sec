@@ -18,7 +18,7 @@
 
 ## JNDI目录服务注册
 
-访问`JNDI`目录服务时会通过预先设置好环境变量访问对应的服务， 如果创建`JNDI`上下文(`Context`)时未指定`环境变量`对象，`JNDI`会自动搜索`系统属性(System.getenv())`、`applet 参数`和`应用程序资源文件(jndi.properties)`。
+访问`JNDI`目录服务时会通过预先设置好环境变量访问对应的服务， 如果创建`JNDI`上下文(`Context`)时未指定`环境变量`对象，`JNDI`会自动搜索`系统属性(System.getProperty())`、`applet 参数`和`应用程序资源文件(jndi.properties)`。
 
 **[JNDI 查找及其关联的引用](https://docs.oracle.com/cd/E19957-01/819-1553/jndi.html):**
 
@@ -142,6 +142,8 @@ public class DNSContextFactoryTest {
 
 ## JNDI-RMI远程方法调用
 
+`RMI`的服务处理工厂类是:`com.sun.jndi.rmi.registry.RegistryContextFactory`，在调用远程的`RMI`方法之前需要先启动`RMI`服务：`com.anbai.sec.rmi.RMIServerTest`，启动完成后就可以使用`JNDI`连接并调用了。
+
 **使用JNDI解析调用远程RMI方法测试：**
 
 ```java
@@ -204,5 +206,117 @@ public class RMIRegistryContextFactoryTest {
 Hello RMI~
 ```
 
+## JNDI-LDAP
 
+`LDAP`的服务处理工厂类是:`com.sun.jndi.ldap.LdapCtxFactory`，连接`LDAP`之前需要配置好远程的`LDAP`服务。
+
+**使用JNDI创建LDAP连接测试：**
+
+```java
+package com.anbai.sec.jndi;
+
+import javax.naming.Context;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import java.util.Hashtable;
+
+/**
+ * Creator: yz
+ * Date: 2019/12/24
+ */
+public class LDAPFactoryTest {
+
+   public static void main(String[] args) {
+      try {
+         // 设置用户LDAP登陆用户DN
+         String userDN = "cn=Manager,dc=javaweb,dc=org";
+
+         // 设置登陆用户密码
+         String password = "123456";
+
+         // 创建环境变量对象
+         Hashtable<String, Object> env = new Hashtable<String, Object>();
+
+         // 设置JNDI初始化工厂类名
+         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+
+         // 设置JNDI提供服务的URL地址
+         env.put(Context.PROVIDER_URL, "ldap://localhost:389");
+
+         // 设置安全认证方式
+         env.put(Context.SECURITY_AUTHENTICATION, "simple");
+
+         // 设置用户信息
+         env.put(Context.SECURITY_PRINCIPAL, userDN);
+
+         // 设置用户密码
+         env.put(Context.SECURITY_CREDENTIALS, password);
+
+         // 创建LDAP连接
+         DirContext ctx = new InitialDirContext(env);
+        
+        // 使用ctx可以查询或存储数据,此处省去业务代码
+
+         ctx.close();
+      } catch (Exception e) {
+         e.printStackTrace();
+      }
+   }
+
+}
+```
+
+## JNDI-DataSource
+
+`JNDI`连接数据源比较特殊，`Java`目前不提供内置的实现方法，提供数据源服务的多是`Servlet容器`，这里我们以`Tomcat`为例学习如何在应用服务中使用`JNDI`查找容器提供的数据源。
+
+`Tomcat`配置`JNDI`数据源需要手动修改`Tomcat目录/conf/context.xml`文件，参考：[Tomcat JNDI Datasource](https://tomcat.apache.org/tomcat-8.0-doc/jndi-datasource-examples-howto.html)，这里我们在`Tomcat`的`conf/context.xml`中添加如下配置：
+
+```xml
+<Resource name="jdbc/test" auth="Container" type="javax.sql.DataSource"
+               maxTotal="100" maxIdle="30" maxWaitMillis="10000"
+               username="root" password="root" driverClassName="com.mysql.jdbc.Driver"
+               url="jdbc:mysql://localhost:3306/mysql"/>
+```
+
+然后我们需要下载好[Mysql的JDBC驱动包](https://repo1.maven.org/maven2/mysql/mysql-connector-java/5.1.48/mysql-connector-java-5.1.48.jar)并复制到`Tomcat`的`lib`目录：
+
+```
+wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/5.1.48/mysql-connector-java-5.1.48.jar -P "/data/apache-tomcat-8.5.31/lib"
+```
+
+配置好数据源之后我们重启Tomcat服务就可以使用`JNDI`的方式获取`DataSource`了。
+
+**使用JNDI获取数据源并查询数据库测试：**
+
+```jsp
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="javax.naming.Context" %>
+<%@ page import="javax.naming.InitialContext" %>
+<%@ page import="javax.sql.DataSource" %>
+<%@ page import="java.sql.Connection" %>
+<%@ page import="java.sql.ResultSet" %>
+<%
+    // 初始化JNDIContext
+    Context context = new InitialContext();
+
+    // 搜索Tomcat注册的JNDI数据库连接池对象
+    DataSource dataSource = (DataSource) context.lookup("java:comp/env/jdbc/test");
+
+    // 获取数据库连接
+    Connection connection = dataSource.getConnection();
+
+    // 查询SQL语句并返回结果
+    ResultSet rs = connection.prepareStatement("select version()").executeQuery();
+
+    // 获取数据库查询结果
+    while (rs.next()) {
+        out.println(rs.getObject(1));
+    }
+
+    rs.close();
+%>
+```
+
+访问`tomcat-datasource-lookup.jsp`输出: `5.7.28`，需要注意的是示例`jsp`中的Demo使用了`系统的环境变量`所以并不需要在创建context的时候传入`环境变量`对象。`Tomcat`在启动的时候会[设置JNDI变量信息](https://github.com/apache/tomcat/blob/407d805f1772ae1dd03b6ffbac03be83f55c406b/java/org/apache/catalina/startup/Catalina.java#L768)，处理`JNDI`服务的类是`org.apache.naming.java.javaURLContextFactory`，所以在`jsp`中我们可以直接创建`context`。
 

@@ -40,6 +40,8 @@ public class LDAPFactoryTest {
 			// 创建LDAP连接
 			DirContext ctx = new InitialDirContext(env);
 
+			// 使用ctx可以查询或存储数据,此处省去业务代码
+
 			ctx.close();
 		} catch (Exception e) {
 			e.printStackTrace();
