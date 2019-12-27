@@ -96,6 +96,18 @@
 <!--        </dependency>-->
 
         <dependency>
+            <groupId>com.unboundid</groupId>
+            <artifactId>server-sdk</artifactId>
+            <version>7.3.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.23</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-catalina</artifactId>
             <version>8.5.31</version>

