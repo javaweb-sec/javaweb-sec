@@ -313,15 +313,15 @@ wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/5.1.48/mysql-conn
 
 `JNDI`默认支持自动转换的协议有：
 
-| 协议名称         | 协议URL        | Context类                                               |
-| ---------------- | -------------- | ------------------------------------------------------- |
-| DNS协议          | `dns://`       | `com.sun.jndi.url.dns.dnsURLContext`                    |
-| RMI协议          | `rmi://`       | `com.sun.jndi.url.rmi.rmiURLContext`                    |
-| LDAP协议         | `ldap://`      | `com.sun.jndi.url.ldap.ldapURLContext`                  |
-| LDAP协议         | `ldaps://`     | `com.sun.jndi.url.ldaps.ldapsURLContextFactory`         |
-| IIOP对象请求协议 | `iiop://`      | `com.sun.jndi.url.iiop.iiopURLContext`                  |
-| IIOP对象请求协议 | `iiopname://`  | `com.sun.jndi.url.iiopname.iiopnameURLContextFactory`   |
-| IIOP对象请求协议 | `corbaname://` | `com.sun.jndi.url.corbaname.corbanameURLContextFactory` |
+| 协议名称             | 协议URL        | Context类                                               |
+| -------------------- | -------------- | ------------------------------------------------------- |
+| DNS协议              | `dns://`       | `com.sun.jndi.url.dns.dnsURLContext`                    |
+| RMI协议              | `rmi://`       | `com.sun.jndi.url.rmi.rmiURLContext`                    |
+| LDAP协议             | `ldap://`      | `com.sun.jndi.url.ldap.ldapURLContext`                  |
+| LDAP协议             | `ldaps://`     | `com.sun.jndi.url.ldaps.ldapsURLContextFactory`         |
+| IIOP对象请求代理协议 | `iiop://`      | `com.sun.jndi.url.iiop.iiopURLContext`                  |
+| IIOP对象请求代理协议 | `iiopname://`  | `com.sun.jndi.url.iiopname.iiopnameURLContextFactory`   |
+| IIOP对象请求代理协议 | `corbaname://` | `com.sun.jndi.url.corbaname.corbanameURLContextFactory` |
 
 **RMI示例代码片段：**
 
