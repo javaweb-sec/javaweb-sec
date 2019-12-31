@@ -4,7 +4,7 @@
 
 **RMI架构：**
 
-![java-rmi](/Users/yz/IdeaProjects/javaweb-sec/gitbook/images/java-rmi.jpg)
+![java-rmi](../../images/java-rmi.jpg)
 
 `RMI`底层通讯采用了`Stub(运行在客户端)`和`Skeleton(运行在服务端)`机制，`RMI`调用远程方法的大致如下：
 
@@ -396,4 +396,11 @@ public class RMIExploit {
 具体的实现代码在：`sun.rmi.registry.RegistryImpl_Skel`类的`dispatch`方法，其中的`$param_Remote_2`就是我们`RMIExploit`传入的恶意`Remote`的序列化对象。
 
 ## RMI-JRMP反序列化漏洞
+
+`JRMP`接口的两种常见实现方式：
+
+1. `JRMP协议(Java Remote Message Protocol)`，`RMI`专用的`Java远程消息交换协议`。
+2. `IIOP协议(Internet Inter-ORB Protocol)` ，基于 `CORBA` 实现的对象请求代理协议。
+
+
 
