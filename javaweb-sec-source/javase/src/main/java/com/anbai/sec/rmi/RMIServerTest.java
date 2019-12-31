@@ -27,4 +27,5 @@ public class RMIServerTest {
 			e.printStackTrace();
 		}
 	}
+
 }
