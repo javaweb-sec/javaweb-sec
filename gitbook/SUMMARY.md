@@ -25,10 +25,11 @@
         * [Apache Commons Collections反序列化漏洞](javase/JavaDeserialization/Collections.md)
     * [RMI](javase/RMI/README.md)
     * [JNDI](javase/JNDI/README.md)
+    * [Java Agent](javase/JavaAgent/README.md)
+        * [Java Instrumentation](javase/JavaAgent/Instrumentation.md)
     * [Java XXE漏洞](javase/XXE/README.md)
     * [Java 并发安全问题](javase/JavaConcurrency/README.md)
     * [Java 类字节码](javase/JavaByteCode/README.md)
-    * [Java Agent基础](javase/JavaAgent/README.md)
     * [Java 编码/加密](javase/JavaEncrypt/README.md)
 
 -----
