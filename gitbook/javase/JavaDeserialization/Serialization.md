@@ -7,7 +7,7 @@
 1. 被反序列化的类必须存在。
 2. `serialVersionUID`值必须一致。
 
-除此之外，**反序列化类对象是不会调用该类构造方法**的，因为在反序列化创建类实例时使用了`sun.reflect.ReflectionFactory.newConstructorForSerialization`创建了一个反序列化专用的`Constructor(反射构造方法对象)`，使用这个`Constructor`可以Java必须通过构造方法创建类实例的限制。
+除此之外，**反序列化类对象是不会调用该类构造方法**的，因为在反序列化创建类实例时使用了`sun.reflect.ReflectionFactory.newConstructorForSerialization`创建了一个反序列化专用的`Constructor(反射构造方法对象)`，使用这个特殊的`Constructor`可以绕过构造方法创建类实例(前面章节讲` sun.misc.Unsafe` 的时候我们提到了使用`allocateInstance`方法也可以实现绕过构造方法创建类实例)。
 
 **使用反序列化方式创建类实例代码片段：**
 
@@ -224,7 +224,7 @@ ExternalizableTest类反序列化后的字符串:��sr+com.anbai.sec.seriali
 
 ### 自定义序列化(writeObject)和反序列化(readObject)
 
-实现了`java.io.Serializable`接口的类还可以定义如下方法(非接口方法)将会在类序列化和反序列化过程中调用：
+实现了`java.io.Serializable`接口的类还可以定义如下方法(`反序列化魔术方法`)将会在类序列化和反序列化过程中调用：
 
 1. **`private void writeObject(ObjectOutputStream oos)`,自定义序列化。**
 2. **`private void readObject(ObjectInputStream ois)`，自定义反序列化。**
