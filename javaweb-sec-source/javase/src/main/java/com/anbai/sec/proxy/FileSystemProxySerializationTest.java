@@ -11,15 +11,12 @@ public class FileSystemProxySerializationTest {
 
 	public static void main(String[] args) {
 		try {
-			// 获取UnixFileSystem类加载器
-			ClassLoader classLoader = UnixFileSystem.class.getClassLoader();
-
 			// 创建UnixFileSystem类实例
 			FileSystem fileSystem = new UnixFileSystem();
 
 			// 使用JDK动态代理生成FileSystem动态代理类实例
 			FileSystem proxyInstance = (FileSystem) Proxy.newProxyInstance(
-					classLoader,// 动态代理类的类加载器，动态代理生成的类将使用这个类加载器加载
+					FileSystem.class.getClassLoader(),// 指定动态代理类的类加载器
 					new Class[]{FileSystem.class}, // 定义动态代理生成的类实现的接口
 					new JDKInvocationHandler(fileSystem)// 动态代理处理类
 			);
@@ -43,8 +40,8 @@ public class FileSystemProxySerializationTest {
 			// 反序列化输入流数据为FileSystem对象
 			FileSystem test = (FileSystem) in.readObject();
 
-			System.out.println("反序列化类名:" + test.getClass());
-			System.out.println("反序列化类实例:" + test);
+			System.out.println("反序列化类实例类名:" + test.getClass());
+			System.out.println("反序列化类实例toString:" + test.toString());
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {

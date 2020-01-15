@@ -13,6 +13,7 @@ public final class $Proxy0 extends Proxy implements FileSystem {
 
 	private static Method m1;
 
+// 实现的FileSystem接口方法，如果FileSystem里面有多个方法那么在这个类中将从m3开始n个成员变量
 	private static Method m3;
 
 	private static Method m0;

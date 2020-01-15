@@ -11,22 +11,19 @@ import java.util.Arrays;
 public class FileSystemProxyTest {
 
 	public static void main(String[] args) {
-		// 获取UnixFileSystem类加载器
-		ClassLoader classLoader = UnixFileSystem.class.getClassLoader();
-
 		// 创建UnixFileSystem类实例
 		FileSystem fileSystem = new UnixFileSystem();
 
 		// 使用JDK动态代理生成FileSystem动态代理类实例
 		FileSystem proxyInstance = (FileSystem) Proxy.newProxyInstance(
-				classLoader,// 动态代理类的类加载器，动态代理生成的类将使用这个类加载器加载
+				FileSystem.class.getClassLoader(),// 指定动态代理类的类加载器
 				new Class[]{FileSystem.class}, // 定义动态代理生成的类实现的接口
 				new JDKInvocationHandler(fileSystem)// 动态代理处理类
 		);
 
 		System.out.println("动态代理生成的类名:" + proxyInstance.getClass());
 		System.out.println("----------------------------------------------------------------------------------------");
-		System.out.println("动态代理生成的类实例:" + proxyInstance);
+		System.out.println("动态代理生成的类名toString:" + proxyInstance.toString());
 		System.out.println("----------------------------------------------------------------------------------------");
 
 		// 使用动态代理的方式UnixFileSystem方法
