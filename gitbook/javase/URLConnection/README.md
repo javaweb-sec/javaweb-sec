@@ -74,7 +74,7 @@ SSRF漏洞形成的原因大部分是因为服务端提供了可以从其他服�
 
 
 
-黑客在使用ssrf漏洞的时候，大部分是用来读取文件内容或者对内网服务端口探测，或者在域环境情况下且是win主机下进行ntlmrealy攻击。
+黑客在使用ssrf漏洞的时候，大部分是用来读取文件内容或者对内网服务端口探测，或者在域环境情况下且是win主机下进行ntlmrelay攻击。
 ```
 URL url = new URL(url);
 URLConnection connection = url.openConnection();
