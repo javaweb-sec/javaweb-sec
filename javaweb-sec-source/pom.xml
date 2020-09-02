@@ -16,7 +16,7 @@
     <modules>
         <module>javase</module>
         <module>javasec-agent</module>
-        <module>javaweb-sec-utils</module>
+        <module>javasec-utils</module>
     </modules>
 
 </project>
