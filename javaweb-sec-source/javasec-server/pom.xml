@@ -4,21 +4,24 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <artifactId>javaweb-sec</artifactId>
+        <artifactId>javaweb-sec-source</artifactId>
         <groupId>com.anbai</groupId>
         <version>1.0.0</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>javaweb-sec-source</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>javasec-server</artifactId>
 
-    <modules>
-        <module>javase</module>
-        <module>javasec-agent</module>
-        <module>javasec-utils</module>
-        <module>javasec-osgi</module>
-        <module>javasec-server</module>
-    </modules>
+    <properties>
+        <javaweb.version>2.0.2</javaweb.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.javaweb</groupId>
+            <artifactId>javaweb-utils</artifactId>
+            <version>${javaweb.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>
