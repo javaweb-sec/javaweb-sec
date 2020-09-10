@@ -26,10 +26,10 @@ public class BinCatServerV1 {
 			LOG.info(serverName + "启动成功，监听端口:" + port);
 
 			while (true) {
-				try {
-					// 等待客户端连接
-					Socket socket = ss.accept();
+				// 等待客户端连接
+				Socket socket = ss.accept();
 
+				try {
 					// 获取Socket输入流对象
 					InputStream in = socket.getInputStream();
 
@@ -43,7 +43,6 @@ public class BinCatServerV1 {
 					String str = br.readLine();
 
 					if (str == null) {
-						socket.close();
 						continue;
 					}
 
@@ -78,9 +77,10 @@ public class BinCatServerV1 {
 
 					in.close();
 					out.close();
-					socket.close();
 				} catch (IOException e) {
 					LOG.info("处理客户端请求异常:" + e);
+				} finally {
+					socket.close();
 				}
 			}
 		} catch (IOException e) {

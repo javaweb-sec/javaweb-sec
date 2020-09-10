@@ -29,10 +29,10 @@ public class BinCatServerV2 {
 			LOG.info(serverName + "启动成功，监听端口:" + port);
 
 			while (true) {
-				try {
-					// 等待客户端连接
-					Socket socket = ss.accept();
+				// 等待客户端连接
+				Socket socket = ss.accept();
 
+				try {
 					// 获取Socket输入流对象
 					InputStream in = socket.getInputStream();
 
@@ -87,7 +87,9 @@ public class BinCatServerV2 {
 						for (String parameter : parameters) {
 							String[] tmp = parameter.split("=", -1);
 
-							parameterMap.put(tmp[0], URLDecoder.decode(tmp[1]));
+							if (tmp.length == 2) {
+								parameterMap.put(tmp[0], URLDecoder.decode(tmp[1]));
+							}
 						}
 					}
 
@@ -155,7 +157,9 @@ public class BinCatServerV2 {
 								for (String parameter : parameters) {
 									String[] tmp = parameter.split("=", -1);
 
-									parameterMap.put(tmp[0], URLDecoder.decode(tmp[1]));
+									if (tmp.length == 2) {
+										parameterMap.put(tmp[0], URLDecoder.decode(tmp[1]));
+									}
 								}
 
 								// 定义SQL语句
@@ -207,9 +211,10 @@ public class BinCatServerV2 {
 
 					in.close();
 					out.close();
-					socket.close();
 				} catch (IOException e) {
 					LOG.info("处理客户端请求异常:" + e);
+				} finally {
+					socket.close();
 				}
 			}
 		} catch (IOException e) {

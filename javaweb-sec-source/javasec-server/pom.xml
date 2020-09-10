@@ -11,17 +11,45 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>javasec-server</artifactId>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>6</source>
+                    <target>6</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <properties>
         <javaweb.version>2.0.2</javaweb.version>
+        <servlet.version>3.0.1</servlet.version>
+        <commons-collections.version>3.2</commons-collections.version>
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>${commons-collections.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.javaweb</groupId>
             <artifactId>javaweb-utils</artifactId>
             <version>${javaweb.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${servlet.version}</version>
+        </dependency>
+
     </dependencies>
 
 </project>
