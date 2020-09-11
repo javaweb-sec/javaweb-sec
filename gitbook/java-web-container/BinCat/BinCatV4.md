@@ -32,6 +32,44 @@ public class QuercusPHPServlet extends QuercusServlet {
 }
 ```
 
+**IndexServlet示例代码(用于显示首页导航的Servlet)：**
+
+```java
+package com.anbai.sec.server.test.servlet;
+
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
+
+@WebServlet(name = "IndexServlet", urlPatterns = {"(\\\\|/)$", "(/|\\\\)+index\\.(htm|asp|jsp|do|action)"})
+public class IndexServlet extends HttpServlet {
+
+   @Override
+   public void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
+      OutputStream out = response.getOutputStream();
+      out.write(("<!DOCTYPE html>\n" +
+            "<html lang=\"zh\">\n" +
+            "<head>\n" +
+            "    <meta charset=\"UTF-8\">\n" +
+            "    <title>Index</title>\n" +
+            "</head>\n" +
+            "<body>\n" +
+            "   <a href='/TestServlet/'>示例Servlet</a><br/>\n" +
+            "   <a href='/CMD/?cmd=pwd'>命令执行测试</a><br/>\n" +
+            "   <a href='/info.php'>phpinfo()</a><br/>\n" +
+            "</body>\n" +
+            "").getBytes());
+
+      out.flush();
+      out.close();
+   }
+
+}
+```
+
 **注册`QuercusPHPServlet`代码片段：**
 
 ```java
@@ -39,6 +77,9 @@ public class QuercusPHPServlet extends QuercusServlet {
 private static final Set<Class<? extends Servlet>> SERVLET_LIST = new HashSet<>();
 
 // 手动注册Servlet类
+SERVLET_LIST.add(IndexServlet.class);
+SERVLET_LIST.add(TestServlet.class);
+SERVLET_LIST.add(CMDServlet.class);
 SERVLET_LIST.add(QuercusPHPServlet.class);
 ```
 
@@ -212,7 +253,7 @@ public class BinCatDispatcherServlet {
 		File requestFile = new File(req.getRealPath(uri));
 
 		// 处理Http请求的静态文件，如果文件存在(.php后缀除外)就直接返回文件内容，不需要调用Servlet
-		if (requestFile.exists() && !uri.endsWith(".php")) {
+		if (requestFile.exists() && requestFile.isFile() && !uri.endsWith(".php")) {
 			// 修改状态码
 			resp.setStatus(200, "OK");
 

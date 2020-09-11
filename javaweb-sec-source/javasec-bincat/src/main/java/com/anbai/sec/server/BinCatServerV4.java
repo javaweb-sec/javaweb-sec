@@ -5,7 +5,10 @@ import com.anbai.sec.server.handler.BinCatResponseHandler;
 import com.anbai.sec.server.servlet.BinCatRequest;
 import com.anbai.sec.server.servlet.BinCatResponse;
 import com.anbai.sec.server.servlet.BinCatServletContext;
+import com.anbai.sec.server.test.servlet.CMDServlet;
+import com.anbai.sec.server.test.servlet.IndexServlet;
 import com.anbai.sec.server.test.servlet.QuercusPHPServlet;
+import com.anbai.sec.server.test.servlet.TestServlet;
 
 import javax.servlet.Servlet;
 import java.io.ByteArrayOutputStream;
@@ -100,6 +103,9 @@ public class BinCatServerV4 {
 	 */
 	private static BinCatServletContext createServletContext() throws Exception {
 		// 手动注册Servlet类
+		SERVLET_LIST.add(IndexServlet.class);
+		SERVLET_LIST.add(TestServlet.class);
+		SERVLET_LIST.add(CMDServlet.class);
 		SERVLET_LIST.add(QuercusPHPServlet.class);
 
 		// 创建ServletContext

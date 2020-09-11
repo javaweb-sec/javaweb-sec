@@ -28,7 +28,7 @@ public class BinCatDispatcherServlet {
 		File requestFile = new File(req.getRealPath(uri));
 
 		// 处理Http请求的静态文件，如果文件存在(.php后缀除外)就直接返回文件内容，不需要调用Servlet
-		if (requestFile.exists() && !uri.endsWith(".php")) {
+		if (requestFile.exists() && requestFile.isFile() && !uri.endsWith(".php")) {
 			// 修改状态码
 			resp.setStatus(200, "OK");
 
@@ -52,7 +52,7 @@ public class BinCatDispatcherServlet {
 				WebServlet webServlet  = servlet.getClass().getAnnotation(WebServlet.class);
 				String[]   urlPatterns = webServlet.urlPatterns();
 
-				for (String urlPattern : urlPatterns) {
+ 				for (String urlPattern : urlPatterns) {
 					try {
 						// 检测请求的URL地址和Servlet的地址是否匹配
 						if (Pattern.compile(urlPattern).matcher(uri).find()) {
