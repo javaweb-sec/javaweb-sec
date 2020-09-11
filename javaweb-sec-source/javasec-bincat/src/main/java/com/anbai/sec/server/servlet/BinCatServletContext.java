@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BinCatServletContext implements ServletContext {
 
 	// 创建ServletContext对象
-	Map<String, Servlet> servletMap = new ConcurrentHashMap<String, Servlet>();
+	private final Map<String, Servlet> servletMap = new ConcurrentHashMap<String, Servlet>();
 
 	public BinCatServletContext(Set<Class<? extends Servlet>> servletList) throws Exception {
 		for (Class<? extends Servlet> clazz : servletList) {
