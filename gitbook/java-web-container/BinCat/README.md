@@ -109,24 +109,25 @@ id=123&name=admin
 **解析Http GET参数代码片段：**
 
 ```java
-// 初始化请求参数数组
-Map<String, String> parameterMap = new ConcurrentHashMap<String, String>();
-
 // 解析GET请求参数
 if (url.contains("?")) {
-    String parameterStr = url.split("\\?")[1];
+	String[] parameterStrs = url.split("\\?");
+	this.requestURL = parameterStrs[0];
 
-    // 按"&"切割GET请求的参数
-    String[] parameters = parameterStr.split("&");
+	// 初始化Http请求的QueryString
+	this.queryString = parameterStrs[1];
 
-    // 解析GET请求参数
-    for (String parameter : parameters) {
-        String[] tmp = parameter.split("=", -1);
+	// 按"&"切割GET请求的参数
+	String[] parameters = queryString.split("&");
 
-        if (tmp.length == 2) {
-						parameterMap.put(tmp[0], new String[]{URLDecoder.decode(tmp[1])});
-				}
-    }
+	// 解析GET请求参数
+	for (String parameter : parameters) {
+		String[] tmp = parameter.split("=", -1);
+
+		if (tmp.length == 2) {
+			parameterMap.put(tmp[0], new String[]{URLDecoder.decode(tmp[1])});
+		}
+	}
 }
 ```
 
@@ -145,21 +146,21 @@ Cookie: Hm_lvt_f4c571d9b8811113b4f18e87a6dbe619=1597582351; Hm_lpvt_f4c571d9b889
 ```java
 // 解析Cookie
 if (headerMap.containsKey("cookie")) {
-    // 切分Cookie字符串
-    String[] cookies = headerMap.get("cookie").split(";\\s+", -1);
+	// 切分Cookie字符串
+	String[] cookies = headerMap.get("cookie").split(";\\s+", -1);
 
-    // 初始化Cookie数组长度
-    this.cookie = new Cookie[cookies.length];
+	// 初始化Cookie数组长度
+	this.cookie = new Cookie[cookies.length];
 
-    for (int i = 0; i < cookies.length; i++) {
-        String   cookieStr = cookies[i];
-        String[] tmp       = cookieStr.split("=", -1);
+	for (int i = 0; i < cookies.length; i++) {
+		String   cookieStr = cookies[i];
+		String[] tmp       = cookieStr.split("=", -1);
 
-        if (tmp.length == 2) {
-            // 创建Cookie对象
-            this.cookie[i] = new Cookie(tmp[0], URLDecoder.decode(tmp[1]));
-				}
-    }
+		if (tmp.length == 2) {
+			// 创建Cookie对象
+			this.cookie[i] = new Cookie(tmp[0], URLDecoder.decode(tmp[1]));
+		}
+	}
 }
 ```
 
@@ -171,33 +172,33 @@ if (headerMap.containsKey("cookie")) {
 
 ```java
 if ("POST".equalsIgnoreCase(method)) {
-		String contentType = header.get("Content-Type");
+	String contentType = header.get("Content-Type");
+
+	// 解析POST请求参数
+	if ("application/x-www-form-urlencoded".equalsIgnoreCase(contentType)) {
+		// 获取请求的主体长度
+		int contentLength = Integer.parseInt(header.get("Content-Length"));
+
+		// 创建一个和请求体一样大小的缓冲区
+		byte[] bytes = new byte[contentLength];
+
+		// 读取POST主体内容
+		dis.read(bytes);
+
+		// 解析POST请求内容
+		String body = new String(bytes, "ISO8859-1");
+
+		// 按"&"切割POST请求的参数
+		String[] parameters = body.split("&");
 
 		// 解析POST请求参数
-		if ("application/x-www-form-urlencoded".equalsIgnoreCase(contentType)) {
-			// 获取请求的主体长度
-			int contentLength = Integer.parseInt(header.get("Content-Length"));
+		for (String parameter : parameters) {
+			String[] tmp = parameter.split("=", -1);
 
-			// 创建一个和请求体一样大小的缓冲区
-			byte[] bytes = new byte[contentLength];
-
-			// 读取POST主体内容
-			dis.read(bytes);
-
-			// 解析POST请求内容
-			String body = new String(bytes, "ISO8859-1");
-
-			// 按"&"切割POST请求的参数
-			String[] parameters = body.split("&");
-
-			// 解析POST请求参数
-			for (String parameter : parameters) {
-          String[] tmp = parameter.split("=", -1);
-
-          if (tmp.length == 2) {
-            	parameterMap.put(tmp[0], new String[]{URLDecoder.decode(tmp[1], "UTF-8")});
-          }
+			if (tmp.length == 2) {
+				parameterMap.put(tmp[0], URLDecoder.decode(tmp[1]));
 			}
+		}
 	}
 }
 ```

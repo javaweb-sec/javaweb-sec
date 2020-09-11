@@ -33,7 +33,7 @@ public class BinCatServerV2 {
 			// 创建ServerSocket，监听本地端口
 			ServerSocket ss = new ServerSocket(port);
 
-			LOG.info(serverName + "启动成功，监听端口:" + port);
+			LOG.info(serverName + " 启动成功，监听端口: " + port);
 
 			while (true) {
 				// 等待客户端连接
@@ -236,8 +236,8 @@ public class BinCatServerV2 {
 
 访问Web服务测试[http://localhost:8080](http://localhost:8080):
 
-![image-20200909214652771](/Users/yz/IdeaProjects/javaweb-sec/gitbook/images/image-20200909214652771.png)
+![image-20200909214652771](../../images/image-20200909214652771.png)
 
 提交登陆表单测试：
 
-![image-20200909214804184](/Users/yz/IdeaProjects/javaweb-sec/gitbook/images/image-20200909214804184.png)
+![image-20200909214804184](../../images/image-20200909214804184.png)
