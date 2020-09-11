@@ -70,17 +70,43 @@ public class IndexServlet extends HttpServlet {
 }
 ```
 
-**注册`QuercusPHPServlet`代码片段：**
+**BinCatConfig示例代码(方便统一的Servlet注册)：**
 
 ```java
-// 初始化Servlet映射类对象
-private static final Set<Class<? extends Servlet>> SERVLET_LIST = new HashSet<>();
+package com.anbai.sec.server.config;
 
-// 手动注册Servlet类
-SERVLET_LIST.add(IndexServlet.class);
-SERVLET_LIST.add(TestServlet.class);
-SERVLET_LIST.add(CMDServlet.class);
-SERVLET_LIST.add(QuercusPHPServlet.class);
+import com.anbai.sec.server.servlet.BinCatServletContext;
+import com.anbai.sec.server.test.servlet.CMDServlet;
+import com.anbai.sec.server.test.servlet.IndexServlet;
+import com.anbai.sec.server.test.servlet.QuercusPHPServlet;
+import com.anbai.sec.server.test.servlet.TestServlet;
+
+import javax.servlet.Servlet;
+import java.util.HashSet;
+import java.util.Set;
+
+public class BinCatConfig {
+
+	// 初始化Servlet映射类对象
+	private static final Set<Class<? extends Servlet>> SERVLET_LIST = new HashSet<>();
+
+	/**
+	 * 手动注册Servlet并创建BinCatServletContext对象
+	 *
+	 * @return ServletContext
+	 */
+	public static BinCatServletContext createServletContext() throws Exception {
+		// 手动注册Servlet类
+		SERVLET_LIST.add(IndexServlet.class);
+		SERVLET_LIST.add(TestServlet.class);
+		SERVLET_LIST.add(CMDServlet.class);
+		SERVLET_LIST.add(QuercusPHPServlet.class);
+
+		// 创建ServletContext
+		return new BinCatServletContext(SERVLET_LIST);
+	}
+
+}
 ```
 
 因为`QuercusServlet`创建时需要必须有`ServletContext`对象，所以我们必须实现`ServletContext`接口。除此之外，`Servlet`创建时还需要调用`Servlet`的初始化方法(`public void init(ServletConfig config) throws ServletException`)。调用`init`的时候还需要实现`ServletConfig`接口。
@@ -356,12 +382,12 @@ public class BinCatResponseHandler {
 ```java
 package com.anbai.sec.server;
 
+import com.anbai.sec.server.config.BinCatConfig;
 import com.anbai.sec.server.handler.BinCatDispatcherServlet;
 import com.anbai.sec.server.handler.BinCatResponseHandler;
 import com.anbai.sec.server.servlet.BinCatRequest;
 import com.anbai.sec.server.servlet.BinCatResponse;
 import com.anbai.sec.server.servlet.BinCatServletContext;
-import com.anbai.sec.server.test.servlet.QuercusPHPServlet;
 
 import javax.servlet.Servlet;
 import java.io.ByteArrayOutputStream;
@@ -380,87 +406,74 @@ import java.util.logging.Logger;
  */
 public class BinCatServerV4 {
 
-   // 设置服务监听端口
-   private static final int PORT = 8080;
+	// 设置服务监听端口
+	private static final int PORT = 8080;
 
-   // 设置服务名称
-   private static final String SERVER_NAME = "BinCat-0.0.4";
+	// 设置服务名称
+	private static final String SERVER_NAME = "BinCat-0.0.4";
 
-   // 初始化Servlet映射类对象
-   private static final Set<Class<? extends Servlet>> SERVLET_LIST = new HashSet<>();
+	// 初始化Servlet映射类对象
+	private static final Set<Class<? extends Servlet>> SERVLET_LIST = new HashSet<>();
 
-   private static final Logger LOG = Logger.getLogger("info");
+	private static final Logger LOG = Logger.getLogger("info");
 
-   public static void main(String[] args) {
-      try {
-         // 创建ServerSocket，监听本地端口
-         ServerSocket ss = new ServerSocket(PORT);
+	public static void main(String[] args) {
+		try {
+			// 创建ServerSocket，监听本地端口
+			ServerSocket ss = new ServerSocket(PORT);
 
-         // 创建BinCatServletContext对象
-         BinCatServletContext servletContext = createServletContext();
+			// 创建BinCatServletContext对象
+			BinCatServletContext servletContext = BinCatConfig.createServletContext();
 
-         LOG.info(SERVER_NAME + " 启动成功，监听端口: " + PORT);
+			LOG.info(SERVER_NAME + " 启动成功，监听端口: " + PORT);
 
-         while (true) {
-            // 等待客户端连接
-            Socket socket = ss.accept();
+			while (true) {
+				// 等待客户端连接
+				Socket socket = ss.accept();
 
-            try {
-               // 获取Socket输入流对象
-               InputStream in = socket.getInputStream();
+				try {
+					// 获取Socket输入流对象
+					InputStream in = socket.getInputStream();
 
-               // 获取Socket输出流对象
-               OutputStream out = socket.getOutputStream();
+					// 获取Socket输出流对象
+					OutputStream out = socket.getOutputStream();
 
-               // 创建BinCat请求处理对象
-               BinCatRequest request = new BinCatRequest(socket, servletContext);
+					// 创建BinCat请求处理对象
+					BinCatRequest request = new BinCatRequest(socket, servletContext);
 
-               // 创建BinCat请求处理结果输出流
-               ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					// 创建BinCat请求处理结果输出流
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-               // 创建BinCat请求处理结果Header对象
-               Map<String, String> responseHeader = new ConcurrentHashMap<String, String>();
+					// 创建BinCat请求处理结果Header对象
+					Map<String, String> responseHeader = new ConcurrentHashMap<String, String>();
 
-               // 创建BinCat响应处理对象
-               BinCatResponse response = new BinCatResponse(socket, responseHeader, baos);
+					// 创建BinCat响应处理对象
+					BinCatResponse response = new BinCatResponse(socket, responseHeader, baos);
 
-               // 创建BinCatDispatcherServlet对象，用于分发Http请求
-               BinCatDispatcherServlet dispatcherServlet = new BinCatDispatcherServlet();
+					// 创建BinCatDispatcherServlet对象，用于分发Http请求
+					BinCatDispatcherServlet dispatcherServlet = new BinCatDispatcherServlet();
 
-               // 创建BinCatResponseHandler对象，用于处理Http请求结果
-               BinCatResponseHandler responseHandler = new BinCatResponseHandler();
+					// 创建BinCatResponseHandler对象，用于处理Http请求结果
+					BinCatResponseHandler responseHandler = new BinCatResponseHandler();
 
-               // 使用BinCatDispatcherServlet处理Servlet请求
-               dispatcherServlet.doDispatch(request, response, baos);
+					// 使用BinCatDispatcherServlet处理Servlet请求
+					dispatcherServlet.doDispatch(request, response, baos);
 
-               // 响应服务器处理结果
-               responseHandler.processResult(response, responseHeader, SERVER_NAME, out, baos);
+					// 响应服务器处理结果
+					responseHandler.processResult(response, responseHeader, SERVER_NAME, out, baos);
 
-               in.close();
-               out.close();
-            } catch (Exception e) {
-               LOG.info("处理客户端请求异常:" + e);
-            } finally {
-               socket.close();
-            }
-         }
-      } catch (Exception e) {
-         e.printStackTrace();
-      }
-   }
-
-   /**
-    * 手动注册Servlet并创建BinCatServletContext对象
-    *
-    * @return ServletContext
-    */
-   private static BinCatServletContext createServletContext() throws Exception {
-      // 手动注册Servlet类
-      SERVLET_LIST.add(QuercusPHPServlet.class);
-
-      // 创建ServletContext
-      return new BinCatServletContext(SERVLET_LIST);
-   }
+					in.close();
+					out.close();
+				} catch (Exception e) {
+					LOG.info("处理客户端请求异常:" + e);
+				} finally {
+					socket.close();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 }
 ```

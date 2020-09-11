@@ -1,14 +1,11 @@
 package com.anbai.sec.server;
 
+import com.anbai.sec.server.config.BinCatConfig;
 import com.anbai.sec.server.handler.BinCatDispatcherServlet;
 import com.anbai.sec.server.handler.BinCatResponseHandler;
 import com.anbai.sec.server.servlet.BinCatRequest;
 import com.anbai.sec.server.servlet.BinCatResponse;
 import com.anbai.sec.server.servlet.BinCatServletContext;
-import com.anbai.sec.server.test.servlet.CMDServlet;
-import com.anbai.sec.server.test.servlet.IndexServlet;
-import com.anbai.sec.server.test.servlet.QuercusPHPServlet;
-import com.anbai.sec.server.test.servlet.TestServlet;
 
 import javax.servlet.Servlet;
 import java.io.ByteArrayOutputStream;
@@ -44,7 +41,7 @@ public class BinCatServerV4 {
 			ServerSocket ss = new ServerSocket(PORT);
 
 			// 创建BinCatServletContext对象
-			BinCatServletContext servletContext = createServletContext();
+			BinCatServletContext servletContext = BinCatConfig.createServletContext();
 
 			LOG.info(SERVER_NAME + " 启动成功，监听端口: " + PORT);
 
@@ -94,22 +91,6 @@ public class BinCatServerV4 {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * 手动注册Servlet并创建BinCatServletContext对象
-	 *
-	 * @return ServletContext
-	 */
-	private static BinCatServletContext createServletContext() throws Exception {
-		// 手动注册Servlet类
-		SERVLET_LIST.add(IndexServlet.class);
-		SERVLET_LIST.add(TestServlet.class);
-		SERVLET_LIST.add(CMDServlet.class);
-		SERVLET_LIST.add(QuercusPHPServlet.class);
-
-		// 创建ServletContext
-		return new BinCatServletContext(SERVLET_LIST);
 	}
 
 }
