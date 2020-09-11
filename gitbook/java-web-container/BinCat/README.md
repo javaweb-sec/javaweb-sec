@@ -1125,3 +1125,67 @@ public class CMDServlet extends HttpServlet {
 
 至此，我们已经实现了一个非常初级的`Servlet容器`了。
 
+## BinCat V4-实现PHP文件解析
+
+`Quercus`是一个Resin实现的解析并运行`php`文件的jar库，其本质是使用`QuercusServlet`处理所有访问`.php`的文件请求，`Quercus`会将php文件翻译成`java class`文件并在JVM中执行。
+
+添加`Quercus`依赖：
+
+```xml
+<dependency>
+  <groupId>com.caucho</groupId>
+  <artifactId>quercus</artifactId>
+  <version>4.0.63</version>
+</dependency>
+```
+
+然后创建一个`Quercus`的`Servlet`映射，因为`BinCat`只支持注解，所以无法在`QuercusServlet`类上添加`@WebServlet`注解，但是我们可以写一个类去继承`QuercusServlet`从而间接的完成`Servlet`声明。
+
+**QuercusPHPServlet示例：**
+
+```java
+package com.anbai.sec.server.test.servlet;
+
+import com.caucho.quercus.servlet.QuercusServlet;
+
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(name = "QuercusPHPServlet", urlPatterns = ".*\\.php$")
+public class QuercusPHPServlet extends QuercusServlet {
+
+
+}
+```
+
+注册`QuercusPHPServlet`：
+
+```java
+// 初始化Servlet映射类对象
+final Set<Class<? extends HttpServlet>> servletList = new HashSet<Class<? extends HttpServlet>>();
+
+// 创建ServletContext
+BinCatServletContext servletContext = new BinCatServletContext();
+
+// 手动注册Servlet类
+servletList.add(QuercusPHPServlet.class);
+```
+
+然后我们需要在`javaweb-sec`项目根目录创建一个测试文件，如`info.php`:
+
+```php
+<?php phpinfo();?>
+```
+
+启动BinCat V4后访问:
+
+![image-20200911150900145](../../images/image-20200911150900145.png)
+
+
+
+
+
+![image-20200911150712040](../../images/image-20200911150712040.png)
+
+
+
+![image-20200911150754241](../../images/image-20200911150754241.png)

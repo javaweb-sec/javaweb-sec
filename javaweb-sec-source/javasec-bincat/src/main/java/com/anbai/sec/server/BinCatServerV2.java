@@ -26,7 +26,7 @@ public class BinCatServerV2 {
 			// 创建ServerSocket，监听本地端口
 			ServerSocket ss = new ServerSocket(port);
 
-			LOG.info(serverName + "启动成功，监听端口:" + port);
+			LOG.info(serverName + " 启动成功，监听端口: " + port);
 
 			while (true) {
 				// 等待客户端连接

@@ -71,11 +71,18 @@ public class BinCatRequest implements HttpServletRequest {
 	// Http请求主机端口
 	private int port;
 
+	private ServletContext servletContext;
+
 	private static final Logger LOG = Logger.getLogger("info");
 
 	public BinCatRequest(Socket clientSocket) throws IOException {
+		this(clientSocket, null);
+	}
+
+	public BinCatRequest(Socket clientSocket, ServletContext servletContext) throws IOException {
 		this.clientSocket = clientSocket;
 		this.socketInputStream = clientSocket.getInputStream();
+		this.servletContext = servletContext;
 
 		// 解析Http协议
 		parse();
@@ -248,7 +255,11 @@ public class BinCatRequest implements HttpServletRequest {
 	}
 
 	public Enumeration<String> getHeaderNames() {
-		return null;
+		Set<String> names = new HashSet<String>();
+
+		names.addAll(headerMap.keySet());
+
+		return Collections.enumeration(names);
 	}
 
 	public int getIntHeader(String name) {
@@ -300,7 +311,7 @@ public class BinCatRequest implements HttpServletRequest {
 	}
 
 	public String getServletPath() {
-		return null;
+		return requestURL;
 	}
 
 	/**
@@ -496,7 +507,7 @@ public class BinCatRequest implements HttpServletRequest {
 	}
 
 	public String getRealPath(String path) {
-		return new File(System.getProperty("user.dir"), path).getAbsolutePath();
+		return getServletContext().getRealPath(path);
 	}
 
 	public int getRemotePort() {
@@ -516,7 +527,7 @@ public class BinCatRequest implements HttpServletRequest {
 	}
 
 	public ServletContext getServletContext() {
-		return null;
+		return this.servletContext;
 	}
 
 	public AsyncContext startAsync() throws IllegalStateException {

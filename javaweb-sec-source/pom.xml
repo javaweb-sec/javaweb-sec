@@ -18,7 +18,7 @@
         <module>javasec-agent</module>
         <module>javasec-utils</module>
         <module>javasec-osgi</module>
-        <module>javasec-server</module>
+        <module>javasec-bincat</module>
     </modules>
 
 </project>

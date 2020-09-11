@@ -46,7 +46,7 @@ public class BinCatServerV3 {
 			servletList.add(TestServlet.class);
 			servletList.add(CMDServlet.class);
 
-			LOG.info(serverName + "启动成功，监听端口:" + port);
+			LOG.info(serverName + " 启动成功，监听端口: " + port);
 
 			while (true) {
 				// 等待客户端连接
