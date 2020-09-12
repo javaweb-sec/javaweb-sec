@@ -7,15 +7,12 @@ import com.anbai.sec.server.servlet.BinCatRequest;
 import com.anbai.sec.server.servlet.BinCatResponse;
 import com.anbai.sec.server.servlet.BinCatServletContext;
 
-import javax.servlet.Servlet;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
@@ -29,9 +26,6 @@ public class BinCatServerV4 {
 
 	// 设置服务名称
 	private static final String SERVER_NAME = "BinCat-0.0.4";
-
-	// 初始化Servlet映射类对象
-	private static final Set<Class<? extends Servlet>> SERVLET_LIST = new HashSet<>();
 
 	private static final Logger LOG = Logger.getLogger("info");
 

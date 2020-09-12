@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 
-@WebServlet(name = "IndexServlet", urlPatterns = {"(\\\\|/)$", "(/|\\\\)+index\\.(htm|asp|jsp|do|action)"})
+@WebServlet(name = "IndexServlet", urlPatterns = {"^(\\\\|/)+$", "^(/|\\\\)+index\\.(htm|asp|jsp|do|action)"})
 public class IndexServlet extends HttpServlet {
 
 	@Override
