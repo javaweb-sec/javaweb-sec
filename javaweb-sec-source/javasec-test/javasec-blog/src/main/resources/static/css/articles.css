@@ -1,0 +1,273 @@
+/**
+|------------------------
+| 评论
+|------------------------
+*/
+* {
+    margin: 0;
+    padding: 0;
+}
+
+#comments {
+    /*margin: 0 0 50px 0;*/
+}
+
+.page #comments {
+    border-bottom: none;
+}
+
+.commentlist {
+    list-style: none;
+    margin: 0 auto;
+}
+
+.commentlist .children {
+    list-style: none;
+    margin: 15px auto 0 auto;
+}
+
+.commentlist dd.comment, .commentlist dd.pingback {
+    background: #fff;
+    margin: 0 0 20px 0;
+    padding: 15px;
+    overflow: hidden;
+    border: 1px solid #e7e7e7;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+}
+
+.commentlist dd.odd {
+    background: #f5f5f5;
+}
+
+.commentlist dd.bypostauthor {
+    border-bottom: 2px solid #7ab80e;
+}
+
+.commentlist dd.pingback p {
+    margin: 0;
+}
+
+.commentlist .comment-author {
+    position: relative;
+    height: 75px;
+    padding: 0 0 0 100px;
+}
+
+.commentlist .avatar {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    padding: 5px;
+}
+
+.commentlist .fn {
+    display: block;
+    margin: 0 0 5px 0;
+}
+
+.commentlist .edit-link {
+    display: block;
+    margin: 5px 0 0 0;
+}
+
+.commentlist .comment-awaiting-moderation {
+    display: block;
+    margin: 5px 0 0 0;
+}
+
+.nopassword, p.nocomments {
+    font-size: 16px;
+    color: #aaa;
+    text-align: center;
+    margin-bottom: 70px;
+}
+
+/**
+|------------------------
+| 评论表单
+|------------------------
+*/
+
+#respond {
+    position: relative;
+    color: #808080;
+    margin: 0 0 50px 0;
+    overflow: hidden;
+}
+
+.commentlist #respond {
+    margin: 15px 0;
+    padding: 25px 0;
+    width: auto;
+    border-top: 1px solid #eaeaea;
+    border-bottom: 1px solid #eaeaea;
+}
+
+#respond p {
+    margin: 0;
+}
+
+#reply-title {
+    margin: 0 0 10px 0;
+}
+
+#cancel-comment-reply-link {
+    color: #74AB00;
+    display: block;
+    font-size: 10px;
+    font-weight: normal;
+    line-height: 2.2em;
+    letter-spacing: 0.05em;
+    position: absolute;
+    right: 1.625em;
+    text-decoration: none;
+    top: 1.1em;
+}
+
+#cancel-comment-reply-link:focus,
+#cancel-comment-reply-link:active,
+#cancel-comment-reply-link:hover {
+    color: #588101;
+}
+
+#respond .comment-notes,
+#respond .logged-in-as {
+    margin: 0 0 20px 0;
+}
+
+#respond #commentform {
+    margin: 0;
+}
+
+#respond .comment-form-author,
+#respond .comment-form-email,
+#respond .comment-form-url,
+#respond .comment-form-comment {
+    position: relative;
+}
+
+#respond .comment-form-author label,
+#respond .comment-form-email label,
+#respond .comment-form-url label,
+#respond .comment-form-comment label {
+    position: absolute;
+    left: 82%;
+}
+
+#respond .comment-form-comment label {
+    text-indent: -9999px;
+}
+
+#respond .required {
+    color: #bd3500;
+}
+
+#respond .comment-form-author .required,
+#respond .comment-form-email .required {
+    color: #bd3500;
+    position: absolute;
+    top: 1%;
+    left: 115%;
+}
+
+#respond input[type=text] {
+    display: block;
+    width: 75%;
+    height: 24px;
+    margin: 0 0 20px 1px;
+}
+
+#respond textarea {
+    resize: vertical;
+    width: 95%;
+    margin: 0 0 20px 1px;
+}
+
+#respond .logged-in-as a:hover,
+#respond #cancel-comment-reply-link:hover {
+    text-decoration: underline;
+}
+
+.form-allowed-tags {
+    display: none;
+}
+
+/**
+|------------------------
+| 文档发布
+|------------------------
+*/
+.post_title_wrap, .post_category_wrap, post_options {
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.post_options {
+    margin-top: 20px;
+}
+
+.post_options input {
+    margin: 10px;
+}
+
+.post_submit {
+    margin-top: 20px;
+}
+
+.post_submit button {
+    width: 100px;
+}
+
+.post_title {
+    padding: 3px 8px;
+    font-size: 1.2em;
+    line-height: 100%;
+    height: 1.7em;
+    width: 100%;
+    outline: 0;
+    margin: 0 0 3px;
+    background-color: #fff;
+}
+
+/**
+|------------------------
+| 审批
+|------------------------
+*/
+
+.approve, .unapprove, .received, .refused_receive {
+    width: 90px;
+    height: 95px;
+    position: absolute;
+    top: -30px;
+    left: 70%;
+}
+
+.approve {
+    background: url("../img/approve.png") no-repeat;
+}
+
+.unapprove {
+    background: url("../img/unapprove.png") no-repeat;
+}
+
+.received {
+    background: url("../img/received.png") no-repeat;
+}
+
+.refused_receive {
+    background: url("../img/refused_receive.png") no-repeat;
+}
+
+.table-responsive a {
+    color: #0073aa !important;
+}
+
+.table-responsive {
+    font-size: 0.8em;
+}

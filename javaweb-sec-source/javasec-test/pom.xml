@@ -14,7 +14,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>javasec-test-springboot</module>
+        <module>javasec-blog</module>
     </modules>
 
 </project>

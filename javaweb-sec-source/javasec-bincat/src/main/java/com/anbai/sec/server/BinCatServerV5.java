@@ -37,7 +37,7 @@ public class BinCatServerV5 {
 
 			// 定义需要加载的Web应用路径，默认配置的路径必须先使用maven编译:javasec-test-springboot项目
 			String webAppFile = System.getProperty("user.dir") +
-					"/javaweb-sec-source/javasec-test/javasec-test-springboot/target/javasec-test-springboot-1.0.0/";
+					"/javaweb-sec-source/javasec-test/javasec-blog/target/javasec-blog-1.0.0/";
 
 			// 创建BinCatWebAppClassLoader，加载Web应用
 			BinCatWebAppClassLoader appClassLoader = BinCatConfig.createAppClassLoader(webAppFile);

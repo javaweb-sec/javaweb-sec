@@ -1,0 +1,72 @@
+<div class="row">
+    <div class="col-xs-12">
+        <div class="dataTables_paginate paging_simple_numbers" id="example_paginate">
+            <#if pages.hasContent()>
+                <ul class="pagination">
+                    <li class="paginate_button" aria-controls="example" tabindex="0">
+                        <a href="javascript:search(1);">首页</a>
+                    </li>
+
+                    <#assign pageNum = pages.number+1 />
+                    <#assign pageSize = pages.size />
+
+                    <#-- 计算分页循环开始位置 -->
+                    <#if pageNum - 5 lte 0>
+                        <#assign pageBegin = 1 />
+                    <#else>
+                        <#assign pageBegin = pageNum - 5 />
+                    </#if>
+
+                    <#-- 计算分页循环结束位置 -->
+                    <#if pages.totalPages - pageNum lte 4>
+                        <#assign pageEnd = pages.totalPages />
+                    <#else>
+                        <#assign pageEnd = pageNum + 4 />
+                    </#if>
+
+                    <#-- 输出上一页 -->
+                    <#if pageNum - 1 gt 0>
+                        <li class="paginate_button previous" aria-controls="example" tabindex="0" id="js_page_previous">
+                            <a href="javascript:search(${pageNum -1});" pageNum='${pageNum -1}'>上一页</a>
+                        </li>
+                    </#if>
+
+                    <#-- 输出中间页码 -->
+                    <#list pageBegin..pageEnd as i>
+                        <li class="paginate_button <#if pageNum == i>active</#if>" aria-controls="example" tabindex="0">
+                            <#if pageNum == i>
+                                <a href="#">${i}</a>
+                            </#if>
+
+                            <#if i gt 0 && pageNum != i>
+                                <a href="javascript:search(${i})">${i}</a>
+                            </#if>
+                        </li>
+                    </#list>
+
+                    <#-- 输出下一页 -->
+                    <#if pageNum != pages.totalPages>
+                        <li class="paginate_button next" aria-controls="example" tabindex="0" id="js_page_next">
+                            <a href="javascript:search(${pageNum +1});">下一页</a>
+                        </li>
+                    </#if>
+
+                    <li class="paginate_button" aria-controls="example" tabindex="0">
+                        <a href="javascript:search(${pages.totalPages});">尾页</a>
+                    </li>
+
+                    <input type="hidden" id="js_page_num" name="page" value="${pageNum!!}"/>
+                    <input type="hidden" id="js_page_size" name="size" value="${pageSize!!}"/>
+                </ul>
+            </#if>
+        </div>
+    </div>
+</div>
+<script>
+    function search(page) {
+        var js_form = document.getElementById("js_search");
+        document.getElementById("js_page_num").value = page;
+        js_form.method = 'POST';
+        js_form.submit();
+    }
+</script>

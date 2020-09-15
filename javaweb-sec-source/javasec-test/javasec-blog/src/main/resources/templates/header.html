@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'/>
+    <meta content='width=device-width, initial-scale=1, maximum-scale=1' name='viewport'/>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type'/>
+    <title><#if post??>${post.postTitle!!} - </#if><@sys_config>${sys_website_name!!}</@sys_config></title>
+    <link id="favicon" href="${request.contextPath}/favicon.ico" rel="icon" type="image/x-icon"/>
+    <link href='${request.contextPath}/css/font-awesome.min.css' type='text/css' rel='stylesheet'/>
+    <link href='${request.contextPath}/plugins/bootstrap/css/bootstrap.css' type='text/css' rel='stylesheet'/>
+    <link href='${request.contextPath}/css/style.css' type='text/css' rel='stylesheet'/>
+    <script src='${request.contextPath}/js/jquery-1.11.2.min.js' type='text/javascript'></script>
+    <script src='${request.contextPath}/js/commons.js' type='text/javascript'></script>
+</head>
+<body>
+<div id='pagepbt'>
+    <header class='site-headerpbt' id='mastheadpbt' role='banner'>
+        <div class='site-brandingpbt'>
+            <div class='headersec section' id='headersec'>
+                <div class='widget Header' data-version='1' id='Header1'>
+                    <div id='header-inner'>
+                        <div class='titlewrapper'>
+                            <h2 class='site-titlenbt'>
+                                <a href='${request.contextPath}/'><@sys_config>${sys_website_name!!}</@sys_config></a>
+                            </h2>
+                        </div>
+                        <h2 class='site-descriptionnbt'><@sys_config>${sys_website_description!!}</@sys_config></h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='site-socialpbt'>
+            <div class='socialLinepbt'>
+<!--                <a href='#' rel='nofollow' target='_blank' title='Facebook'>-->
+<!--                    <i class='fa spaceLeftDouble fa-facebook'></i>-->
+<!--                </a>-->
+<!--                <a href='#' rel='nofollow' target='_blank' title='Twitter'>-->
+<!--                    <i class='fa spaceLeftDouble fa-twitter'></i>-->
+<!--                </a>-->
+            </div>
+        </div>
+        <nav class='main-navigationpbt' id='site-navigationpbt' role='navigation'>
+            <button class='menu-togglepbt'>Menu<i class='fa fa-align-justify'></i></button>
+            <div class='menu-pbt-container'>
+                <ul class='menupbt'>
+                    <li>
+                        <a href="${request.contextPath}/">首页</a>
+                    </li>
+                    <@sys_posts_category pid=0>
+                        <#list categories as c>
+                        <li>
+                            <a href='<#if c.categoryUrl??>${c.categoryUrl}<#else>${request.contextPath}/?cat=${c.categoryId!!}</#if>'>${c.categoryName!!}</a>
+                            <@sys_posts_category pid=c.categoryId>
+                                <#if categories??>
+                                    <ul class='sub-menu'>
+                                    <#list categories as c>
+                                        <li>
+                                            <a href='<#if c.categoryUrl??>${c.categoryUrl}<#else>${request.contextPath}/?cat=${c.categoryId!!}</#if>'>${c.categoryName!!}</a>
+                                        </li>
+                                    </#list>
+                                    </ul>
+                                </#if>
+                            </@sys_posts_category>
+                        </li>
+                        </#list>
+                    </@sys_posts_category>
+                </ul>
+            </div>
+        </nav>
+    </header>

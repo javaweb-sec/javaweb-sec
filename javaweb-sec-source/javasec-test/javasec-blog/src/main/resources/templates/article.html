@@ -1,0 +1,187 @@
+<#include "/header.html"/>
+<#include "/top.html"/>
+<link rel="stylesheet" href="${request.contextPath}/css/articles.css"/>
+<div class='site-contentpbt' id='contentpbt'>
+    <div class='content-areapbt' id='primarypbt'>
+        <div class='site-mainpbt' id='mainpbt' role='main'>
+            <div class='mainblogsec section' id='mainblogsec'>
+                <div class='widget' data-version='1' id='Blog1'>
+                    <div class="blog-posts hfeed">
+                        <div class="date-outer">
+                            <h2 class="date-header"><span>${post.publishDate?string("yyyy-MM-dd HH:mm:ss")}</span></h2>
+                            <div class="date-posts">
+                                <div class="post-outer">
+                                    <article class="post hentry" itemprop="blogPost" itemscope="itemscope">
+                                        <#if post??>
+                                            <@sys_user userId=post.userId!!>
+                                                <header class="entry-header">
+                                                    <h1 class="post-title entry-title" itemprop="name">
+                                                        <a href="${request.contextPath}/?p=${post.postId?c}">${post.postTitle!!}</a>
+                                                    </h1>
+                                                    <div class="entry-metapbt">
+                                                        <span class="post-author vcard">
+                                                            <i class="fa fa-user"></i>&nbsp;
+                                                            <span class="fn" itemprop="author">
+                                                                <a class="g-profile" href="${request.contextPath}/?uid=${post.userId?c}" rel="author" title="作者信息">
+                                                                    <span itemprop="name">${post.postAuthor!!}</span>
+                                                                </a>
+                                                            </span>&nbsp;&nbsp;&nbsp;
+
+                                                            <i class="fa fa-calendar"></i>&nbsp;
+                                                            <a class="timestamp-link" href="#" rel="bookmark">
+                                                                <span class="published updated" itemprop="datePublished" title="2014-04-20T18:03:00-07:00">
+                                                                    ${post.publishDate?string("yyyy-MM-dd HH:mm:ss")}
+                                                                </span>
+                                                            </a>&nbsp;&nbsp;&nbsp;
+
+                                                            <i class="fa fa-folder-o"></i>&nbsp;
+                                                            <a href="${request.contextPath}/?cat=${post.categoryId!!}" rel="tag">${post.categoryName!!}</a>&nbsp;&nbsp;&nbsp;
+
+                                                            <i class="fa fa-comments"></i>&nbsp;
+                                                            <a href="#" onclick="">${post.commentCount!!} comments</a>&nbsp;&nbsp;&nbsp;
+
+                                                            <i class="fa fa-eye"></i>&nbsp;
+                                                            <a href="#" onclick="">${post.postClicks!!}</a>
+                                                        </span>
+                                                    </div>
+                                                </header>
+                                                <div class="post-header-line-1"></div>
+                                                <div class="post-body entry-content" itemprop="articleBody">
+                                                    <div class="wp-content">${post.postContent!!}</div>
+                                                    <div style="clear: both;"></div>
+                                                    <div class="pbtsharethisbutt">
+                                                        <ul class="pbt-social-icons">
+                                                            <li class='Share-this-arti'>分享:&nbsp;&nbsp;</li>
+                                                            <li class="pbtfacebook">
+                                                                <a href="http://www.facebook.com/share.php?v=4&src=bm&u=http://p2j.cn&t=${post.postTitle!!}" rel="nofollow" target="_blank" title="Share this on Facebook"><i class="fa fa-facebook-square"></i>&nbsp;Facebook</a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                    <div style="clear: both;"></div>
+                                                </div>
+                                                <div class="author-profile" itemprop="author" itemscope="itemscope" itemtype="http://schema.org/Person">
+                                                    <img itemprop="image" src="<@sys_user_gravatar email=jw_user.email!!></@sys_user_gravatar>" width="50px">
+                                                    <div>
+                                                        <a class="g-profile" href="#" itemprop="url" rel="author" title="author profile" data-gapiscan="true" data-onload="true" data-gapiattached="true">
+                                                            <span itemprop="name">${post.postAuthor!!}</span>
+                                                        </a>
+                                                    </div>
+                                                    <span itemprop="description">${jw_user.sign!!}</span>
+                                                </div>
+                                                <div style="clear: both;"></div>
+                                            </@sys_user>
+                                        </#if>
+                                    </article>
+                                    <div style="clear: both;"></div>
+                                        <#if post.comments??>
+                                            <form action="${request.contextPath}/?p=${post.postId?c}" method="POST">
+                                                <div class="panel-footer">
+                                                    <div id="comments" class="grid_inside">
+                                                        <#list post.comments ! as comments>
+                                                            <dl class="commentlist" id="comments_${comments.commentId?c}">
+                                                                <dd class="comment even thread-odd thread-alt depth-1" id="li-comment-${comments.commentId!?c}">
+                                                                    <div id="comment-${comments.commentId!?c}" class="comment">
+                                                                        <div class="comment-meta">
+                                                                            <div class="comment-author vcard">
+                                                                                <img alt="" onerror="javascript:this.src='${request.contextPath}/images/user/avatar/default.jpg';" src="<@sys_user_gravatar email=comments.commentAuthorEmail!! />" class="avatar photo img-circle" height="60" width="60">
+                                                                                <span class="fn">${comments.commentAuthor!!}</span> 于 <a href=""><span>${comments.commentDate?string("yyyy年MM月dd日 HH:mm:ss")}</span></a>
+                                                                                <span class="says">发表回复:</span>
+                                                                            </div>
+                                                                            <!-- end .comment-author .vcard -->
+                                                                        </div>
+                                                                        <!-- end .comment-meta -->
+                                                                        <div class="comment-content">${comments.commentContent!!}</div>
+                                                                        <!-- end .comment-content -->
+                                                                    </div>
+                                                                </dd>
+                                                            </dl>
+                                                        </#list>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </#if>
+                                        <div class="panel-footer article-comments">
+                                            <form id="js_add_comments_form">
+                                                <h5>发表回复</h5><br/>
+                                                <#if !Session.SESSION_SYS_USER_ID??>
+                                                    <ul class="commentform col-xs-12">
+                                                        <li class="comment-form-author col-xs-12">
+                                                            <label for="js_comment_author" class="col-xs-4 col-md-2">昵称 <span class="required">*</span></label>
+                                                            <input id="js_comment_author" class="col-xs-8 col-md-4" name="commentAuthor" type="text" value="" size="30" maxlength="245" aria-required="true" required="required">
+                                                        </li>
+                                                        <li class="comment-form-email col-xs-12">
+                                                            <label for="js_comment_author_email" class="col-xs-4 col-md-2">邮箱 <span class="required">*</span></label>
+                                                            <input id="js_comment_author_email" class="col-xs-8 col-md-4" name="commentAuthorEmail" type="text" value="" size="30" maxlength="100" aria-describedby="email-notes" aria-required="true" required="required">
+                                                        </li>
+                                                        <li class="comment-form-url col-xs-12">
+                                                            <label for="js_comment_author_url" class="col-xs-4 col-md-2">站点&nbsp;&nbsp;&nbsp;</label>
+                                                            <input id="js_comment_author_url" class="col-xs-8 col-md-4" name="commentAuthorUrl" type="text" value="" size="30" maxlength="200">
+                                                        </li>
+                                                    </ul>
+                                                </#if>
+                                                <div class="textarea-box"><textarea id="js_comment_content" name="commentContent"></textarea></div><br/><br/>
+                                                <button type="button" class="readMoreLinkpbt col-md-offset-10 col-xs-offset-7" style="width: 100px;" onclick="javascript:javaweb.commons.addComments();">回复</button>
+                                                <input type="hidden" id="js_user_id" value="${Session.SESSION_SYS_USER_ID!!}"/>
+                                                <input type="hidden" id="js_post_id" name="commentPostId" value="${post.postId?c}"/>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='clear'></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='widget-areapbt' id='secondarypbt' role='complementary'>
+        <div class='widget widget_search'>
+            <form class='search-formpbt' action="${request.contextPath}/" method='POST' role='search'>
+                <label>
+                    <span class='screen-reader-text'>Search for:</span>
+                    <input class='search-fieldpbt' name='q' placeholder='Search' title='搜索' type='search' value='${q!!}'/>
+                </label>
+                <input class='search-submitpbt' type='submit' value='Search'/>
+            </form>
+        </div>
+
+        <!-- 文章分类 -->
+        <div class='sidebarrightsec section' id='sidebarrightsec'>
+            <div class='widget Label' data-version='1' id='Label1'>
+                <h2>文章分类</h2>
+                <div class='widget-content list-label-widget-content'>
+                    <ul>
+                        <@sys_posts_category pid=0>
+                            <#list categories ! as c>
+                                <li>
+                                    <a dir='ltr' href='${request.contextPath}/?cat=${c.categoryId?c}'>${c.categoryName!!}</a>
+                                </li>
+                            </#list>
+                        </@sys_posts_category>
+                    </ul>
+                    <div class='clear'></div>
+                </div>
+            </div>
+        </div>
+
+        <div class='sidebarrightsec section' id='sidebarrightsec'>
+            <div class='widget Label' data-version='1' id='Label1'>
+                <h2>友情链接</h2>
+                <div class='widget-content list-label-widget-content'>
+                    <ul>
+                        <@sys_links>
+                            <#list links ! as link>
+                                <li>
+                                    <a dir='ltr' href='${link.linkUrl!!}' >${link.linkName!!}</a>
+                                </li>
+                            </#list>
+                        </@sys_links>
+                    </ul>
+                    <div class='clear'></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<#include "/footer.html"/>
