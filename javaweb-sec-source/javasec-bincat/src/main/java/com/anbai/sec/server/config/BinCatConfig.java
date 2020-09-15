@@ -5,7 +5,6 @@ import com.anbai.sec.server.servlet.BinCatServletConfig;
 import com.anbai.sec.server.servlet.BinCatServletContext;
 import com.anbai.sec.server.servlet.BinCatServletRegistrationDynamic;
 import com.anbai.sec.server.test.servlet.CMDServlet;
-import com.anbai.sec.server.test.servlet.IndexServlet;
 import com.anbai.sec.server.test.servlet.QuercusPHPServlet;
 import com.anbai.sec.server.test.servlet.TestServlet;
 import com.anbai.sec.utils.ClassUtils;
@@ -44,7 +43,7 @@ public class BinCatConfig {
 
 		// 手动注册Servlet类
 		Class<Servlet>[] servletClass = new Class[]{
-				IndexServlet.class,
+//				IndexServlet.class,
 				TestServlet.class,
 				CMDServlet.class,
 				QuercusPHPServlet.class

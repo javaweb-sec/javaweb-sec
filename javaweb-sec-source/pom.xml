@@ -19,6 +19,7 @@
         <module>javasec-utils</module>
         <module>javasec-osgi</module>
         <module>javasec-bincat</module>
+        <module>javasec-test</module>
     </modules>
 
 </project>

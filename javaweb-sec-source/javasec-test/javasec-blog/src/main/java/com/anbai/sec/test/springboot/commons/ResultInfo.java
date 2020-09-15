@@ -1,41 +1,40 @@
 package com.anbai.sec.test.springboot.commons;
 
-import java.io.Serializable;
+public class ResultInfo<T> {
 
-public class ResultInfo implements Serializable {
-
-	private static final long serialVersionUID = 5809537318660176489L;
-
-	private int code;
+	private Integer code;
 
 	private String msg;
 
-	private boolean valid = false;
+	private Boolean valid = false;
 
 	private String description;
 
-	private Object data = new Object();
+	private T data;
 
 	public ResultInfo() {
-		super();
 	}
 
-	public ResultInfo(String msg, boolean valid) {
-		super();
+	public ResultInfo(String msg, Boolean valid) {
 		this.valid = valid;
 		this.msg = msg;
 	}
 
-	public ResultInfo(Object data, boolean valid) {
+	public ResultInfo(T data, Boolean valid) {
 		this.data = data;
 		this.valid = valid;
 	}
 
-	public int getCode() {
+	public ResultInfo(T data) {
+		this.data = data;
+		this.valid = true;
+	}
+
+	public Integer getCode() {
 		return code;
 	}
 
-	public void setCode(int code) {
+	public void setCode(Integer code) {
 		this.code = code;
 	}
 
@@ -47,11 +46,11 @@ public class ResultInfo implements Serializable {
 		this.msg = msg;
 	}
 
-	public boolean isValid() {
+	public Boolean getValid() {
 		return valid;
 	}
 
-	public void setValid(boolean valid) {
+	public void setValid(Boolean valid) {
 		this.valid = valid;
 	}
 
@@ -63,11 +62,11 @@ public class ResultInfo implements Serializable {
 		this.description = description;
 	}
 
-	public Object getData() {
+	public T getData() {
 		return data;
 	}
 
-	public void setData(Object data) {
+	public void setData(T data) {
 		this.data = data;
 	}
 
