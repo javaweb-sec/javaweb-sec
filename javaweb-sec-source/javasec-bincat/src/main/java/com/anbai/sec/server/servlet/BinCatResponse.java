@@ -120,7 +120,9 @@ public class BinCatResponse implements HttpServletResponse {
 	}
 
 	public Collection<String> getHeaders(String name) {
-		return null;
+		Collection<String> headerList = new HashSet<>();
+		headerList.add(header.get(name));
+		return headerList;
 	}
 
 	public Collection<String> getHeaderNames() {

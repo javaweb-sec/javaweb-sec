@@ -2,30 +2,27 @@ package com.anbai.sec.server.servlet;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
-import javax.servlet.annotation.WebInitParam;
-import javax.servlet.annotation.WebServlet;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
 
 public class BinCatServletConfig implements ServletConfig {
 
 	private final BinCatServletContext servletContext;
 
-	private final WebServlet webServlet;
+	private final Map<String, String> initParameterMap;
 
-	private final WebInitParam[] webInitParam;
+	private final String servletName;
 
-	public BinCatServletConfig(BinCatServletContext servletContext, WebServlet webServlet) {
+	public BinCatServletConfig(BinCatServletContext servletContext, String servletName, Map<String, String> initParameterMap) {
 		this.servletContext = servletContext;
-		this.webServlet = webServlet;
-		this.webInitParam = webServlet.initParams();
+		this.initParameterMap = initParameterMap;
+		this.servletName = servletName;
 	}
 
 	@Override
 	public String getServletName() {
-		return webServlet.name();
+		return servletName;
 	}
 
 	@Override
@@ -35,26 +32,12 @@ public class BinCatServletConfig implements ServletConfig {
 
 	@Override
 	public String getInitParameter(String name) {
-		for (WebInitParam initParam : webInitParam) {
-			String paramName = initParam.name();
-
-			if (paramName.equals(name)) {
-				return initParam.value();
-			}
-		}
-
-		return null;
+		return initParameterMap.get(name);
 	}
 
 	@Override
 	public Enumeration<String> getInitParameterNames() {
-		Set<String> initParamSet = new HashSet<String>();
-
-		for (WebInitParam initParam : webInitParam) {
-			initParamSet.add(initParam.name());
-		}
-
-		return Collections.enumeration(initParamSet);
+		return Collections.enumeration(initParameterMap.keySet());
 	}
 
 }

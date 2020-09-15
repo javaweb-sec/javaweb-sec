@@ -75,6 +75,8 @@ public class BinCatRequest implements HttpServletRequest {
 
 	private static final Logger LOG = Logger.getLogger("info");
 
+	private String characterEncoding;
+
 	public BinCatRequest(Socket clientSocket) throws IOException {
 		this(clientSocket, null);
 	}
@@ -279,7 +281,7 @@ public class BinCatRequest implements HttpServletRequest {
 	}
 
 	public String getContextPath() {
-		return null;
+		return "/";
 	}
 
 	public String getQueryString() {
@@ -378,19 +380,19 @@ public class BinCatRequest implements HttpServletRequest {
 	}
 
 	public Object getAttribute(String name) {
-		return null;
+		return attributeMap.get(name);
 	}
 
 	public Enumeration<String> getAttributeNames() {
-		return null;
+		return Collections.enumeration(attributeMap.keySet());
 	}
 
 	public String getCharacterEncoding() {
-		return null;
+		return this.characterEncoding;
 	}
 
 	public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
-
+		this.characterEncoding = env;
 	}
 
 	public int getContentLength() {

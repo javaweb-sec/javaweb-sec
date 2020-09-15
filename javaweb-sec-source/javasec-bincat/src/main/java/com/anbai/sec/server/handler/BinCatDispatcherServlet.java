@@ -2,17 +2,17 @@ package com.anbai.sec.server.handler;
 
 import com.anbai.sec.server.servlet.BinCatRequest;
 import com.anbai.sec.server.servlet.BinCatResponse;
+import com.anbai.sec.server.servlet.BinCatServletContext;
+import com.anbai.sec.server.servlet.BinCatServletRegistrationDynamic;
 import org.javaweb.utils.FileUtils;
 import org.javaweb.utils.StringUtils;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
-import javax.servlet.annotation.WebServlet;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Enumeration;
+import java.util.Collection;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class BinCatDispatcherServlet {
@@ -22,7 +22,7 @@ public class BinCatDispatcherServlet {
 		String uri = req.getRequestURI();
 
 		// 获取ServletContext
-		ServletContext servletContext = req.getServletContext();
+		BinCatServletContext servletContext = (BinCatServletContext) req.getServletContext();
 
 		// 获取Http请求的文件
 		File requestFile = new File(req.getRealPath(uri));
@@ -45,14 +45,11 @@ public class BinCatDispatcherServlet {
 			out.write(Files.readAllBytes(requestFile.toPath()));
 		} else {
 			// 遍历所有已注册得Servlet，处理Http请求
-			Enumeration<Servlet> servlets = servletContext.getServlets();
+			Set<BinCatServletRegistrationDynamic> dynamics = servletContext.getRegistrationDynamics();
+			for (BinCatServletRegistrationDynamic dynamic : dynamics) {
+				Collection<String> urlPatterns = dynamic.getMappings();
 
-			while (servlets.hasMoreElements()) {
-				Servlet    servlet     = servlets.nextElement();
-				WebServlet webServlet  = servlet.getClass().getAnnotation(WebServlet.class);
-				String[]   urlPatterns = webServlet.urlPatterns();
-
- 				for (String urlPattern : urlPatterns) {
+				for (String urlPattern : urlPatterns) {
 					try {
 						// 检测请求的URL地址和Servlet的地址是否匹配
 						if (Pattern.compile(urlPattern).matcher(uri).find()) {
@@ -60,7 +57,7 @@ public class BinCatDispatcherServlet {
 							resp.setStatus(200, "OK");
 
 							// 调用Servlet请求处理方法
-							servlet.service(req, resp);
+							dynamic.getServlet().service(req, resp);
 							return;
 						}
 					} catch (Exception e) {

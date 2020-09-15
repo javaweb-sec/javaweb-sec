@@ -13,18 +13,22 @@
     <artifactId>javase</artifactId>
     <packaging>war</packaging>
 
+    <properties>
+        <spring.version>5.2.8.RELEASE</spring.version>
+    </properties>
+
     <dependencies>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>5.2.2.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>5.2.2.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
 
         <dependency>
