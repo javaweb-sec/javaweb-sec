@@ -1,4 +1,4 @@
-package com.anbai.sec.test.springboot.commons;
+package com.anbai.sec.blog.commons;
 
 public class ResultInfo<T> {
 

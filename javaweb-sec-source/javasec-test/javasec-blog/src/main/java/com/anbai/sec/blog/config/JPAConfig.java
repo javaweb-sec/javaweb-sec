@@ -1,4 +1,4 @@
-package com.anbai.sec.test.springboot.config;
+package com.anbai.sec.blog.config;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Configuration;
@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @Configuration
 @EnableTransactionManagement
-@EntityScan(basePackages = "com.anbai.sec.test.springboot.entity")
-@EnableJpaRepositories(basePackages = "com.anbai.sec.test.springboot.repository")
+@EntityScan(basePackages = "com.anbai.sec.blog.entity")
+@EnableJpaRepositories(basePackages = "com.anbai.sec.blog.repository")
 public class JPAConfig {
 
 }

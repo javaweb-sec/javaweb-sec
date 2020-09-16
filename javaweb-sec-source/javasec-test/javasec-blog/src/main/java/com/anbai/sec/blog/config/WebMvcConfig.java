@@ -1,4 +1,4 @@
-package com.anbai.sec.test.springboot.config;
+package com.anbai.sec.blog.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

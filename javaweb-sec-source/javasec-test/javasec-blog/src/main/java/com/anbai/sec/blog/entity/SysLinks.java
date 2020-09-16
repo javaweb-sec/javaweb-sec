@@ -1,4 +1,4 @@
-package com.anbai.sec.test.springboot.entity;
+package com.anbai.sec.blog.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;

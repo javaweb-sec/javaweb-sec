@@ -1,6 +1,6 @@
-package com.anbai.sec.test.springboot.repository;
+package com.anbai.sec.blog.repository;
 
-import com.anbai.sec.test.springboot.entity.SysPosts;
+import com.anbai.sec.blog.entity.SysPosts;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;

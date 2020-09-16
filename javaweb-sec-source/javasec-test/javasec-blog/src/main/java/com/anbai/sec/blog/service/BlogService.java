@@ -1,10 +1,12 @@
-package com.anbai.sec.test.springboot.service;
+package com.anbai.sec.blog.service;
 
-import com.anbai.sec.test.springboot.commons.JPAPage;
-import com.anbai.sec.test.springboot.commons.SearchCondition;
-import com.anbai.sec.test.springboot.entity.*;
-import com.anbai.sec.test.springboot.repository.*;
+import com.anbai.sec.blog.commons.SearchCondition;
+import com.anbai.sec.blog.entity.*;
+import com.anbai.sec.blog.repository.*;
+import org.javaweb.utils.StringUtils;
+import org.jsoup.Jsoup;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +25,6 @@ public class BlogService {
 	private SysConfigRepository sysConfigRepository;
 
 	@Resource
-	private SysPostsCategoryRepository sysPostsCategoryRepository;
-
-	@Resource
 	private SysLinksRepository sysLinksRepository;
 
 	@Resource
@@ -33,6 +32,9 @@ public class BlogService {
 
 	@Resource
 	private SysUserRepository sysUserRepository;
+
+	@Resource
+	private SysPostsCategoryRepository sysPostsCategoryRepository;
 
 	public Page<SysComments> searchSysComment(SysComments comments, SearchCondition condition) {
 		Sort sort = Sort.by(Sort.Direction.DESC, "commentId");
@@ -71,15 +73,16 @@ public class BlogService {
 			}
 
 			if (ls.size() > 0) {
-				query.where(ls.toArray(new Predicate[ls.size()]));
+				query.where(ls.toArray(new Predicate[0]));
 			}
 
 			return null;
-		}, JPAPage.buildPageRequest(condition.getPage(), condition.getSize(), sort));
+		}, PageRequest.of(condition.getPage() - 1, condition.getSize(), sort));
 	}
 
 	public void addSysComments(SysComments comments) {
 		sysCommentsRepository.save(comments);
+		updateCommentCount(comments.getCommentPostId());
 	}
 
 	public Map<String, Object> getSysConfig() {
@@ -96,54 +99,63 @@ public class BlogService {
 		return sysLinksRepository.findAll();
 	}
 
-	public List<SysPostsCategory> getSysPostsCategoryByParentId(Integer parentId) {
-		return sysPostsCategoryRepository.findByParentIdOrderByCategoryOrder(parentId);
-	}
-
-	public Page<SysPosts> searchSysPost(SysPosts posts, SysPostsCategory category, SearchCondition condition) {
+	public Page<SysPosts> searchSysPost(Integer catId, Integer catParentId, SearchCondition condition) {
 		Sort sort = Sort.by(Sort.Direction.DESC, "publishDate");
 
-		return sysPostsRepository.findAll((root, query, cb) -> {
+		Page<SysPosts> sysPostsPage = sysPostsRepository.findAll((root, query, cb) -> {
 			List<Predicate> ls = new ArrayList<>();
 
-			if (condition.getKeyword() != null) {
+			if (StringUtils.isNotEmpty(condition.getKeyword())) {
 				Path<String> mapPath = root.get("postContent");
 				ls.add((cb.like(mapPath, "%" + condition.getKeyword() + "%")));
 			}
 
-			if (posts.getPostId() > 0) {
-				Path<String> mapPath = root.get("postId");
-				ls.add((cb.equal(mapPath, posts.getPostId())));
-			}
-
-			if (category.getCategoryId() != null) {
+			if (catId != null) {
 				Path<String> mapPath = root.get("categoryId");
-				ls.add((cb.equal(mapPath, category.getCategoryId())));
+				ls.add((cb.equal(mapPath, catId)));
 			}
 
-			if (category.getParentId() != null) {
+			if (catParentId != null) {
 				Path<String> mapPath = root.get("parentId");
-				ls.add((cb.equal(mapPath, category.getParentId())));
+				ls.add((cb.equal(mapPath, catParentId)));
 			}
 
 			if (ls.size() > 0) {
-				query.where(ls.toArray(new Predicate[ls.size()]));
+				query.where(ls.toArray(new Predicate[0]));
 			}
 
 			return null;
-		}, JPAPage.buildPageRequest(condition.getPage(), condition.getSize(), sort));
+		}, PageRequest.of(condition.getPage() - 1, condition.getSize(), sort));
+
+		// 文章内容截取，最多不超过500个字符
+		for (SysPosts sysPosts : sysPostsPage.getContent()) {
+			String content = sysPosts.getPostContent();
+
+			if (StringUtils.isNotEmpty(content)) {
+				content = Jsoup.parse(content).text();
+				int maxLen = 500;
+				int len    = Math.min(content.length(), maxLen);
+				sysPosts.setPostContent(content.substring(0, len));
+			}
+		}
+
+		return sysPostsPage;
 	}
 
 	public SysPosts getSysPostsById(Integer postId) {
 		Optional<SysPosts> optional = sysPostsRepository.findById(postId);
 
-		SysPosts sysPosts = optional.get();
+		if (optional.isPresent()) {
+			SysPosts sysPosts = optional.get();
 
-		// 修改文章阅读量
-		sysPosts.setPostClicks(sysPosts.getPostClicks() + 1);
-		sysPostsRepository.save(sysPosts);
+			// 修改文章阅读量
+			sysPosts.setPostClicks(sysPosts.getPostClicks() + 1);
+			sysPostsRepository.save(sysPosts);
 
-		return sysPosts;
+			return sysPosts;
+		}
+
+		return null;
 	}
 
 	public void updateCommentCount(Integer postId) {
@@ -160,13 +172,12 @@ public class BlogService {
 		return sysUserRepository.getOne(userId);
 	}
 
-	public SysUser setUser(SysUser user) {
-		SysUser u = sysUserRepository.getOne(user.getUserId());
+	public List<SysPostsCategory> getSysPostsCategoryByParentId(int parentId) {
+		return sysPostsCategoryRepository.findByParentIdOrderByCategoryOrder(parentId);
+	}
 
-		u.setNick(user.getNick());
-		u.setUsername(user.getUsername());
-
-		return sysUserRepository.save(user);
+	public List<SysPostsCategory> getSysPostsCategoryByParentIdNotEqual(int parentId) {
+		return sysPostsCategoryRepository.findByParentIdNotOrderByCategoryOrderAsc(parentId);
 	}
 
 }

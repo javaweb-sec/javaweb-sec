@@ -1,6 +1,6 @@
 <#include "/header.html"/>
 <div class='site-contentpbt' id='contentpbt'>
-    <form id="js_search" action="${request.contextPath}/" method="post">
+    <form id="js_search" action="/" method="post">
         <div class='content-areapbt' id='primarypbt'>
             <div class='site-mainpbt' id='mainpbt' role='main'>
                 <div class='mainblogsec section'>
@@ -16,13 +16,13 @@
                                             <article class='post hentry'>
                                                 <header class='entry-header'>
                                                     <h1 class='post-title entry-title' itemprop='name'>
-                                                        <a href='${request.contextPath}/?p=${p.postId?c}'>${p.postTitle!!}</a>
+                                                        <a href='/?p=${p.postId?c}'>${p.postTitle!!}</a>
                                                     </h1>
                                                     <div class="entry-metapbt">
                                                         <span class="post-author vcard">
                                                             <i class="fa fa-user"></i>&nbsp;
                                                             <span class="fn" itemprop="author">
-                                                                <a class="g-profile" href="${request.contextPath}/?uid=${p.userId?c}" rel="author" title="作者信息">
+                                                                <a class="g-profile" href="/?uid=${p.userId?c}" rel="author" title="作者信息">
                                                                     <span itemprop="name">${p.postAuthor!!}</span>
                                                                 </a>
                                                             </span>&nbsp;&nbsp;&nbsp;
@@ -35,10 +35,10 @@
                                                             </span>&nbsp;&nbsp;&nbsp;
 
                                                             <i class="fa fa-folder-o"></i>&nbsp;
-                                                            <a href="${request.contextPath}/?cat=${p.categoryId!!}" rel="tag">${p.categoryName!!}</a>&nbsp;&nbsp;&nbsp;
+                                                            <a href="/?cat=${p.categoryId!!}" rel="tag">${p.categoryName!!}</a>&nbsp;&nbsp;&nbsp;
 
                                                             <i class="fa fa-comments"></i>&nbsp;
-                                                            <a href="${request.contextPath}/?cat=${p.categoryId!!}#js_add_comments_form" onclick="">${p.commentCount!!} comments</a>&nbsp;&nbsp;&nbsp;
+                                                            <a href="/?cat=${p.categoryId!!}#js_add_comments_form" onclick="">${p.commentCount!!} comments</a>&nbsp;&nbsp;&nbsp;
 
                                                             <i class="fa fa-eye"></i>&nbsp;${p.postClicks!!}
                                                         </span>
@@ -47,22 +47,13 @@
                                                 <div class='post-header-line-1'></div>
                                                 <div class='post-body entry-content'>
                                                     <div id='summary'>
-                                                        <div class="separator" style="clear: both;"><@sys_post_html_substring content=p.postContent!! maxLen=600></@sys_post_html_substring></div>
-                                                    </div>
-                                                    <div style='clear: both;'></div>
-                                                    <div class='pbtsharethisbutt'>
-                                                        <ul class='pbt-social-icons'>
-<!--                                                            <li class='Share-this-arti'>分享:&nbsp;&nbsp;</li>-->
-<!--                                                            <li class="pbtfacebook">-->
-<!--                                                                <a href="http://www.facebook.com/share.php?v=4&src=bm&u=http://xxx&t=${p.postTitle!!}" rel="nofollow" target="_blank" title="Share this on Facebook"><i class="fa fa-facebook-square"></i>&nbsp;Facebook</a>-->
-<!--                                                            </li>-->
-                                                        </ul>
+                                                        <div class="separator" style="clear: both;">${p.postContent!!}</div>
                                                     </div>
                                                     <div style='clear: both;'></div>
                                                 </div>
                                                 <footer class='entry-footerpbt'>
                                                     <div class='readMoreLinkpbt'>
-                                                        <a href='${request.contextPath}/?p=${p.postId?c}'>Read More<i class='fa spaceLeft fa-angle-double-right'></i></a>
+                                                        <a href='/?p=${p.postId?c}'>Read More<i class='fa spaceLeft fa-angle-double-right'></i></a>
                                                     </div>
                                                 </footer>
                                             </article>
@@ -93,35 +84,15 @@
             </div>
 
             <div class='sidebarrightsec section'>
-                <div class='widget Label' data-version='1' id='Label1'>
-                    <h2>最新评论</h2>
-                    <div class='widget-content list-label-widget-content'>
-                        <ul>
-                            <@sys_comments>
-                                <#if comments??>
-                                    <#list comments.content!! as c>
-                                        <li><a dir='ltr' href='${request.contextPath}/?p=${c.commentPostId!?c}#comment-${c.commentId!?c}'><@sys_post_html_substring content="${c.commentContent!!}" maxLen="100" /></a></li>
-                                    </#list>
-                                </#if>
-                            </@sys_comments>
-                        </ul>
-                        <div class='clear'></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class='sidebarrightsec section'>
                 <div class='widget Label' data-version='1'>
-                    <h2>文章分类</h2>
+                    <h2>文章子分类</h2>
                     <div class='widget-content list-label-widget-content'>
                         <ul>
-                            <@sys_posts_category pid=0>
-                                <#list categories ! as c>
-                                    <li>
-                                        <a dir='ltr' href='${request.contextPath}/?cat=${c.categoryId?c}'>${c.categoryName!!}</a>
-                                    </li>
-                                </#list>
-                            </@sys_posts_category>
+                            <#list sub_categories ! as c>
+                                <li>
+                                    <a dir='ltr' href='/?cat=${c.categoryId?c}'>${c.categoryName!!}</a>
+                                </li>
+                            </#list>
                         </ul>
                         <div class='clear'></div>
                     </div>
@@ -133,13 +104,11 @@
                     <h2>友情链接</h2>
                     <div class='widget-content list-label-widget-content'>
                         <ul>
-                            <@sys_links>
-                                <#list links ! as link>
-                                    <li>
-                                        <a dir='ltr' href='${link.linkUrl!!}' >${link.linkName!!}</a>
-                                    </li>
-                                </#list>
-                            </@sys_links>
+                            <#list links ! as link>
+                                <li>
+                                    <a dir='ltr' href='${link.linkUrl!!}' >${link.linkName!!}</a>
+                                </li>
+                            </#list>
                         </ul>
                         <div class='clear'></div>
                     </div>

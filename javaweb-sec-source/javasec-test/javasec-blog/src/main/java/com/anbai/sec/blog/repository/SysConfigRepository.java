@@ -1,6 +1,6 @@
-package com.anbai.sec.test.springboot.repository;
+package com.anbai.sec.blog.repository;
 
-import com.anbai.sec.test.springboot.entity.SysConfig;
+import com.anbai.sec.blog.entity.SysConfig;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

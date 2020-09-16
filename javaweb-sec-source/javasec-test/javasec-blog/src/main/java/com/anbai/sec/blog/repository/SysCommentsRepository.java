@@ -1,6 +1,6 @@
-package com.anbai.sec.test.springboot.repository;
+package com.anbai.sec.blog.repository;
 
-import com.anbai.sec.test.springboot.entity.SysUser;
+import com.anbai.sec.blog.entity.SysComments;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -10,8 +10,7 @@ import org.springframework.stereotype.Repository;
  * @author yz
  */
 @Repository
-public interface SysUserRepository extends JpaRepository<SysUser, Integer>,
-		PagingAndSortingRepository<SysUser, Integer>, JpaSpecificationExecutor<SysUser> {
-
+public interface SysCommentsRepository extends JpaRepository<SysComments, Integer>,
+		PagingAndSortingRepository<SysComments, Integer>, JpaSpecificationExecutor<SysComments> {
 
 }

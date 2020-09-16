@@ -1,4 +1,4 @@
-package com.anbai.sec.test.springboot.entity;
+package com.anbai.sec.blog.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 

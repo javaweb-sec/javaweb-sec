@@ -296,14 +296,10 @@ javaweb.commons.addComments = function () {
 
     $.ajax({
         type: "POST",
-        url: "./addComments.php",
+        url: "/addComments.do",
         data: $('#js_add_comments_form').serialize(),
         success: function (data) {
-            if (data.valid) {
-                location.href = location.href;
-            } else {
-                alert(data.msg);
-            }
+            location.href = location.href;
         },
         error: function (data) {
             alert('请求异常!');
