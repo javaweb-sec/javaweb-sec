@@ -245,7 +245,7 @@ public class BinCatRequest implements HttpServletRequest {
 	}
 
 	public long getDateHeader(String name) {
-		return 0;
+		return -1L;
 	}
 
 	public String getHeader(String name) {
