@@ -69,11 +69,11 @@
 
 项目构建成功后结构如下：
 
-<img src="/Users/yz/IdeaProjects/javaweb-sec/gitbook/images/image-20200917143151435.png" alt="image-20200917143151435" style="zoom:50%;" />
+<img src="../../images/image-20200917143151435.png" alt="image-20200917143151435" style="zoom:50%;" />
 
 ## BinCat V5实现
 
-因为`V5`要实现正常的运行一个`SpringBoot`项目，所以我们需要写一个支持单应用的`Servlet`容器，而且还需要实现之前版本未实现的`Servlet`接口。
+因为`V5`要实现正常的运行一个`SpringBoot`项目，所以我们需要写一个支持单应用的`Servlet`容器，而且还需要实现之前版本未实现的其他`Servlet`接口。
 
 ### BinCatWebAppClassLoader实现
 
@@ -100,7 +100,8 @@ public class BinCatWebAppClassLoader extends URLClassLoader {
 
 ```java
 // 定义需要加载的Web应用路径，默认配置的路径必须先使用maven编译:javasec-blog项目
-String webAppFile = System.getProperty("user.dir") + "/javaweb-sec-source/javasec-test/javasec-blog/target/javasec-blog-1.0.0/";
+String webAppFile = System.getProperty("user.dir") + 
+  "/javaweb-sec-source/javasec-test/javasec-blog/target/javasec-blog-1.0.0/";
 
 // 创建BinCatWebAppClassLoader，加载Web应用
 BinCatWebAppClassLoader appClassLoader = BinCatConfig.createAppClassLoader(webAppFile);
