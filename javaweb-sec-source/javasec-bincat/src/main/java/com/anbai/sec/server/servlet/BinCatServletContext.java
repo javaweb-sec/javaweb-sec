@@ -12,15 +12,19 @@ import java.util.*;
 
 public class BinCatServletContext implements ServletContext {
 
-	// 创建ServletContext对象
+	// 创建一个装动态注册的Servlet的Map
 	private final Map<String, Servlet> servletMap = new HashMap<>();
 
+	// 创建一个装ServletContext初始化参数的Map
 	private final Map<String, String> initParameterMap = new HashMap<>();
 
+	// 创建一个装ServletContext属性对象的Map
 	private final Map<String, Object> attributeMap = new HashMap<>();
 
+	// 创建一个装Servlet动态注册的Set
 	private final Set<BinCatServletRegistrationDynamic> registrationDynamics = new LinkedHashSet<>();
 
+	// BinCatWebAppClassLoader，Web应用的类加载器
 	private final BinCatWebAppClassLoader appClassLoader;
 
 	public BinCatServletContext(BinCatWebAppClassLoader appClassLoader) throws Exception {
@@ -29,7 +33,7 @@ public class BinCatServletContext implements ServletContext {
 
 	@Override
 	public String getContextPath() {
-		return null;
+		return "/";
 	}
 
 	@Override
@@ -203,72 +207,6 @@ public class BinCatServletContext implements ServletContext {
 	public <T extends Servlet> T createServlet(Class<T> clazz) throws ServletException {
 		return null;
 	}
-
-//	private ServletRegistration.Dynamic addServlet(
-//			String servletName, String servletClass,
-//			Servlet servlet, Map<String, String> initParams) throws IllegalStateException {
-//
-//		if (servletName == null || servletName.equals("")) {
-//			throw new IllegalArgumentException(sm.getString(
-//					"applicationContext.invalidServletName", servletName));
-//		}
-//
-//		if (!context.getState().equals(LifecycleState.STARTING_PREP)) {
-//			//TODO Spec breaking enhancement to ignore this restriction
-//			throw new IllegalStateException(
-//					sm.getString("applicationContext.addServlet.ise",
-//							getContextPath()));
-//		}
-//
-//		Wrapper wrapper = (Wrapper) context.findChild(servletName);
-//
-//		// Assume a 'complete' ServletRegistration is one that has a class and
-//		// a name
-//		if (wrapper == null) {
-//			wrapper = context.createWrapper();
-//			wrapper.setName(servletName);
-//			context.addChild(wrapper);
-//		} else {
-//			if (wrapper.getName() != null &&
-//					wrapper.getServletClass() != null) {
-//				if (wrapper.isOverridable()) {
-//					wrapper.setOverridable(false);
-//				} else {
-//					return null;
-//				}
-//			}
-//		}
-//
-//		ServletSecurity annotation = null;
-//		if (servlet == null) {
-//			wrapper.setServletClass(servletClass);
-//			Class<?> clazz = Introspection.loadClass(context, servletClass);
-//			if (clazz != null) {
-//				annotation = clazz.getAnnotation(ServletSecurity.class);
-//			}
-//		} else {
-//			wrapper.setServletClass(servlet.getClass().getName());
-//			wrapper.setServlet(servlet);
-//			if (context.wasCreatedDynamicServlet(servlet)) {
-//				annotation = servlet.getClass().getAnnotation(ServletSecurity.class);
-//			}
-//		}
-//
-//		if (initParams != null) {
-//			for (Map.Entry<String, String> initParam: initParams.entrySet()) {
-//				wrapper.addInitParameter(initParam.getKey(), initParam.getValue());
-//			}
-//		}
-//
-//		ServletRegistration.Dynamic registration = new ServletRegistration(wrapper, context);
-//		if (annotation != null) {
-//			registration.setServletSecurity(new ServletSecurityElement(annotation));
-//		}
-//
-//		ServletRegistration.Dynamic registration = new BinCatServletRegistrationDynamic(this);
-//
-//		return registration;
-//	}
 
 	@Override
 	public ServletRegistration getServletRegistration(String servletName) {

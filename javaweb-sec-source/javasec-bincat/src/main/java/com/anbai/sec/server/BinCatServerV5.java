@@ -35,7 +35,7 @@ public class BinCatServerV5 {
 			// 创建ServerSocket，监听本地端口
 			ServerSocket ss = new ServerSocket(PORT);
 
-			// 定义需要加载的Web应用路径，默认配置的路径必须先使用maven编译:javasec-test-springboot项目
+			// 定义需要加载的Web应用路径，默认配置的路径必须先使用maven编译:javasec-blog项目
 			String webAppFile = System.getProperty("user.dir") +
 					"/javaweb-sec-source/javasec-test/javasec-blog/target/javasec-blog-1.0.0/";
 

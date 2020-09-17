@@ -147,7 +147,7 @@ public class BinCatServletContext implements ServletContext {
 		}
 	}
   
-	// 此处省略HttpSession接口中的大部分方法，仅保留几个示例方法...
+	// 此处省略ServletContext接口中的大部分方法，仅保留几个示例方法...
   
 	@Override
 	public Servlet getServlet(String name) throws ServletException {

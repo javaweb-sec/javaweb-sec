@@ -35,8 +35,8 @@ public class BinCatConfig {
 	/**
 	 * 手动注册Servlet并创建BinCatServletContext对象
 	 *
-	 * @param appClassLoader
-	 * @return ServletContext
+	 * @param appClassLoader 应用的类加载器
+	 * @return ServletContext Servlet上下文对象
 	 */
 	public static BinCatServletContext createServletContext(BinCatWebAppClassLoader appClassLoader) throws Exception {
 		BinCatServletContext servletContext = new BinCatServletContext(appClassLoader);
@@ -145,6 +145,7 @@ public class BinCatConfig {
 		for (ServletContainerInitializer initializer : sciClassMap.keySet()) {
 			Set<Class<?>> initClassSet = sciClassMap.get(initializer);
 
+			// 调用Servlet容器初始化的onStartup方法，启动容器
 			initializer.onStartup(initClassSet, servletContext);
 		}
 
@@ -162,9 +163,9 @@ public class BinCatConfig {
 	/**
 	 * 获取BinCatWebAppClassLoader类加载器加载的所有class类名
 	 *
-	 * @param classLoader
-	 * @param sciClassMap
-	 * @param handlesTypesMap
+	 * @param classLoader     类加载器
+	 * @param sciClassMap     SCI类对象
+	 * @param handlesTypesMap SCI类对象配置的HandlesTypes对象映射Map
 	 * @return
 	 * @throws Exception
 	 */
@@ -173,12 +174,16 @@ public class BinCatConfig {
 			Map<ServletContainerInitializer, Set<Class<?>>> sciClassMap,
 			Map<ServletContainerInitializer, Class<?>[]> handlesTypesMap) throws Exception {
 
+		// 创建一个存储所有被BinCatWebAppClassLoader加载的类名称对象
 		Set<String> classList = new HashSet<>();
-		URL[]       urls      = classLoader.getURLs();
+
+		// 获取BinCatWebAppClassLoader加载的所有URL地址
+		URL[] urls = classLoader.getURLs();
 
 		for (URL url : urls) {
 			File file = new File(url.toURI());
 
+			// 遍历所有的jar文件
 			if (file.isFile() && file.getName().endsWith(".jar")) {
 				JarFile               jarFile  = new JarFile(file);
 				Enumeration<JarEntry> jarEntry = jarFile.entries();
@@ -187,12 +192,14 @@ public class BinCatConfig {
 					JarEntry entry    = jarEntry.nextElement();
 					String   fileName = entry.getName();
 
+					// 遍历jar文件中的所有class文件，并转换成java类名格式，如com/anbai/Test.class会转换成com.anbai.Test
 					if (fileName.endsWith(".class")) {
 						String className = fileName.replace(".class", "").replace("/", ".");
 						classList.add(className);
 					}
 				}
 			} else if (file.isDirectory()) {
+				// 遍历所有classes目录下的.class文件，并转换成java类名格式
 				Collection<File> files = FileUtils.listFiles(file, new String[]{"class"}, true);
 
 				for (File classFile : files) {
@@ -204,19 +211,30 @@ public class BinCatConfig {
 			}
 		}
 
+		// 通过ASM方式获取所有Java类的继承关系，并判断是否是HandlesTypes配置中的类的子类
 		for (String className : classList) {
+			// 通过ASM的方式获取当前类的所有父类(包括继承和实现的所有类)
 			Set<String> superClassList = ClassUtils.getSuperClassListByAsm(className, classLoader);
 
+			// 遍历所有HandlesTypes配置
 			for (ServletContainerInitializer sci : handlesTypesMap.keySet()) {
+				// 获取HandlesTypes配置的类数组对象
 				Class[] handlesTypesClass = handlesTypesMap.get(sci);
 
+				// 遍历所有HandlesTypes配置的类数组对象
 				for (Class typesClass : handlesTypesClass) {
+					// 获取HandlesTypes配置的类名称
 					String typeClassName = typesClass.getName();
 
+					// 检测当前Java类是否是HandlesTypes配置的类的子类，如果是就记录下来
 					if (superClassList.contains(typeClassName) && !className.equals(typeClassName)) {
+						// 获取SCI启动类对象集合
 						Set<Class<?>> sciClass = sciClassMap.get(sci);
-						Class         clazz    = classLoader.loadClass(className);
 
+						// 反射加载当前类对象
+						Class clazz = classLoader.loadClass(className);
+
+						// 将找到的SCI启动类添加到集合中
 						sciClass.add(clazz);
 					}
 				}
