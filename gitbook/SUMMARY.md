@@ -41,7 +41,7 @@
     * [JSP、Servlet之间的关系](javaweb/JSP&Servlet/README.md)
     * [Filter](javaweb/Filter/README.md)
     * [Filter和Servlet的总结](javaweb/Filter&Servlet/README.md)
-    * [Cookie & Session](javaweb/Cookie & Session.md)
+    * [Cookie & Session](javaweb/Cookie&Session.md)
 
 -----
 * [Java语言的动态性](java-dynamic-feature/README.md)
@@ -75,10 +75,6 @@
         * [BinCat V3-实现Servlet3.x API](java-web-container/BinCat/BinCatV3.md)
         * [BinCat V4-实现PHP文件解析](java-web-container/BinCat/BinCatV4.md)
         * [BinCat V5-支持SpringBoot应用](java-web-container/BinCat/BinCatV5.md)
-    * [Java容器基础](README.md)
-        * [常见的Server概述](README.md)
-        * [构建WebShell war文件](README.md)
-        * [容器常见安全问题](README.md)
     * [Tomcat](README.md)
         * [Tomcat默认配置](README.md)
         * [Tomcat口令爆破](README.md)
