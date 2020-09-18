@@ -26,11 +26,11 @@
     * [RMI](javase/RMI/README.md)
     * [JNDI](javase/JNDI/README.md)
     * [JShell](javase/JShell/README.md)
+    * [Java 字节码](javase/JavaByteCode/README.md)
     * [Java Agent](javase/JavaAgent/README.md)
         * [Java Instrumentation](javase/JavaAgent/Instrumentation.md)
     * [Java XXE漏洞](javase/XXE/README.md)
     * [Java 并发安全问题](javase/JavaConcurrency/README.md)
-    * [Java 类字节码](javase/JavaByteCode/README.md)
     * [Java 编码/加密](javase/JavaEncrypt/README.md)
 
 -----
@@ -41,7 +41,7 @@
     * [JSP、Servlet之间的关系](javaweb/JSP&Servlet/README.md)
     * [Filter](javaweb/Filter/README.md)
     * [Filter和Servlet的总结](javaweb/Filter&Servlet/README.md)
-    * [Cookie & Session](javaweb/Cookie&Session.md)
+    * [Cookie & Session](javaweb/Cookie&Session/README.md)
 
 -----
 * [Java语言的动态性](java-dynamic-feature/README.md)
