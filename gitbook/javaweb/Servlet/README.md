@@ -16,7 +16,7 @@
 
 **javax.servlet.http.HttpServlet类:**
 
-![img](../../images/14.png)
+<img src="../../images/14.png" alt="img" style="zoom:50%;" />
 
 ### **TestServlet示例代码:**
 
@@ -55,7 +55,7 @@ public class TestServlet extends HttpServlet {
 
 **请求`TestServlet`示例:**
 
-![image-20191214150238924](../../images/image-20191214150238924.png)
+<img src="../../images/image-20191214150238924.png" alt="image-20191214150238924" style="zoom:50%;" />
 
 ### Servlet Web.xml配置
 
@@ -63,17 +63,25 @@ public class TestServlet extends HttpServlet {
 
 **基于配置实现的Servlet：**
 
-![image-20191214142745856](../../images/image-20191214142745856.png)
+<img src="../../images/image-20191214142745856.png" alt="image-20191214142745856" style="zoom: 40%;" />
 
 
 
-## Servlet3.0+基于注解方式配置
+## Servlet 3.0 基于注解方式配置
 
 **基于注解的Servlet:**
 
-值得注意的是在 Servlet3.0 之后( Tomcat7+)可以使用注解方式配置 Servlet 了,在任意的Java类添加`javax.servlet.annotation.WebServlet`注解即可。
+值得注意的是在 Servlet 3.0 之后( Tomcat7+)可以使用注解方式配置 Servlet 了,在任意的Java类添加`javax.servlet.annotation.WebServlet`注解即可。
 
 基于注解的方式配置Servlet实质上是对基于`web.xml`方式配置的简化，极大的简化了Servlet的配置方式，但是也提升了对Servlet配置管理的难度，因为我们不得不去查找所有包含了`@WebServlet`注解的类来寻找Servlet的定义，而不再只是查看`web.xml`中的`servlet`标签配置。
 
-![15](../../images/15.png)
+<img src="../../images/15.png" alt="15" style="zoom:50%;" />
+
+## Servlet 3.0 特性
+
+1. 新增动态注册`Servlet`、`Filter` 和` Listener`的API(`addServlet`、`addFilter`、`addListener`)。
+2. 新增` @WebServlet`、`@WebFilter`、`@WebInitParam`、` @WebListener`、`@MultipartConfig`注解。
+3. 文件上传支持，`request.getParts()`。
+4. `非阻塞 IO`，添加`异步 IO`。
+5. 可插拔性(`web-fragment.xml`、`ServletContainerInitializer`)。
 

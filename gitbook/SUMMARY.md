@@ -41,13 +41,7 @@
     * [JSP、Servlet之间的关系](javaweb/JSP&Servlet/README.md)
     * [Filter](javaweb/Filter/README.md)
     * [Filter和Servlet的总结](javaweb/Filter&Servlet/README.md)
-    * [XSS](README.md)
-    * [任意文件上传漏洞](README.md)
-    * [Webshell](javaweb/JSP&Webshell/WEBSHELL.md)
-    * [MVC安全](README.md)
-        * [Struts2 OGNL表达式执行漏洞](README.md)
-        * [SpringBoot SpEL表达式执行漏洞](README.md)
-    * [Shiro](README.md)
+    * [Cookie & Session](javaweb/Cookie & Session.md)
 
 -----
 * [Java语言的动态性](java-dynamic-feature/README.md)
