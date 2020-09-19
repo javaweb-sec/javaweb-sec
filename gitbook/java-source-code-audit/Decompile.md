@@ -31,7 +31,7 @@ public class Test {
 
 **Test.java编译执行流程:**
 
-![3](../images/3.png)
+![image-20200919110424641](../images/image-20200919110424641.png)
 
 **Test.java 源码、字节码**
 

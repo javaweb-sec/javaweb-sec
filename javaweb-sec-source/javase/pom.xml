@@ -13,10 +13,6 @@
     <artifactId>javase</artifactId>
     <packaging>war</packaging>
 
-    <properties>
-        <spring.version>5.2.8.RELEASE</spring.version>
-    </properties>
-
     <dependencies>
 
         <dependency>
@@ -34,25 +30,25 @@
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>1.4</version>
+            <version>${commons-fileupload.version}</version>
         </dependency>
 
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
-            <version>1.2</version>
+            <version>${jstl.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
-            <version>1.9.5</version>
+            <version>${aspectjweaver.version}</version>
         </dependency>
 
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
+            <version>${servlet.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -66,7 +62,7 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.6</version>
+            <version>${commons-io.version}</version>
         </dependency>
 
         <dependency>
@@ -78,19 +74,19 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.48</version>
+            <version>${mysql-connector-java.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.javaweb</groupId>
             <artifactId>javaweb-utils</artifactId>
-            <version>2.0.0</version>
+            <version>${javaweb-utils.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
-            <version>1.1.21</version>
+            <version>${druid.version}</version>
         </dependency>
 
         <!--        <dependency>-->
@@ -138,7 +134,7 @@
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-catalina</artifactId>
-            <version>8.5.31</version>
+            <version>${tomcat.version}</version>
             <scope>provided</scope>
         </dependency>
 

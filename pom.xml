@@ -9,6 +9,23 @@
     <version>1.0.0</version>
     <packaging>pom</packaging>
 
+    <properties>
+        <jstl.version>1.2</jstl.version>
+        <druid.version>1.1.24</druid.version>
+        <tomcat.version>8.5.31</tomcat.version>
+        <servlet.version>3.1.0</servlet.version>
+        <commons-io.version>2.6</commons-io.version>
+        <spring.version>5.2.8.RELEASE</spring.version>
+        <aspectjweaver.version>1.9.6</aspectjweaver.version>
+        <javaweb-utils.version>2.0.2</javaweb-utils.version>
+        <commons-fileupload.version>1.4</commons-fileupload.version>
+        <spring-data-jpa.version>2.3.4.RELEASE</spring-data-jpa.version>
+        <spring-data-rest.version>3.3.4.RELEASE</spring-data-rest.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <javax.persistence-api.version>2.2</javax.persistence-api.version>
+        <mysql-connector-java.version>5.1.49</mysql-connector-java.version>
+    </properties>
+
     <modules>
         <module>javaweb-sec-source</module>
     </modules>

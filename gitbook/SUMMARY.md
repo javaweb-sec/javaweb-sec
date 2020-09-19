@@ -123,15 +123,14 @@
     * [Jenkins](README.md)
 
 -----
-* [代码审计基础](java-code-review/README.md)
-    * [Java类编译与反编译基础](java-code-review/Decompile.md)
-    * [IntelliJ IDEA技巧](java-code-review/IntelliJ IDEA.md)
-    * [Java调试技巧](README.md)
+* [代码审计基础](java-source-code-audit/README.md)
+    * [Java类编译与反编译基础](java-source-code-audit/Decompile.md)
+    * [IntelliJ IDEA技巧](java-source-code-audit/IntelliJ IDEA.md)
+    * [IDEA Java程序调试](java-source-code-audit/IDEA-Debug.md)
     * [找Spring MVC控制器技巧](README.md)
     * [找Struts2 Action技巧](README.md)
     * [业务层安全常见问题总结](README.md)
     * [代码实现常见问题](README.md)
-    * [IDEA Java程序调试](java-code-review/IDEA-Debug.md)
 
 -----
 * [RASP技术](java-rasp/README.md)

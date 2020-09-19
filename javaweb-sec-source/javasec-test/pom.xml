@@ -15,6 +15,7 @@
 
     <modules>
         <module>javasec-blog</module>
+        <module>javasec-spring-mvc</module>
     </modules>
 
 </project>
