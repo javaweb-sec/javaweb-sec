@@ -1,0 +1,20 @@
+### 测试BeanNameController
+GET {{url}}/testBeanNameController.do
+
+### 测试Controller注解
+GET {{url}}/testControllerAnnotation.do
+
+### 测试RestController注解
+GET {{url}}/testRestControllerAnnotation.do
+
+### 测试SimpleUrlController
+GET {{url}}/testSimpleUrlController.do
+
+### 用户登陆
+POST {{url}}/login.do
+Content-Type: {{json}}
+
+{
+  "username": "yzmm",
+  "password": "d6cabde1d7a55ac1"
+}

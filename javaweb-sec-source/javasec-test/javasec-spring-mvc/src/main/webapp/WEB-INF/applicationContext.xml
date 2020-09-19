@@ -2,6 +2,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
        xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:mvc="http://www.springframework.org/schema/mvc"
@@ -9,6 +10,8 @@
       http://www.springframework.org/schema/beans/spring-beans.xsd
       http://www.springframework.org/schema/context
       http://www.springframework.org/schema/context/spring-context.xsd
+      http://www.springframework.org/schema/data/jpa
+      http://www.springframework.org/schema/data/jpa/spring-jpa-1.0.xsd
       http://www.springframework.org/schema/tx
       http://www.springframework.org/schema/tx/spring-tx.xsd
       http://www.springframework.org/schema/aop
@@ -16,13 +19,16 @@
       http://www.springframework.org/schema/mvc
       http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
+    <!-- 配置Spring扫包路径 -->
     <context:component-scan base-package="com.anbai.sec.springmvc.*"/>
 
     <!-- MVC注解支持 -->
     <mvc:annotation-driven/>
 
+    <!-- 配置JDBC属性文件 -->
     <context:property-placeholder location="classpath:/config/jdbc.properties"/>
 
+    <!-- 配置数据库连接池 -->
     <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
         <property name="url" value="${jdbc.url}"/>
         <property name="username" value="${jdbc.username}"/>
@@ -50,19 +56,54 @@
     <!-- 事务注解支持 -->
     <tx:annotation-driven/>
 
-    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dataSource"/>
+    <!-- 配置事务支持 -->
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
 
+    <!-- 配置事务处理类表达式 -->
     <aop:config>
         <aop:advisor pointcut="execution(public * com.anbai.sec.*.*(..))" advice-ref="txAdvice"/>
     </aop:config>
 
+    <!-- 配置事务处理类方法表达式 -->
     <tx:advice id="txAdvice">
         <tx:attributes>
             <tx:method name="get*" read-only="true" propagation="NOT_SUPPORTED"/>
             <tx:method name="*"/>
         </tx:attributes>
     </tx:advice>
+
+    <!-- 创建Hibernate配置 -->
+    <bean id="hibernateJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+        <property name="showSql" value="true"/>
+    </bean>
+
+    <!-- 配置Hibernate实体管理工厂 -->
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="jpaVendorAdapter" ref="hibernateJpaVendorAdapter"/>
+
+        <!-- 设置JPA属性 -->
+        <property name="jpaProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+                <prop key="javax.persistence.schema-generation.database.action">none</prop>
+                <prop key="hibernate.ejb.use_class_enhancer">true</prop>
+            </props>
+        </property>
+
+        <!-- 设置Hibernate扫包名称 -->
+        <property name="packagesToScan" value="com.anbai.sec.springmvc.entity"/>
+
+        <!-- 设置共享缓存模式 -->
+        <property name="sharedCacheMode" value="ENABLE_SELECTIVE"/>
+
+        <!-- 设置验证模式-->
+        <property name="validationMode" value="NONE"/>
+    </bean>
+
+    <!-- 配置JPA Repository -->
+    <jpa:repositories base-package="com.anbai.sec.springmvc.repository"/>
 
 </beans>
