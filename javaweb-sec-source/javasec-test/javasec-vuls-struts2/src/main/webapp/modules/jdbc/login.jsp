@@ -6,7 +6,7 @@
 <%@ page import="java.util.Map" %>
 
 <%
-    //    MYSQL sys_user示例表，测试时请先创建对应的数据库和表
+//    MYSQL sys_user示例表，测试时请先创建对应的数据库和表
 //
 //    CREATE TABLE `sys_user` (
 //        `id` int(9) unsigned NOT NULL AUTO_INCREMENT COMMENT '用户ID',
