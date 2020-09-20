@@ -215,3 +215,8 @@ JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
 
 ![image-20200920170948889](../images/image-20200920170948889.png)
 
+## 10. 代码覆盖率/性能
+
+`IDEA`自带了`Coverage`和`CPU Profiling`功能，运行程序的时候选择对应的小图标就可以看到测试结果了，如下图：
+
+![image-20200920171731635](../images/image-20200920171731635.png)
