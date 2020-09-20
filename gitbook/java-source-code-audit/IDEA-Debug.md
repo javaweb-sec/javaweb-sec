@@ -1,4 +1,4 @@
-# IDEA Java程序调试
+# IntelliJ IDEA Java程序调试
 
 ## 一、创建或打开一个Java项目
 
