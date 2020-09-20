@@ -1,0 +1,20 @@
+<#if userInfo??>
+<@sys_config>
+<#assign title="${userInfo.username!!} - ${sys_website_name!!}">
+<#include "../header.html"/>
+    <div class="fly-home fly-panel">
+        <img src="${userInfo.userAvatar!!}" alt="${userInfo.username!!}"
+             onerror="javascript:this.src='${request.contextPath}/res/images/avatar/default.png'">
+        <h1>
+            ${userInfo.username!!}
+            <i class="iconfont icon-nan"></i>
+            <i class="layui-badge fly-badge-vip">VIP10</i>
+        </h1>
+
+        <p class="fly-home-info">
+            <i class="iconfont icon-shijian"></i><span>${userInfo.registerTime!!} 加入</span>
+        </p>
+    </div>
+<#include "../footer.html"/>
+</@sys_config>
+</#if>

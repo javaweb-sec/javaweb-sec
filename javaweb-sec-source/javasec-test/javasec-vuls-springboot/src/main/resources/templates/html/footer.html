@@ -1,0 +1,24 @@
+<@sys_config>
+<div class="fly-footer">
+    <p><a href="${sys_base_url!!}" target="_blank">${sys_version!!}</a> &copy;</p>
+</div>
+
+<script>
+    layui.cache.page = '';
+    layui.cache.user = {
+        username: '游客'
+        , uid: -1
+        , avatar: '${request.contextPath}/res/images/avatar/00.jpg'
+        , experience: 83
+        , sex: '男'
+    };
+    layui.config({
+        version: "3.0.0"
+        , base: '${request.contextPath}/res/mods/'
+    }).extend({
+        fly: 'index'
+    }).use('fly');
+</script>
+</body>
+</@sys_config>
+</html>

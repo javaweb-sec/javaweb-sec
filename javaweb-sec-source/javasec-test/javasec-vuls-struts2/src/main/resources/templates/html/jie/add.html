@@ -1,0 +1,79 @@
+<@sys_config>
+<#assign title="发布新帖 - ${sys_website_name!!}">
+<#include "../header.html"/>
+<div class="layui-container fly-marginTop">
+    <div class="fly-panel" pad20 style="padding-top: 5px;">
+        <div class="layui-form layui-form-pane">
+            <div class="layui-tab layui-tab-brief" lay-filter="user">
+                <ul class="layui-tab-title">
+                    <li class="layui-this">发表新帖</li>
+                </ul>
+                <div class="layui-form layui-tab-content" id="LAY_ucm" style="padding: 20px 0;">
+                    <div class="layui-tab-item layui-show">
+                        <div class="layui-row layui-col-space15 layui-form-item">
+                            <div class="layui-col-md9">
+                                <label for="L_title" class="layui-form-label">标题</label>
+                                <div class="layui-input-block">
+                                    <input type="text" id="L_title" name="title" required lay-verify="required"
+                                           autocomplete="off" class="layui-input">
+                                    <!-- <input type="hidden" name="id" value="{{d.edit.id}}"> -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item layui-form-text">
+                            <div class="layui-input-block">
+                                <textarea id="L_content" name="content" required lay-verify="required"
+                                          placeholder="详细描述" class="layui-textarea fly-editor"
+                                          style="height: 260px;"></textarea>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <button class="layui-btn" id="L_addArticle">立即发布</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use(['jquery', 'layer'], function () {
+        var $ = layui.$
+
+        $(function () {
+            $('#L_addArticle').click(function () {
+                var data = {};
+                data["title"] = $('#L_title').val();
+                data["content"] = $('#L_content').val();
+
+                if (data["title"] === '') {
+                    layer.msg("标题不能为空!");
+                    return;
+                }
+
+                if (data["content"] === '') {
+                    layer.msg("内容不能为空!");
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "${request.contextPath}/addArticle.do",
+                    data: data,
+                    success: function (resp) {
+                        if (resp.valid) {
+                            location.href = '${request.contextPath}/index.do';
+                        } else {
+                            layer.msg(resp.msg);
+                        }
+                    },
+                    error: function (err) {
+                        layer.msg(err.msg);
+                    }
+                })
+            });
+        });
+    });
+</script>
+<#include "../footer.html"/>
+</@sys_config>

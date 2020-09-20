@@ -1,0 +1,79 @@
+<#include "../header.html"/>
+<div class="layui-container fly-marginTop">
+    <div class="fly-panel fly-panel-user" pad20>
+        <div class="layui-tab layui-tab-brief" lay-filter="user">
+            <ul class="layui-tab-title">
+                <li><a href="${request.contextPath}/login.php">登入</a></li>
+                <li class="layui-this">注册</li>
+            </ul>
+            <div class="layui-form layui-tab-content" id="LAY_ucm" style="padding: 20px 0;">
+                <div class="layui-tab-item layui-show">
+                    <div class="layui-form layui-form-pane">
+                        <form method="post">
+                            <div class="layui-form-item">
+                                <label for="L_username" class="layui-form-label">用户名</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" id="L_username" name="username" required lay-verify="required"
+                                           autocomplete="off" class="layui-input">
+                                </div>
+                                <div class="layui-form-mid layui-word-aux">将会成为您唯一的登入名</div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label for="L_password" class="layui-form-label">密码</label>
+                                <div class="layui-input-inline">
+                                    <input type="password" id="L_password" name="password" required lay-verify="required"
+                                           autocomplete="off" class="layui-input">
+                                </div>
+                                <div class="layui-form-mid layui-word-aux">6到16个字符</div>
+                            </div>
+                            <div class="layui-form-item">
+                                <button class="layui-btn" id="L_register">立即注册</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use(['jquery', 'layer'], function () {
+        var $ = layui.$
+
+        $(function () {
+            $('#L_register').click(function () {
+                var data = {};
+                data["username"] = $('#L_username').val();
+                data["password"] = $('#L_password').val();
+
+                if (data["username"] === '') {
+                    layer.msg("用户名不能为空!");
+                    return;
+                }
+
+                if (data["password"] === '') {
+                    layer.msg("用户密码不能为空!");
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "${request.contextPath}/register.do",
+                    data: data,
+                    success: function (resp) {
+                        if (resp.valid) {
+                            layer.msg(resp.msg);
+                            location.href = '${request.contextPath}/login.php';
+                        }else {
+                            layer.msg(resp.msg);
+                        }
+                    },
+                    error: function (err) {
+                        layer.msg(err.msg);
+                    }
+                })
+            });
+        });
+    });
+</script>
+<#include "../footer.html"/>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+    <constant name="struts.devMode" value="true"/>
+    <constant name="struts.objectFactory" value="spring"/>
+    <constant name="struts.enable.DynamicMethodInvocation" value="true"/>
+    <constant name="struts.convention.action.packages" value="com.anbai.sec.vuls.action"/>
+    <constant name="struts.convention.exclude.parentClassLoader" value="false"/>
+
+    <package name="default" namespace="/" extends="struts-default">
+        <action name="fileUpload" class="com.anbai.sec.vuls.action.FileUploadAction">
+            <interceptor-ref name="fileUploadStack"/>
+        </action>
+    </package>
+
+</struts>

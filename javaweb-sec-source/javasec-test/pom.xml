@@ -16,6 +16,9 @@
     <modules>
         <module>javasec-blog</module>
         <module>javasec-spring-mvc</module>
+        <module>javasec-vuls-core</module>
+        <module>javasec-vuls-springboot</module>
+        <module>javasec-vuls-struts2</module>
     </modules>
 
 </project>

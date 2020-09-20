@@ -12,7 +12,7 @@
     <artifactId>javasec-spring-mvc</artifactId>
     <version>1.0.0</version>
     <packaging>war</packaging>
-    <name>javasec-spring-mvc Maven Webapp</name>
+    <name>javasec-spring-mvc</name>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -24,13 +24,13 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>${spring.version}</version>
+            <version>${springframework.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>${spring.version}</version>
+            <version>${springframework.version}</version>
         </dependency>
 
         <dependency>
@@ -90,7 +90,7 @@
         <dependency>
             <groupId>org.javaweb</groupId>
             <artifactId>javaweb-utils</artifactId>
-            <version>${javaweb-utils.version}</version>
+            <version>${javaweb.version}</version>
         </dependency>
 
         <dependency>

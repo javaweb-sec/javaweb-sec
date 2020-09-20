@@ -1,0 +1,82 @@
+<@sys_config>
+<#assign title="用户登陆 - ${sys_website_name!!}">
+<#include "../header.html"/>
+<div class="layui-container fly-marginTop">
+    <div class="fly-panel fly-panel-user" pad20>
+        <div class="layui-tab layui-tab-brief" lay-filter="user">
+            <ul class="layui-tab-title">
+                <li class="layui-this">登入</li>
+                <li><a href="${request.contextPath}/reg.php">注册</a></li>
+            </ul>
+            <div class="layui-form layui-tab-content" id="LAY_ucm" style="padding: 20px 0;">
+                <div class="layui-tab-item layui-show">
+                    <div class="layui-form layui-form-pane">
+                        <div class="layui-form-item">
+                            <label for="L_username" class="layui-form-label">用户名</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="L_username" name="username" placeholder="admin" required
+                                       lay-verify="required" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label for="L_password" class="layui-form-label">密码</label>
+                            <div class="layui-input-inline">
+                                <input type="password" id="L_password" name="password" placeholder="123456" required
+                                       lay-verify="required"
+                                       autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <button class="layui-btn" id="L_login">立即登录</button>
+                            <span style="padding-left:20px;">
+                                <a href="${request.contextPath}/forget.php">忘记密码？</a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use(['jquery', 'layer'], function () {
+        var $ = layui.$
+
+        $(function () {
+            $('#L_login').click(function () {
+                var data = {};
+                data["username"] = $('#L_username').val();
+                data["password"] = $('#L_password').val();
+
+                if (data["username"] === '') {
+                    layer.msg("用户名不能为空!");
+                    return;
+                }
+
+                if (data["password"] === '') {
+                    layer.msg("用户密码不能为空!");
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: "${request.contextPath}/login.do",
+                    contentType: "application/json",
+                    data: JSON.stringify(data),
+                    success: function (resp) {
+                        if (resp.valid) {
+                            location.href = '${request.contextPath}/user/index.do';
+                        } else {
+                            layer.msg(resp.msg);
+                        }
+                    },
+                    error: function (err) {
+                        layer.msg(err.msg);
+                    }
+                })
+            });
+        });
+    });
+</script>
+<#include "../footer.html"/>
+</@sys_config>

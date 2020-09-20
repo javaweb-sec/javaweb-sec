@@ -127,6 +127,8 @@
     * [Java类编译与反编译基础](java-source-code-audit/Decompile.md)
     * [IntelliJ IDEA技巧](java-source-code-audit/IntelliJ IDEA.md)
     * [IntelliJ IDEA Java程序调试](java-source-code-audit/IDEA-Debug.md)
+    * [Java常见漏洞](java-source-code-audit/vuls/README.md)
+      * [恶意文件访问类漏洞](java-source-code-audit/vuls/FileSystem.md)
     * [找Spring MVC控制器技巧](README.md)
     * [找Struts2 Action技巧](README.md)
     * [业务层安全常见问题总结](README.md)

