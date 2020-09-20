@@ -41,3 +41,5 @@ access-log*.txt
 gitbook/_book
 gitbook/*.log
 gitbook/node_modules
+
+logs/

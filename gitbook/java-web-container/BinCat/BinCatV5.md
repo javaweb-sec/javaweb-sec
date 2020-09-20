@@ -306,7 +306,6 @@ public class BinCatServletContext implements ServletContext {
 
       // 手动注册Servlet类
       Class<Servlet>[] servletClass = new Class[]{
-//          IndexServlet.class,
             TestServlet.class,
             CMDServlet.class,
             QuercusPHPServlet.class
@@ -714,15 +713,7 @@ for (ServletContainerInitializer initializer : sciClassMap.keySet()) {
 **初始化ServletContext中的所有Servlet代码：**
 
 ```java
-Set<BinCatServletRegistrationDynamic> dynamics = servletContext.getRegistrationDynamics();
-
-for (BinCatServletRegistrationDynamic dynamic : dynamics) {
-  Servlet             servlet          = dynamic.getServlet();
-  String              servletName      = dynamic.getServletName();
-  Map<String, String> initParameterMap = dynamic.getInitParameters();
-
-  servlet.init(new BinCatServletConfig(servletContext, servletName, initParameterMap));
-}
+initServlet(servletContext);
 ```
 
 完成以上所有逻辑后我们的`BinCat`也就算启动成功了，剩下的就是如何处理浏览器请求了。
@@ -731,66 +722,7 @@ for (BinCatServletRegistrationDynamic dynamic : dynamics) {
 
 ### Servlet请求处理
 
-`V5`因为调整了`Servlet`注册和管理方式，所以优化了`Servlet`请求处理逻辑，但整体并没有什么变化，依旧是优先处理静态文件和`php`文件，然后根据浏览器请求的URL地址调用对应的`Servlet`的`service`方法处理`Servlet`请求。
-
-```java
-public void doDispatch(BinCatRequest req, BinCatResponse resp, ByteArrayOutputStream out) throws IOException {
-   // 请求URI地址
-   String uri = req.getRequestURI();
-
-   // 获取ServletContext
-   BinCatServletContext servletContext = (BinCatServletContext) req.getServletContext();
-
-   // 获取Http请求的文件
-   File requestFile = new File(req.getRealPath(uri));
-
-   // 处理Http请求的静态文件，如果文件存在(.php后缀除外)就直接返回文件内容，不需要调用Servlet
-   if (requestFile.exists() && requestFile.isFile() && !uri.endsWith(".php")) {
-      // 修改状态码
-      resp.setStatus(200, "OK");
-
-      // 解析文件的MimeType
-      String mimeType = Files.probeContentType(requestFile.toPath());
-
-      if (mimeType == null) {
-         String fileSuffix = FileUtils.getFileSuffix(requestFile.getName());
-         resp.setContentType("text/" + fileSuffix);
-      } else {
-         resp.setContentType(mimeType);
-      }
-
-      out.write(Files.readAllBytes(requestFile.toPath()));
-   } else {
-      // 遍历所有已注册得Servlet，处理Http请求
-      Set<BinCatServletRegistrationDynamic> dynamics = servletContext.getRegistrationDynamics();
-      for (BinCatServletRegistrationDynamic dynamic : dynamics) {
-         Collection<String> urlPatterns = dynamic.getMappings();
-
-         for (String urlPattern : urlPatterns) {
-            try {
-               // 检测请求的URL地址和Servlet的地址是否匹配
-               if (Pattern.compile(urlPattern).matcher(uri).find()) {
-                  // 修改状态码
-                  resp.setStatus(200, "OK");
-
-                  // 调用Servlet请求处理方法
-                  dynamic.getServlet().service(req, resp);
-                  return;
-               }
-            } catch (Exception e) {
-               // 修改状态码,输出服务器异常信息到浏览器
-               resp.setStatus(500, "Internal Server Error");
-               e.printStackTrace();
-
-               out.write(("<pre>" + StringUtils.exceptionToString(e) + "</pre>").getBytes());
-            }
-         }
-      }
-   }
-}
-```
-
-访问`javasec-blog`首页测试：[http://localhost:8080/](http://localhost:8080/)
+`V5`依旧是根据浏览器请求的URL地址调用对应的`Servlet`的`service`方法处理`Servlet`请求，访问`javasec-blog`首页测试：[http://localhost:8080/](http://localhost:8080/)
 
 ![image-20200917174239016](../../images/image-20200917174239016.png)
 

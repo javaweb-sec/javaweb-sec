@@ -13,6 +13,7 @@ import org.javaweb.utils.IOUtils;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletContainerInitializer;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 import javax.servlet.annotation.HandlesTypes;
 import javax.servlet.annotation.WebInitParam;
@@ -43,7 +44,6 @@ public class BinCatConfig {
 
 		// 手动注册Servlet类
 		Class<Servlet>[] servletClass = new Class[]{
-//				IndexServlet.class,
 				TestServlet.class,
 				CMDServlet.class,
 				QuercusPHPServlet.class
@@ -149,6 +149,16 @@ public class BinCatConfig {
 			initializer.onStartup(initClassSet, servletContext);
 		}
 
+		initServlet(servletContext);
+	}
+
+	/**
+	 * 初始化Servlet
+	 *
+	 * @param servletContext Servlet上下文
+	 * @throws ServletException Servlet处理异常
+	 */
+	public static void initServlet(BinCatServletContext servletContext) throws ServletException {
 		Set<BinCatServletRegistrationDynamic> dynamics = servletContext.getRegistrationDynamics();
 
 		for (BinCatServletRegistrationDynamic dynamic : dynamics) {

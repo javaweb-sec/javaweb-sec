@@ -37,6 +37,9 @@ public class BinCatServerV4 {
 			// 创建BinCatServletContext对象
 			BinCatServletContext servletContext = BinCatConfig.createServletContext();
 
+			// 初始化Servlet
+			BinCatConfig.initServlet(servletContext);
+
 			LOG.info(SERVER_NAME + " 启动成功，监听端口: " + PORT);
 
 			while (true) {

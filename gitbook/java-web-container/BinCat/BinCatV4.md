@@ -32,84 +32,76 @@ public class QuercusPHPServlet extends QuercusServlet {
 }
 ```
 
-**IndexServlet示例代码(用于显示首页导航的Servlet)：**
-
-```java
-package com.anbai.sec.server.test.servlet;
-
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
-
-@WebServlet(name = "IndexServlet", urlPatterns = {"^(\\\\|/)+$", "^(/|\\\\)+index\\.(htm|asp|jsp|do|action)"})
-public class IndexServlet extends HttpServlet {
-
-   @Override
-   public void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
-      OutputStream out = response.getOutputStream();
-      out.write(("<!DOCTYPE html>\n" +
-            "<html lang=\"zh\">\n" +
-            "<head>\n" +
-            "    <meta charset=\"UTF-8\">\n" +
-            "    <title>Index</title>\n" +
-            "</head>\n" +
-            "<body>\n" +
-            "   <a href='/TestServlet/'>示例Servlet</a><br/>\n" +
-            "   <a href='/CMD/?cmd=pwd'>命令执行测试</a><br/>\n" +
-            "   <a href='/info.php'>phpinfo()</a><br/>\n" +
-            "</body>\n" +
-            "").getBytes());
-
-      out.flush();
-      out.close();
-   }
-
-}
-```
-
 **BinCatConfig示例代码(方便统一的Servlet注册)：**
 
 ```java
-package com.anbai.sec.server.config;
+/**
+	* 手动注册Servlet并创建BinCatServletContext对象
+  *
+	* @param appClassLoader 应用的类加载器
+	* @return ServletContext Servlet上下文对象
+	*/
+public static BinCatServletContext createServletContext(BinCatWebAppClassLoader appClassLoader) throws Exception {
+    BinCatServletContext servletContext = new BinCatServletContext(appClassLoader);
 
-import com.anbai.sec.server.servlet.BinCatServletContext;
-import com.anbai.sec.server.test.servlet.CMDServlet;
-import com.anbai.sec.server.test.servlet.IndexServlet;
-import com.anbai.sec.server.test.servlet.QuercusPHPServlet;
-import com.anbai.sec.server.test.servlet.TestServlet;
+    // 手动注册Servlet类
+    Class<Servlet>[] servletClass = new Class[]{
+      TestServlet.class,
+      CMDServlet.class,
+      QuercusPHPServlet.class
+        };
 
-import javax.servlet.Servlet;
-import java.util.HashSet;
-import java.util.Set;
+    for (Class<Servlet> clazz : servletClass) {
+      Servlet    servlet    = clazz.newInstance();
+      WebServlet webServlet = clazz.getAnnotation(WebServlet.class);
 
-public class BinCatConfig {
+      if (webServlet != null) {
+        // 获取WebInitParam配置
+        WebInitParam[] webInitParam = webServlet.initParams();
 
-	// 初始化Servlet映射类对象
-	private static final Set<Class<? extends Servlet>> SERVLET_LIST = new HashSet<>();
+        // 动态创建Servlet对象
+        ServletRegistration.Dynamic dynamic = servletContext.addServlet(webServlet.name(), servlet);
 
-	/**
-	 * 手动注册Servlet并创建BinCatServletContext对象
-	 *
-	 * @return ServletContext
-	 */
-	public static BinCatServletContext createServletContext() throws Exception {
-		// 手动注册Servlet类
-		SERVLET_LIST.add(IndexServlet.class);
-		SERVLET_LIST.add(TestServlet.class);
-		SERVLET_LIST.add(CMDServlet.class);
-		SERVLET_LIST.add(QuercusPHPServlet.class);
+        // 动态设置Servlet映射地址
+        dynamic.addMapping(webServlet.urlPatterns());
 
-		// 创建ServletContext
-		return new BinCatServletContext(SERVLET_LIST);
-	}
+        // 设置Servlet启动参数
+        for (WebInitParam initParam : webInitParam) {
+          dynamic.setInitParameter(initParam.name(), initParam.value());
+        }
+      }
+    }
 
+    // 创建ServletContext
+    return servletContext;
 }
 ```
 
 因为`QuercusServlet`创建时需要必须有`ServletContext`对象，所以我们必须实现`ServletContext`接口。除此之外，`Servlet`创建时还需要调用`Servlet`的初始化方法(`public void init(ServletConfig config) throws ServletException`)。调用`init`的时候还需要实现`ServletConfig`接口。
+
+**初始化Servlet代码片段：**
+
+```java
+/**
+	* 初始化Servlet
+	*
+	* @param servletContext Servlet上下文
+	* @throws ServletException Servlet处理异常
+	*/
+public static void initServlet(BinCatServletContext servletContext) throws ServletException {
+  Set<BinCatServletRegistrationDynamic> dynamics = servletContext.getRegistrationDynamics();
+
+  for (BinCatServletRegistrationDynamic dynamic : dynamics) {
+    Servlet             servlet          = dynamic.getServlet();
+    String              servletName      = dynamic.getServletName();
+    Map<String, String> initParameterMap = dynamic.getInitParameters();
+
+    servlet.init(new BinCatServletConfig(servletContext, servletName, initParameterMap));
+  }
+}
+```
+
+
 
 ## BinCatServletContext实现
 
@@ -132,19 +124,23 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class BinCatServletContext implements ServletContext {
 
-	// 创建ServletContext对象
-	private final Map<String, Servlet> servletMap = new ConcurrentHashMap<String, Servlet>();
+	// 创建一个装动态注册的Servlet的Map
+	private final Map<String, Servlet> servletMap = new HashMap<>();
 
-	public BinCatServletContext(Set<Class<? extends Servlet>> servletList) throws Exception {
-		for (Class<? extends Servlet> clazz : servletList) {
-			WebServlet webServlet  = clazz.getAnnotation(WebServlet.class);
-			String     servletName = webServlet.name();
-			Servlet    httpServlet = clazz.newInstance();
+	// 创建一个装ServletContext初始化参数的Map
+	private final Map<String, String> initParameterMap = new HashMap<>();
 
-			servletMap.put(servletName, httpServlet);
+	// 创建一个装ServletContext属性对象的Map
+	private final Map<String, Object> attributeMap = new HashMap<>();
 
-			httpServlet.init(new BinCatServletConfig(this, webServlet));
-		}
+	// 创建一个装Servlet动态注册的Set
+	private final Set<BinCatServletRegistrationDynamic> registrationDynamics = new LinkedHashSet<>();
+
+	// BinCatWebAppClassLoader，Web应用的类加载器
+	private final BinCatWebAppClassLoader appClassLoader;
+
+	public BinCatServletContext(BinCatWebAppClassLoader appClassLoader) throws Exception {
+		this.appClassLoader = appClassLoader;
 	}
   
 	// 此处省略ServletContext接口中的大部分方法，仅保留几个示例方法...
@@ -253,17 +249,17 @@ package com.anbai.sec.server.handler;
 
 import com.anbai.sec.server.servlet.BinCatRequest;
 import com.anbai.sec.server.servlet.BinCatResponse;
+import com.anbai.sec.server.servlet.BinCatServletContext;
+import com.anbai.sec.server.servlet.BinCatServletRegistrationDynamic;
 import org.javaweb.utils.FileUtils;
 import org.javaweb.utils.StringUtils;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
-import javax.servlet.annotation.WebServlet;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Enumeration;
+import java.util.Collection;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class BinCatDispatcherServlet {
@@ -273,7 +269,7 @@ public class BinCatDispatcherServlet {
 		String uri = req.getRequestURI();
 
 		// 获取ServletContext
-		ServletContext servletContext = req.getServletContext();
+		BinCatServletContext servletContext = (BinCatServletContext) req.getServletContext();
 
 		// 获取Http请求的文件
 		File requestFile = new File(req.getRealPath(uri));
@@ -296,12 +292,9 @@ public class BinCatDispatcherServlet {
 			out.write(Files.readAllBytes(requestFile.toPath()));
 		} else {
 			// 遍历所有已注册得Servlet，处理Http请求
-			Enumeration<Servlet> servlets = servletContext.getServlets();
-
-			while (servlets.hasMoreElements()) {
-				Servlet    servlet     = servlets.nextElement();
-				WebServlet webServlet  = servlet.getClass().getAnnotation(WebServlet.class);
-				String[]   urlPatterns = webServlet.urlPatterns();
+			Set<BinCatServletRegistrationDynamic> dynamics = servletContext.getRegistrationDynamics();
+			for (BinCatServletRegistrationDynamic dynamic : dynamics) {
+				Collection<String> urlPatterns = dynamic.getMappings();
 
 				for (String urlPattern : urlPatterns) {
 					try {
@@ -311,7 +304,7 @@ public class BinCatDispatcherServlet {
 							resp.setStatus(200, "OK");
 
 							// 调用Servlet请求处理方法
-							servlet.service(req, resp);
+							dynamic.getServlet().service(req, resp);
 							return;
 						}
 					} catch (Exception e) {
@@ -418,6 +411,9 @@ public class BinCatServerV4 {
 
 			// 创建BinCatServletContext对象
 			BinCatServletContext servletContext = BinCatConfig.createServletContext();
+
+			// 初始化Servlet
+			BinCatConfig.initServlet(servletContext);
 
 			LOG.info(SERVER_NAME + " 启动成功，监听端口: " + PORT);
 
