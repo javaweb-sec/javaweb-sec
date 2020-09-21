@@ -1,5 +1,5 @@
 ### JSON登陆注入接口测试
-POST http://localhost:8000/modules/jdbc/json.jsp
-Content-Type: application/json
+POST {{url}}/modules/jdbc/json.jsp
+Content-Type: {{json}}
 
 {"username": "admin", "password": "'=0#'"}

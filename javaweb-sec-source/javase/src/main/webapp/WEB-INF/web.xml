@@ -48,6 +48,9 @@
 
         <!-- Servlet处理类名 -->
         <servlet-class>com.anbai.sec.servlet.TestServlet</servlet-class>
+
+        <!-- 设置Servlet优先级 -->
+        <load-on-startup>0</load-on-startup>
     </servlet>
 
     <servlet-mapping>
