@@ -11,16 +11,6 @@
         </param-value>
     </context-param>
 
-<!--    <filter>-->
-<!--        <filter-name>LingXe</filter-name>-->
-<!--        <filter-class>com.anbai.lingxe.servlet.LingXeFilter</filter-class>-->
-<!--    </filter>-->
-
-<!--    <filter-mapping>-->
-<!--        <filter-name>LingXe</filter-name>-->
-<!--        <url-pattern>/*</url-pattern>-->
-<!--    </filter-mapping>-->
-
     <servlet>
         <servlet-name>javaweb</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>

@@ -125,7 +125,7 @@ IDEA的反编译效果非常的不错，大部分时间都可以直接使用IDEA
 
 复制一个文件的内容到粘贴板，然后打开需要比较的文件后点击`右键`->`Compare with Clipboard`：
 
-<img src="/Users/yz/IdeaProjects/javaweb-sec/gitbook/images/image-20200920123854460.png" alt="image-20200920123854460" style="zoom: 40%;" />
+<img src="../images/image-20200920123854460.png" alt="image-20200920123854460" style="zoom: 40%;" />
 
 文件对比：
 
@@ -146,3 +146,15 @@ IDEA的反编译效果非常的不错，大部分时间都可以直接使用IDEA
 `版本控制`的文件比较方式非常简单，配置好`VCS(Version Vontrol System，版本控制系统)`后本地修改的文件和远程的文件可以直接比较，如图：
 
 <img src="../images/image-20200920161539727.png" alt="image-20200920161539727" style="zoom:50%;" />
+
+## 9. 类/资源文件热更新
+
+`IDEA`中默认不会将修改的文件和资源自动同步到`Web Server`或者`SpringBoot`，需要我们手动设置当类文件或资源文件发生修改后同步更新。
+
+`Web容器`热更新：
+
+![image-20200922204404489](../images/image-20200922204404489.png)
+
+`SpringBoot`热更新:
+
+![image-20200922204435421](../images/image-20200922204435421.png)

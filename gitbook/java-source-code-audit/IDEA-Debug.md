@@ -179,11 +179,11 @@ JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
 
 调试模式时我们可以点击下图的`计算器`图标或者使用快捷键`⌥F8`来执行任意的`Java`代码片段，如下图：
 
-![image-20200920163423170](/Users/yz/IdeaProjects/javaweb-sec/gitbook/images/image-20200920163423170.png)
+![image-20200920163423170](../images/image-20200920163423170.png)
 
 如果想要执行多行，点击`放大`/`缩小`的小图标切换：
 
-<img src="/Users/yz/IdeaProjects/javaweb-sec/gitbook/images/image-20200920163740180.png" alt="image-20200920163740180" style="zoom:50%;" />
+<img src="../images/image-20200920163740180.png" alt="image-20200920163740180" style="zoom:50%;" />
 
 ## 8. 查看所有断点、暂停/启用所有断点
 
