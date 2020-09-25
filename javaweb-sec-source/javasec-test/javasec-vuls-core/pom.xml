@@ -13,6 +13,7 @@
     <artifactId>javasec-vuls-core</artifactId>
 
     <properties>
+        <java.version>1.7</java.version>
         <springframework.version>4.2.3.RELEASE</springframework.version>
     </properties>
 

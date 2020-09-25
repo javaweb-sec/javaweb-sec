@@ -14,7 +14,11 @@
     <description>JavaSec Struts 2漏洞演示环境</description>
 
     <properties>
+        <java.version>1.7</java.version>
         <struts.version>2.1.8</struts.version>
+        <tomcat.version>6.0.36</tomcat.version>
+        <jsp-api.version>2.3.1</jsp-api.version>
+        <servlet-api.version>2.4</servlet-api.version>
     </properties>
 
     <dependencies>
@@ -82,14 +86,14 @@
 
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <artifactId>servlet-api</artifactId>
             <version>${servlet-api.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>javax.servlet.jsp</groupId>
-            <artifactId>jsp-api</artifactId>
+            <artifactId>javax.servlet.jsp-api</artifactId>
             <version>${jsp-api.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -108,14 +112,14 @@
 
         <dependency>
             <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-catalina</artifactId>
+            <artifactId>catalina</artifactId>
             <version>${tomcat.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-jasper</artifactId>
+            <artifactId>jasper</artifactId>
             <version>${tomcat.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -134,8 +138,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>7</source>
-                    <target>7</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
         </plugins>
