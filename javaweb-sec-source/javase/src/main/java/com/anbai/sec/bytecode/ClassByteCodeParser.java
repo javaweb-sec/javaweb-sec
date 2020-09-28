@@ -1,12 +1,10 @@
 package com.anbai.sec.bytecode;
 
 import com.alibaba.fastjson.JSON;
+import org.javaweb.utils.FileUtils;
 
 import java.io.*;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.anbai.sec.bytecode.ClassByteCodeParser.Constant.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -294,11 +292,7 @@ public class ClassByteCodeParser {
 			// u4 attribute_length;
 			int attributeLength = dis.readInt();
 
-//			byte[] bytes = new byte[attributeLength];
-//
-//			// u1 info[attribute_length];
-//			dis.read(bytes);
-
+			// u1 info[attribute_length];
 			if ("ConstantValue".equals(attributeName)) {
 //				ConstantValue_attribute {
 //					u2 attribute_name_index;
@@ -335,7 +329,10 @@ public class ClassByteCodeParser {
 				int exceptionTableLength = dis.readUnsignedShort();
 
 				for (int i = 0; i < exceptionTableLength; i++) {
-
+					int startPc   = dis.readUnsignedShort();
+					int endPc     = dis.readUnsignedShort();
+					int handlerPc = dis.readUnsignedShort();
+					int catchType = dis.readUnsignedShort();
 				}
 
 				int attributesCount = dis.readShort();
@@ -352,7 +349,108 @@ public class ClassByteCodeParser {
 				int numberOfEntries = dis.readUnsignedShort();
 
 				for (int i = 0; i < numberOfEntries; i++) {
+					int frameType = dis.readUnsignedByte();
 
+//					union stack_map_frame {
+//						same_frame;
+//						same_locals_1_stack_item_frame;
+//						same_locals_1_stack_item_frame_extended;
+//						chop_frame;
+//						same_frame_extended;
+//						append_frame;
+//						full_frame;
+//					}
+
+					if (frameType >= 0 && frameType <= 63) {
+						// same_frame 0-63
+
+//						same_frame {
+//							u1 frame_type = SAME; /* 0-63 */
+//						}
+					} else if (frameType >= 64 && frameType <= 127) {
+						// same_locals_1_stack_item_frame 64-127
+
+//						same_locals_1_stack_item_frame {
+//							u1 frame_type = SAME_LOCALS_1_STACK_ITEM; /* 64-127 */
+//							verification_type_info stack[1];
+//						}
+
+						processAttrTag();
+					} else if (frameType == 247) {
+						// same_locals_1_stack_item_frame_extended 247
+
+//						same_locals_1_stack_item_frame_extended {
+//							u1 frame_type = SAME_LOCALS_1_STACK_ITEM_EXTENDED; /* 247 */
+//							u2 offset_delta;
+//							verification_type_info stack[1];
+//						}
+
+						int offsetDelta = dis.readUnsignedShort();
+
+						processAttrTag();
+					} else if (frameType >= 248 && frameType <= 250) {
+						//  chop_frame 248-250
+
+//						chop_frame {
+//							u1 frame_type = CHOP; /* 248-250 */
+//							u2 offset_delta;
+//						}
+
+						int offsetDelta = dis.readUnsignedShort();
+					} else if (frameType == 251) {
+						// same_frame_extended 251
+
+//						same_frame_extended {
+//							u1 frame_type = SAME_FRAME_EXTENDED; /* 251 */
+//							u2 offset_delta;
+//						}
+
+						int offsetDelta = dis.readUnsignedShort();
+					} else if (frameType >= 252 && frameType <= 254) {
+						// append_frame 252-254
+
+//						append_frame {
+//							u1 frame_type = APPEND; /* 252-254 */
+//							u2 offset_delta;
+//							verification_type_info locals[frame_type - 251];
+//						}
+
+						int offsetDelta = dis.readUnsignedShort();
+
+						for (int k = 0; k < frameType - 251; k++) {
+							processAttrTag();
+						}
+					} else {
+						// full_frame 255
+
+//						full_frame {
+//							u1 frame_type = FULL_FRAME; /* 255 */
+//							u2 offset_delta;
+//							u2 number_of_locals;
+//							verification_type_info locals[number_of_locals];
+//							u2 number_of_stack_items;
+//							verification_type_info stack[number_of_stack_items];
+//						}
+
+						// offset_delta;
+						int offsetDelta = dis.readUnsignedShort();
+
+						// u2 number_of_locals;
+						int numberOfLocals = dis.readUnsignedShort();
+
+						// verification_type_info locals[number_of_locals];
+						for (int k = 0; k < numberOfLocals; k++) {
+							processAttrTag();
+						}
+
+						// u2 number_of_stack_items;
+						int numberOfStackItems = dis.readUnsignedShort();
+
+						// verification_type_info stack[number_of_stack_items];
+						for (int k = 0; k < numberOfStackItems; k++) {
+							processAttrTag();
+						}
+					}
 				}
 			} else if ("Exceptions".equals(attributeName)) {
 //				Exceptions_attribute {
@@ -365,7 +463,7 @@ public class ClassByteCodeParser {
 				int numberOfExceptions = dis.readUnsignedShort();
 
 				for (int i = 0; i < numberOfExceptions; i++) {
-
+					int index = dis.readUnsignedShort();
 				}
 			} else if ("InnerClasses".equals(attributeName)) {
 //				InnerClasses_attribute {
@@ -434,8 +532,8 @@ public class ClassByteCodeParser {
 				int lineNumberTableLength = dis.readUnsignedShort();
 
 				for (int i = 0; i < lineNumberTableLength; i++) {
-					dis.readUnsignedShort();
-					dis.readUnsignedShort();
+					int startPc    = dis.readUnsignedShort();
+					int lineNumber = dis.readUnsignedShort();
 				}
 			} else if ("LocalVariableTable".equals(attributeName)) {
 //				LocalVariableTable_attribute {
@@ -451,6 +549,17 @@ public class ClassByteCodeParser {
 //				}
 
 				int localVariableTableLength = dis.readUnsignedShort();
+
+				for (int i = 0; i < localVariableTableLength; i++) {
+					int startPc = dis.readUnsignedShort();
+					int length  = dis.readUnsignedShort();
+
+					// 参数名称
+					String name = getConstantPoolValue(dis.readUnsignedShort(), "value");
+					String desc = getConstantPoolValue(dis.readUnsignedShort(), "value");
+
+					int index = dis.readUnsignedShort();
+				}
 			} else if ("LocalVariableTypeTable".equals(attributeName)) {
 //				LocalVariableTypeTable_attribute {
 //					u2 attribute_name_index;
@@ -465,6 +574,20 @@ public class ClassByteCodeParser {
 //				}
 
 				int localVariableTypeTableLength = dis.readUnsignedShort();
+
+				for (int i = 0; i < localVariableTypeTableLength; i++) {
+					// u2 length;
+					int length = dis.readUnsignedShort();
+
+					// u2 name_index;
+					int nameIndex = dis.readUnsignedShort();
+
+					// u2 signature_index;
+					int signatureIndex = dis.readUnsignedShort();
+
+					// u2 index;
+					int index = dis.readUnsignedShort();
+				}
 			} else if ("Deprecated".equals(attributeName)) {
 //				Deprecated_attribute {
 //					u2 attribute_name_index;
@@ -479,6 +602,10 @@ public class ClassByteCodeParser {
 //				}
 
 				int numAnnotations = dis.readUnsignedShort();
+
+				for (int i = 0; i < numAnnotations; i++) {
+
+				}
 			} else if ("RuntimeInvisibleAnnotations".equals(attributeName)) {
 //				RuntimeInvisibleAnnotations_attribute {
 //					u2 attribute_name_index;
@@ -488,6 +615,10 @@ public class ClassByteCodeParser {
 //				}
 
 				int numAnnotations = dis.readUnsignedShort();
+
+				for (int i = 0; i < numAnnotations; i++) {
+
+				}
 			} else if ("RuntimeVisibleParameterAnnotations".equals(attributeName)) {
 //				RuntimeVisibleParameterAnnotations_attribute {
 //					u2 attribute_name_index;
@@ -498,7 +629,7 @@ public class ClassByteCodeParser {
 //					} parameter_annotations[num_parameters];
 //				}
 
-				byte numParameters = dis.readByte();
+				int numParameters = dis.readUnsignedByte();
 			} else if ("RuntimeInvisibleParameterAnnotations".equals(attributeName)) {
 //				RuntimeInvisibleParameterAnnotations_attribute {
 //					u2 attribute_name_index;
@@ -509,7 +640,7 @@ public class ClassByteCodeParser {
 //					} parameter_annotations[num_parameters];
 //				}
 
-				byte numParameters = dis.readByte();
+				int numParameters = dis.readUnsignedByte();
 			} else if ("RuntimeVisibleTypeAnnotations".equals(attributeName)) {
 //				RuntimeVisibleTypeAnnotations_attribute {
 //					u2 attribute_name_index;
@@ -556,7 +687,7 @@ public class ClassByteCodeParser {
 //					} parameters[parameters_count];
 //				}
 
-				byte parametersCount = dis.readByte();
+				int parametersCount = dis.readUnsignedByte();
 			} else if ("Module".equals(attributeName)) {
 //				Module_attribute {
 //					u2 attribute_name_index;
@@ -626,6 +757,44 @@ public class ClassByteCodeParser {
 
 				int numberOfClasses = dis.readUnsignedShort();
 			}
+		}
+	}
+
+	private void processAttrTag() throws IOException {
+		int tag = dis.readUnsignedByte();
+
+//		union verification_type_info {
+//			Top_variable_info;
+//			Integer_variable_info;
+//			Float_variable_info;
+//			Long_variable_info;
+//			Double_variable_info;
+//			Null_variable_info;
+//			UninitializedThis_variable_info;
+//			Object_variable_info;
+//			Uninitialized_variable_info;
+//		}
+
+		if (tag == 0) {
+			// Top_variable_info
+		} else if (tag == 1) {
+			// Integer_variable_info
+		} else if (tag == 2) {
+			// Float_variable_info
+		} else if (tag == 3) {
+			// Double_variable_info
+		} else if (tag == 4) {
+			// Long_variable_info
+		} else if (tag == 5) {
+			// Null_variable_info
+		} else if (tag == 6) {
+			// UninitializedThis_variable_info
+		} else if (tag == 7) {
+			// Object_variable_info
+			int poolIndex = dis.readUnsignedShort();
+		} else if (tag == 8) {
+			// Uninitialized_variable_info
+			int offset = dis.readUnsignedShort();
 		}
 	}
 
@@ -884,7 +1053,7 @@ public class ClassByteCodeParser {
 				map.put("nameIndex", nameIndex);
 			}
 
-			// Long和Double占两位
+			// Long和Double是宽类型，占两位
 			if (tag == CONSTANT_LONG.flag || tag == CONSTANT_DOUBLE.flag) {
 				i++;
 			}
@@ -957,11 +1126,18 @@ public class ClassByteCodeParser {
 	}
 
 	public static void main(String[] args) throws IOException {
-		File                classFile  = new File(System.getProperty("user.dir"), "javaweb-sec-source/javase/src/main/java/com/anbai/sec/bytecode/TestHelloWorld.class");
+//		File classFile = new File(System.getProperty("user.dir"), "javaweb-sec-source/javase/src/main/java/com/anbai/sec/bytecode/TestHelloWorld.class");
+		File classFile = new File("/Users/yz/Downloads/asdp/asdp-agent/com/tongtech/asdp/agent/asm/RASPLocalVariableTableVisitor.class");
+
+		Collection<File> files = FileUtils.listFiles(new File("/Users/yz/Downloads/asdp/asdp-agent"), new String[]{"class"}, true);
+
+//		for (File classFile : files) {
+		System.out.println(classFile);
 		ClassByteCodeParser codeParser = new ClassByteCodeParser();
 
 		codeParser.parseByteCode(new FileInputStream(classFile));
 		System.out.println(JSON.toJSONString(codeParser));
+//		}
 	}
 
 }

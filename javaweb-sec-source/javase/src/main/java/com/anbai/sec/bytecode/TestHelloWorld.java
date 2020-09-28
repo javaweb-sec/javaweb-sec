@@ -17,13 +17,14 @@ public class TestHelloWorld implements Serializable {
 
 	private String password;
 
-	public String hello() {
-		return "Hello World~";
+	public String hello(String content) {
+		String str = "Hello:";
+		return str + content;
 	}
 
 	public static void main(String[] args) {
 		TestHelloWorld test = new TestHelloWorld();
-		String         str  = test.hello();
+		String         str  = test.hello("Hello World~");
 
 		System.out.println(str);
 	}
