@@ -478,6 +478,20 @@ public class ClassByteCodeParser {
 //				}
 
 				int numberOfClasses = dis.readUnsignedShort();
+
+				for (int i = 0; i < numberOfClasses; i++) {
+					// u2 inner_class_info_index;
+					int innerClassInfoIndex = dis.readUnsignedShort();
+
+					// u2 outer_class_info_index;
+					int outerClassInfoIndex = dis.readUnsignedShort();
+
+					// u2 inner_name_index;
+					int innerNameIndex = dis.readUnsignedShort();
+
+					// u2 inner_class_access_flags;
+					int innerClassAccessFlags = dis.readUnsignedShort();
+				}
 			} else if ("EnclosingMethod".equals(attributeName)) {
 //				EnclosingMethod_attribute {
 //					u2 attribute_name_index;
@@ -551,13 +565,19 @@ public class ClassByteCodeParser {
 				int localVariableTableLength = dis.readUnsignedShort();
 
 				for (int i = 0; i < localVariableTableLength; i++) {
+					// u2 start_pc;
 					int startPc = dis.readUnsignedShort();
-					int length  = dis.readUnsignedShort();
 
-					// 参数名称
+					// u2 length;
+					int length = dis.readUnsignedShort();
+
+					// u2 name_index; 参数名称
 					String name = getConstantPoolValue(dis.readUnsignedShort(), "value");
+
+					// u2 descriptor_index; 参数描述符
 					String desc = getConstantPoolValue(dis.readUnsignedShort(), "value");
 
+					// u2 index;
 					int index = dis.readUnsignedShort();
 				}
 			} else if ("LocalVariableTypeTable".equals(attributeName)) {
@@ -576,6 +596,9 @@ public class ClassByteCodeParser {
 				int localVariableTypeTableLength = dis.readUnsignedShort();
 
 				for (int i = 0; i < localVariableTypeTableLength; i++) {
+					// u2 start_pc;
+					int startPc = dis.readUnsignedShort();
+
 					// u2 length;
 					int length = dis.readUnsignedShort();
 
@@ -604,7 +627,7 @@ public class ClassByteCodeParser {
 				int numAnnotations = dis.readUnsignedShort();
 
 				for (int i = 0; i < numAnnotations; i++) {
-
+					readAnnotation();
 				}
 			} else if ("RuntimeInvisibleAnnotations".equals(attributeName)) {
 //				RuntimeInvisibleAnnotations_attribute {
@@ -617,7 +640,7 @@ public class ClassByteCodeParser {
 				int numAnnotations = dis.readUnsignedShort();
 
 				for (int i = 0; i < numAnnotations; i++) {
-
+					readAnnotation();
 				}
 			} else if ("RuntimeVisibleParameterAnnotations".equals(attributeName)) {
 //				RuntimeVisibleParameterAnnotations_attribute {
@@ -630,6 +653,14 @@ public class ClassByteCodeParser {
 //				}
 
 				int numParameters = dis.readUnsignedByte();
+
+				for (int i = 0; i < numParameters; i++) {
+					int numAnnotations = dis.readUnsignedShort();
+
+					for (int k = 0; k < numAnnotations; k++) {
+						readAnnotation();
+					}
+				}
 			} else if ("RuntimeInvisibleParameterAnnotations".equals(attributeName)) {
 //				RuntimeInvisibleParameterAnnotations_attribute {
 //					u2 attribute_name_index;
@@ -641,6 +672,14 @@ public class ClassByteCodeParser {
 //				}
 
 				int numParameters = dis.readUnsignedByte();
+
+				for (int i = 0; i < numParameters; i++) {
+					int numAnnotations = dis.readUnsignedShort();
+
+					for (int k = 0; k < numAnnotations; k++) {
+						readAnnotation();
+					}
+				}
 			} else if ("RuntimeVisibleTypeAnnotations".equals(attributeName)) {
 //				RuntimeVisibleTypeAnnotations_attribute {
 //					u2 attribute_name_index;
@@ -650,6 +689,10 @@ public class ClassByteCodeParser {
 //				}
 
 				int numAnnotations = dis.readUnsignedShort();
+
+				for (int i = 0; i < numAnnotations; i++) {
+					readTypeAnnotation();
+				}
 			} else if ("RuntimeInvisibleTypeAnnotations".equals(attributeName)) {
 //				RuntimeInvisibleTypeAnnotations_attribute {
 //					u2 attribute_name_index;
@@ -659,12 +702,18 @@ public class ClassByteCodeParser {
 //				}
 
 				int numAnnotations = dis.readUnsignedShort();
+
+				for (int i = 0; i < numAnnotations; i++) {
+					readTypeAnnotation();
+				}
 			} else if ("AnnotationDefault".equals(attributeName)) {
 //				AnnotationDefault_attribute {
 //					u2 attribute_name_index;
 //					u4 attribute_length;
 //					element_value default_value;
 //				}
+
+				readElementType();
 			} else if ("BootstrapMethods".equals(attributeName)) {
 //				BootstrapMethods_attribute {
 //					u2 attribute_name_index;
@@ -677,6 +726,27 @@ public class ClassByteCodeParser {
 //				}
 
 				int numBootstrapMethods = dis.readUnsignedShort();
+
+				for (int i = 0; i < numBootstrapMethods; i++) {
+					// u2 bootstrap_method_ref;
+					int bootstrapMethodRef = dis.readUnsignedShort();
+
+					// u2 num_bootstrap_arguments;
+					int numBootstrapArguments = dis.readUnsignedShort();
+
+					// u2 bootstrap_arguments[num_bootstrap_arguments];
+					int bootstrapArguments = dis.readUnsignedShort();
+
+					for (int k = 0; k < bootstrapArguments; k++) {
+						int     bootstrapMethodRef2    = dis.readUnsignedShort();
+						int     numBootstrapArguments2 = dis.readUnsignedShort();
+						short[] bootstrapArguments2    = new short[numBootstrapArguments2];
+
+						for (int l = 0; l < numBootstrapArguments2; l++) {
+							bootstrapArguments2[l] = dis.readShort();
+						}
+					}
+				}
 			} else if ("MethodParameters".equals(attributeName)) {
 //				MethodParameters_attribute {
 //					u2 attribute_name_index;
@@ -688,6 +758,14 @@ public class ClassByteCodeParser {
 //				}
 
 				int parametersCount = dis.readUnsignedByte();
+
+				for (int i = 0; i < parametersCount; i++) {
+					// u2 name_index;
+					int nameIndex = dis.readUnsignedShort();
+
+					// u2 access_flags;
+					int accessFlags = dis.readUnsignedShort();
+				}
 			} else if ("Module".equals(attributeName)) {
 //				Module_attribute {
 //					u2 attribute_name_index;
@@ -721,7 +799,86 @@ public class ClassByteCodeParser {
 //					} provides[provides_count];
 //				}
 
-				int packageCount = dis.readUnsignedShort();
+				// u2 module_name_index;
+				int moduleNameIndex = dis.readUnsignedShort();
+
+				// u2 module_flags;
+				int moduleFlags = dis.readUnsignedShort();
+
+				// u2 module_version_index;
+				int moduleVersionIndex = dis.readUnsignedShort();
+
+				// u2 requires_count;
+				int requiresCount = dis.readUnsignedShort();
+
+				for (int i = 0; i < requiresCount; i++) {
+					// u2 requires_index;
+					int requiresIndex = dis.readUnsignedShort();
+
+					// u2 requires_flags;
+					int requiresFlags = dis.readUnsignedShort();
+
+					// u2 requires_version_index;
+					int requiresVersionIndex = dis.readUnsignedShort();
+				}
+
+				// u2 exports_count;
+				int exportsCount = dis.readUnsignedShort();
+
+				// u2 exports_index;
+				int exportsIndex = dis.readUnsignedShort();
+
+				// u2 exports_flags;
+				int exportsFlags = dis.readUnsignedShort();
+
+				// u2 exports_to_count;
+				int exportsToCount = dis.readUnsignedShort();
+
+				// u2 exports_to_index[exports_to_count];
+				int exportsToIndex = dis.readUnsignedShort();
+
+				// u2 opens_count;
+				int opensCount = dis.readUnsignedShort();
+
+				for (int i = 0; i < opensCount; i++) {
+					// u2 opens_index;
+					int opensIndex = dis.readUnsignedShort();
+
+					// u2 opens_flags;
+					int opensFlags = dis.readUnsignedShort();
+
+					// u2 opens_to_count;
+					int opensToCount = dis.readUnsignedShort();
+
+					// u2 opens_to_index[opens_to_count];
+					for (int k = 0; k < opensToCount; k++) {
+
+					}
+				}
+
+				// u2 uses_count;
+				int usesCount = dis.readUnsignedShort();
+
+				// u2 uses_index[uses_count];
+				for (int i = 0; i < usesCount; i++) {
+
+				}
+
+				// u2 provides_count;
+				int providesCount = dis.readUnsignedShort();
+
+				for (int i = 0; i < providesCount; i++) {
+					// u2 provides_index;
+					int providesIndex = dis.readUnsignedShort();
+
+					// u2 provides_with_count;
+					int providesWithCount = dis.readUnsignedShort();
+
+					// u2 provides_with_index[provides_with_count];
+					for (int k = 0; k < providesWithCount; k++) {
+
+					}
+				}
 			} else if ("ModulePackages".equals(attributeName)) {
 //				ModulePackages_attribute {
 //					u2 attribute_name_index;
@@ -731,6 +888,10 @@ public class ClassByteCodeParser {
 //				}
 
 				int packageCount = dis.readUnsignedShort();
+
+				for (int i = 0; i < packageCount; i++) {
+
+				}
 			} else if ("ModuleMainClass".equals(attributeName)) {
 //				ModuleMainClass_attribute {
 //					u2 attribute_name_index;
@@ -756,6 +917,96 @@ public class ClassByteCodeParser {
 //				}
 
 				int numberOfClasses = dis.readUnsignedShort();
+
+				for (int i = 0; i < numberOfClasses; i++) {
+
+				}
+			}
+		}
+	}
+
+	private void readAnnotation() throws IOException {
+//		annotation {
+//			u2 type_index;
+//			u2 num_element_value_pairs;
+//			{ u2 element_name_index;
+//				element_value value;
+//			} element_value_pairs[num_element_value_pairs];
+//		}
+
+		// u2 type_index;
+		int typeIndex = dis.readUnsignedShort();
+
+		// u2 num_element_value_pairs;
+		int numElementValuePairs = dis.readUnsignedShort();
+
+		for (int i = 0; i < numElementValuePairs; i++) {
+			// u2 element_name_index;
+			int elementNameIndex = dis.readUnsignedShort();
+
+			// element_value value;
+			readElementType();
+		}
+	}
+
+	private void readTypeAnnotation() {
+
+	}
+
+	private void readElementType() throws IOException {
+//			element_value {
+//				u1 tag;
+//				union {
+//					u2 const_value_index;
+//					{ u2 type_name_index;
+//						u2 const_name_index;
+//					} enum_const_value;
+//					u2 class_info_index;
+//					annotation annotation_value;
+//					{ u2 num_values;
+//						element_value values[num_values];
+//					} array_value;
+//				} value;
+//			}
+		char tag = (char) dis.readUnsignedByte();
+
+		// tag Item Type                value Item           Constant Type
+		// B        byte                const_value_index    CONSTANT_Integer
+		// C        char                const_value_index    CONSTANT_Integer
+		// D        double              const_value_index    CONSTANT_Double
+		// F        float               const_value_index    CONSTANT_Float
+		// I        int                 const_value_index    CONSTANT_Integer
+		// J        long                const_value_index    CONSTANT_Long
+		// S        short               const_value_index    CONSTANT_Integer
+		// Z        boolean             const_value_index    CONSTANT_Integer
+		// s        String              const_value_index    CONSTANT_Utf8
+		// e        Enum type           enum_const_value     Not applicable
+		// c        Class               class_info_index     Not applicable
+		// @        Annotation type     annotation_value     Not applicable
+		// [        Array type          array_value          Not applicable
+		if (tag == 'B' || tag == 'C' || tag == 'D' || tag == 'F' || tag == 'I' ||
+				tag == 'J' || tag == 'S' || tag == 'Z' || tag == 's') {
+
+			int constValueIndex = dis.readUnsignedShort();
+		} else if (tag == 'e') {
+			int typeNameIndex  = dis.readUnsignedShort();
+			int constNameIndex = dis.readUnsignedShort();
+		} else if (tag == 'c') {
+			int classInfoIndex = dis.readUnsignedShort();
+		} else if (tag == '@') {
+			int typeIndex            = dis.readUnsignedShort();
+			int numElementValuePairs = dis.readUnsignedShort();
+
+			for (int i = 0; i < numElementValuePairs; i++) {
+				int elementNameIndex = dis.readUnsignedShort();
+
+				readElementType();
+			}
+		} else if (tag == '[') {
+			int numValues = dis.readUnsignedShort();
+
+			for (int j = 0; j < numValues; j++) {
+				readElementType();
 			}
 		}
 	}
@@ -1126,18 +1377,20 @@ public class ClassByteCodeParser {
 	}
 
 	public static void main(String[] args) throws IOException {
-//		File classFile = new File(System.getProperty("user.dir"), "javaweb-sec-source/javase/src/main/java/com/anbai/sec/bytecode/TestHelloWorld.class");
-		File classFile = new File("/Users/yz/Downloads/asdp/asdp-agent/com/tongtech/asdp/agent/asm/RASPLocalVariableTableVisitor.class");
+//		File                classFile  = new File("/Users/yz/IdeaProjects/Servers/TW_7_2020-01-16/lib/tongweb/com/tongweb/tomee/catalina/event/AfterApplicationCreated.class");
+//		ClassByteCodeParser codeParser = new ClassByteCodeParser();
+//
+//		codeParser.parseByteCode(new FileInputStream(classFile));
 
-		Collection<File> files = FileUtils.listFiles(new File("/Users/yz/Downloads/asdp/asdp-agent"), new String[]{"class"}, true);
+		Collection<File> files = FileUtils.listFiles(new File("/Users/yz/IdeaProjects/Servers/TW_7_2020-01-16/lib/tongweb"), new String[]{"class"}, true);
 
-//		for (File classFile : files) {
-		System.out.println(classFile);
-		ClassByteCodeParser codeParser = new ClassByteCodeParser();
+		for (File classFile : files) {
+			System.out.println(classFile);
+			ClassByteCodeParser codeParser = new ClassByteCodeParser();
 
-		codeParser.parseByteCode(new FileInputStream(classFile));
-		System.out.println(JSON.toJSONString(codeParser));
-//		}
+			codeParser.parseByteCode(new FileInputStream(classFile));
+			System.out.println(JSON.toJSONString(codeParser));
+		}
 	}
 
 }
