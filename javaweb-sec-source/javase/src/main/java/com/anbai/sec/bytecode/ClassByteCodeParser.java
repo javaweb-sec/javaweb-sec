@@ -82,6 +82,11 @@ public class ClassByteCodeParser {
 	private int methodsCount;
 
 	/**
+	 * 方法数组
+	 */
+	private final Set<Map<String, Object>> methodList = new HashSet<>();
+
+	/**
 	 * 属性数
 	 */
 	private int attributesCount;
@@ -192,28 +197,7 @@ public class ClassByteCodeParser {
 //					attribute_info attributes[attributes_count];
 //				}
 
-				Map<String, Object> fieldMap = new LinkedHashMap<>();
-
-				// u2 access_flags;
-				int fieldAccessFlags = dis.readUnsignedShort();
-				fieldMap.put("access", fieldAccessFlags);
-
-				// u2 name_index;
-				int fieldNameIndex = dis.readUnsignedShort();
-				fieldMap.put("name", getConstantPoolValue(fieldNameIndex, "value"));
-
-				// u2 descriptor_index;
-				int fieldDescriptorIndex = dis.readUnsignedShort();
-				fieldMap.put("desc", getConstantPoolValue(fieldDescriptorIndex, "value"));
-
-				// u2 attributes_count;
-				int fieldAttributesCount = dis.readUnsignedShort();
-				fieldMap.put("attributesCount", fieldAttributesCount);
-
-				// 读取成员变量属性信息
-				fieldMap.put("attributes", readAttributes(fieldAttributesCount));
-
-				this.fieldList.add(fieldMap);
+				this.fieldList.add(readFieldOrMethod());
 			}
 
 			// u2 methods_count;
@@ -229,26 +213,7 @@ public class ClassByteCodeParser {
 //					attribute_info attributes[attributes_count];
 //				}
 
-				Map<String, Object> methodMap = new LinkedHashMap<>();
-
-				// u2 access_flags;
-				int methodAccessFlags = dis.readUnsignedShort();
-				methodMap.put("access", methodAccessFlags);
-
-				// u2 name_index;
-				int methodNameIndex = dis.readUnsignedShort();
-				methodMap.put("name", getConstantPoolValue(methodNameIndex, "value"));
-
-				// u2 descriptor_index;
-				int methodDescriptorIndex = dis.readUnsignedShort();
-				methodMap.put("desc", getConstantPoolValue(methodDescriptorIndex, "value"));
-
-				// u2 attributes_count;
-				int methodAttributesCount = dis.readUnsignedShort();
-				methodMap.put("attributesCount", methodAttributesCount);
-
-				// attribute_info attributes[attributes_count];
-				methodMap.put("attributes", readAttributes(methodAttributesCount));
+				methodList.add(readFieldOrMethod());
 			}
 
 			// u2 attributes_count;
@@ -259,6 +224,34 @@ public class ClassByteCodeParser {
 		} else {
 			throw new RuntimeException("Class文件格式错误!");
 		}
+	}
+
+	/**
+	 * 读取成员变量或者方法的公用属性
+	 *
+	 * @return 成员变量或方法属性信息
+	 * @throws IOException 解析异常
+	 */
+	private Map<String, Object> readFieldOrMethod() throws IOException {
+		Map<String, Object> dataMap = new LinkedHashMap<>();
+
+		// u2 access_flags;
+		dataMap.put("access", dis.readUnsignedShort());
+
+		// u2 name_index;
+		dataMap.put("name", getConstantPoolValue(dis.readUnsignedShort(), "value"));
+
+		// u2 descriptor_index;
+		dataMap.put("desc", getConstantPoolValue(dis.readUnsignedShort(), "value"));
+
+		// u2 attributes_count;
+		int attributesCount = dis.readUnsignedShort();
+		dataMap.put("attributesCount", attributesCount);
+
+		// 读取成员变量属性信息
+		dataMap.put("attributes", readAttributes(attributesCount));
+
+		return dataMap;
 	}
 
 	/**
@@ -1658,8 +1651,16 @@ public class ClassByteCodeParser {
 		return methodsCount;
 	}
 
+	public Set<Map<String, Object>> getMethodList() {
+		return methodList;
+	}
+
 	public int getAttributesCount() {
 		return attributesCount;
+	}
+
+	public Map<String, Object> getAttributes() {
+		return attributes;
 	}
 
 	public static void main(String[] args) throws IOException {
