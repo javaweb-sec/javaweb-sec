@@ -230,7 +230,7 @@ public class ClassByteCodeParser {
 	 * 读取成员变量或者方法的公用属性
 	 *
 	 * @return 成员变量或方法属性信息
-	 * @throws IOException 解析异常
+	 * @throws IOException 读取异常
 	 */
 	private Map<String, Object> readFieldOrMethod() throws IOException {
 		Map<String, Object> dataMap = new LinkedHashMap<>();
@@ -649,6 +649,7 @@ public class ClassByteCodeParser {
 
 				List<Map<String, Object>> localVariableTableList = new ArrayList<>();
 
+				// local_variable_table[local_variable_table_length];
 				for (int i = 0; i < localVariableTableLength; i++) {
 					Map<String, Object> localVariableTableMap = new LinkedHashMap<>();
 
@@ -666,6 +667,8 @@ public class ClassByteCodeParser {
 
 					// u2 index;
 					localVariableTableMap.put("index", dis.readUnsignedShort());
+
+					localVariableTableList.add(localVariableTableMap);
 				}
 
 				attrMap.put("localVariableTableList", localVariableTableList);
@@ -691,6 +694,7 @@ public class ClassByteCodeParser {
 
 				List<Map<String, Object>> localVariableTypeTableList = new ArrayList<>();
 
+				// local_variable_type_table[local_variable_type_table_length];
 				for (int i = 0; i < localVariableTypeTableLength; i++) {
 					Map<String, Object> localVariableTypeMap = new LinkedHashMap<>();
 
@@ -708,6 +712,7 @@ public class ClassByteCodeParser {
 
 					// u2 index;
 					localVariableTypeMap.put("index", dis.readUnsignedShort());
+
 					localVariableTypeTableList.add(localVariableTypeMap);
 				}
 
@@ -732,18 +737,9 @@ public class ClassByteCodeParser {
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
+				attrMap.put("runtimeVisibleAnnotations", readRuntimeVisibleAnnotations());
 
-				// u2 num_annotations;
-				int numAnnotations = dis.readUnsignedShort();
-				attrMap.put("numAnnotations", numAnnotations);
-
-				List<Map<String, Object>> annotationList = new ArrayList<>();
-
-				for (int i = 0; i < numAnnotations; i++) {
-					readAnnotation();
-				}
-
-				attributeMap.put("RuntimeInvisibleAnnotations", attrMap);
+				attributeMap.put("RuntimeVisibleAnnotations", attrMap);
 			} else if ("RuntimeInvisibleAnnotations".equals(attributeName)) {
 //				RuntimeInvisibleAnnotations_attribute {
 //					u2 attribute_name_index;
@@ -752,15 +748,9 @@ public class ClassByteCodeParser {
 //					annotation annotations[num_annotations];
 //				}
 
-				int numAnnotations = dis.readUnsignedShort();
-
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
-				attrMap.put("numAnnotations", numAnnotations);
-
-				for (int i = 0; i < numAnnotations; i++) {
-					readAnnotation();
-				}
+				attrMap.put("runtimeInvisibleAnnotations", readRuntimeVisibleAnnotations());
 
 				attributeMap.put("RuntimeInvisibleAnnotations", attrMap);
 			} else if ("RuntimeVisibleParameterAnnotations".equals(attributeName)) {
@@ -773,19 +763,9 @@ public class ClassByteCodeParser {
 //					} parameter_annotations[num_parameters];
 //				}
 
-				int numParameters = dis.readUnsignedByte();
-
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
-				attrMap.put("numParameters", numParameters);
-
-				for (int i = 0; i < numParameters; i++) {
-					int numAnnotations = dis.readUnsignedShort();
-
-					for (int k = 0; k < numAnnotations; k++) {
-						readAnnotation();
-					}
-				}
+				attrMap.put("runtimeVisibleParameterAnnotations", readParametersAnnotations());
 
 				attributeMap.put("RuntimeVisibleParameterAnnotations", attrMap);
 			} else if ("RuntimeInvisibleParameterAnnotations".equals(attributeName)) {
@@ -798,19 +778,9 @@ public class ClassByteCodeParser {
 //					} parameter_annotations[num_parameters];
 //				}
 
-				int numParameters = dis.readUnsignedByte();
-
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
-				attrMap.put("numParameters", numParameters);
-
-				for (int i = 0; i < numParameters; i++) {
-					int numAnnotations = dis.readUnsignedShort();
-
-					for (int k = 0; k < numAnnotations; k++) {
-						readAnnotation();
-					}
-				}
+				attrMap.put("runtimeInvisibleParameterAnnotations", readParametersAnnotations());
 
 				attributeMap.put("RuntimeInvisibleParameterAnnotations", attrMap);
 			} else if ("RuntimeVisibleTypeAnnotations".equals(attributeName)) {
@@ -821,17 +791,11 @@ public class ClassByteCodeParser {
 //					type_annotation annotations[num_annotations];
 //				}
 
-				int numAnnotations = dis.readUnsignedShort();
-
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
-				attrMap.put("numAnnotations", numAnnotations);
+				attrMap.put("runtimeVisibleTypeAnnotations", readTypeAnnotation(false));
 
-				for (int i = 0; i < numAnnotations; i++) {
-					readTypeAnnotation();
-				}
-
-				attributeMap.put("RuntimeInvisibleTypeAnnotations", attrMap);
+				attributeMap.put("RuntimeVisibleTypeAnnotations", attrMap);
 			} else if ("RuntimeInvisibleTypeAnnotations".equals(attributeName)) {
 //				RuntimeInvisibleTypeAnnotations_attribute {
 //					u2 attribute_name_index;
@@ -840,15 +804,9 @@ public class ClassByteCodeParser {
 //					type_annotation annotations[num_annotations];
 //				}
 
-				int numAnnotations = dis.readUnsignedShort();
-
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
-				attrMap.put("numAnnotations", numAnnotations);
-
-				for (int i = 0; i < numAnnotations; i++) {
-					readTypeAnnotation();
-				}
+				attrMap.put("runtimeInvisibleTypeAnnotations", readTypeAnnotation(true));
 
 				attributeMap.put("RuntimeInvisibleTypeAnnotations", attrMap);
 			} else if ("AnnotationDefault".equals(attributeName)) {
@@ -861,7 +819,8 @@ public class ClassByteCodeParser {
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
 
-				readElementType();
+				// element_value value;
+				attrMap.put("elementTypeMap", readAnnotationElementType());
 
 				attributeMap.put("AnnotationDefault", attrMap);
 			} else if ("BootstrapMethods".equals(attributeName)) {
@@ -875,32 +834,40 @@ public class ClassByteCodeParser {
 //					} bootstrap_methods[num_bootstrap_methods];
 //				}
 
+				// u2 num_bootstrap_methods;
 				int numBootstrapMethods = dis.readUnsignedShort();
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
 				attrMap.put("numBootstrapMethods", numBootstrapMethods);
 
+				List<Map<String, Object>> bootstrapMethodList = new ArrayList<>();
+
 				for (int i = 0; i < numBootstrapMethods; i++) {
+					Map<String, Object> bootstrapMethodMap = new LinkedHashMap<>();
+
 					// u2 bootstrap_method_ref;
-					int bootstrapMethodRef = dis.readUnsignedShort();
+					bootstrapMethodMap.put("bootstrapMethodRef", dis.readUnsignedShort());
 
 					// u2 num_bootstrap_arguments;
-					int numBootstrapArguments = dis.readUnsignedShort();
+					bootstrapMethodMap.put("numBootstrapArguments", dis.readUnsignedShort());
 
 					// u2 bootstrap_arguments[num_bootstrap_arguments];
 					int bootstrapArguments = dis.readUnsignedShort();
+					bootstrapMethodMap.put("bootstrapArguments", bootstrapArguments);
+
+					List<Object> argumentList = new ArrayList<>();
 
 					for (int k = 0; k < bootstrapArguments; k++) {
-						int     bootstrapMethodRef2    = dis.readUnsignedShort();
-						int     numBootstrapArguments2 = dis.readUnsignedShort();
-						short[] bootstrapArguments2    = new short[numBootstrapArguments2];
-
-						for (int l = 0; l < numBootstrapArguments2; l++) {
-							bootstrapArguments2[l] = dis.readShort();
-						}
+						argumentList.add(getConstantPoolValue(dis.readUnsignedShort(), "value"));
 					}
+
+					bootstrapMethodMap.put("argumentList", argumentList);
+
+					bootstrapMethodList.add(bootstrapMethodMap);
 				}
+
+				attrMap.put("bootstrapMethodList", bootstrapMethodList);
 
 				attributeMap.put("BootstrapMethods", attrMap);
 			} else if ("MethodParameters".equals(attributeName)) {
@@ -913,6 +880,7 @@ public class ClassByteCodeParser {
 //					} parameters[parameters_count];
 //				}
 
+				// u1 parameters_count;
 				int parametersCount = dis.readUnsignedByte();
 
 				// 创建属性Map
@@ -921,6 +889,7 @@ public class ClassByteCodeParser {
 
 				List<Map<String, Object>> parameterList = new ArrayList<>();
 
+				// parameters[parameters_count];
 				for (int i = 0; i < parametersCount; i++) {
 					Map<String, Object> parameterMap = new LinkedHashMap<>();
 
@@ -935,8 +904,6 @@ public class ClassByteCodeParser {
 
 				attrMap.put("parameterList", parameterList);
 
-				// u2 main_class_index;
-				attributeMap.put("mainClassIndex", dis.readUnsignedShort());
 				attributeMap.put("MethodParameters", attrMap);
 			} else if ("Module".equals(attributeName)) {
 //				Module_attribute {
@@ -971,86 +938,154 @@ public class ClassByteCodeParser {
 //					} provides[provides_count];
 //				}
 
+				// 创建属性Map
+				Map<String, Object> attrMap = new LinkedHashMap<>();
+
 				// u2 module_name_index;
-				int moduleNameIndex = dis.readUnsignedShort();
+				attrMap.put("moduleNameIndex", dis.readUnsignedShort());
 
 				// u2 module_flags;
-				int moduleFlags = dis.readUnsignedShort();
+				attrMap.put("moduleFlags", dis.readUnsignedShort());
 
 				// u2 module_version_index;
-				int moduleVersionIndex = dis.readUnsignedShort();
+				attrMap.put("moduleVersionIndex", dis.readUnsignedShort());
 
 				// u2 requires_count;
 				int requiresCount = dis.readUnsignedShort();
 
+				attrMap.put("requiresCount", requiresCount);
+
+				List<Map<String, Object>> requiresList = new ArrayList<>();
+
+				// requires[requires_count];
 				for (int i = 0; i < requiresCount; i++) {
+					Map<String, Object> requiresMap = new LinkedHashMap<>();
+
 					// u2 requires_index;
-					int requiresIndex = dis.readUnsignedShort();
+					requiresMap.put("requiresIndex", dis.readUnsignedShort());
 
 					// u2 requires_flags;
-					int requiresFlags = dis.readUnsignedShort();
+					requiresMap.put("requiresFlags", dis.readUnsignedShort());
 
 					// u2 requires_version_index;
-					int requiresVersionIndex = dis.readUnsignedShort();
+					requiresMap.put("requiresVersionIndex", dis.readUnsignedShort());
+
+					requiresList.add(requiresMap);
 				}
+
+				attrMap.put("requiresList", requiresList);
 
 				// u2 exports_count;
 				int exportsCount = dis.readUnsignedShort();
+				attrMap.put("exportsCount", exportsCount);
 
-				// u2 exports_index;
-				int exportsIndex = dis.readUnsignedShort();
+				List<Map<String, Object>> exportsList = new ArrayList<>();
 
-				// u2 exports_flags;
-				int exportsFlags = dis.readUnsignedShort();
+				// exports[exports_count];
+				for (int i = 0; i < exportsCount; i++) {
+					Map<String, Object> exportsMap = new LinkedHashMap<>();
 
-				// u2 exports_to_count;
-				int exportsToCount = dis.readUnsignedShort();
+					// u2 exports_index;
+					exportsMap.put("exportsIndex", dis.readUnsignedShort());
 
-				// u2 exports_to_index[exports_to_count];
-				int exportsToIndex = dis.readUnsignedShort();
+					// u2 exports_flags;
+					exportsMap.put("exportsFlags", dis.readUnsignedShort());
+
+					// u2 exports_to_count;
+					int exportsToCount = dis.readUnsignedShort();
+					exportsMap.put("exportsToCount", exportsToCount);
+
+					List<Object> exportsToIndexList = new ArrayList<>();
+
+					// u2 exports_to_index[exports_to_count];
+					for (int k = 0; k < exportsToCount; k++) {
+						exportsToIndexList.add(dis.readUnsignedShort());
+					}
+
+					exportsMap.put("exportsToIndexList", exportsToIndexList);
+
+					exportsList.add(exportsMap);
+				}
+
+				attrMap.put("exportsList", exportsList);
 
 				// u2 opens_count;
 				int opensCount = dis.readUnsignedShort();
+				attrMap.put("opensCount", opensCount);
+
+				List<Map<String, Object>> opensList = new ArrayList<>();
 
 				for (int i = 0; i < opensCount; i++) {
+					Map<String, Object> opensMap = new LinkedHashMap<>();
+
 					// u2 opens_index;
-					int opensIndex = dis.readUnsignedShort();
+					opensMap.put("opensIndex", dis.readUnsignedShort());
 
 					// u2 opens_flags;
-					int opensFlags = dis.readUnsignedShort();
+					opensMap.put("opensFlags", dis.readUnsignedShort());
 
 					// u2 opens_to_count;
 					int opensToCount = dis.readUnsignedShort();
+					opensMap.put("opensToCount", opensToCount);
+
+					List<Object> opensToIndexList = new ArrayList<>();
 
 					// u2 opens_to_index[opens_to_count];
 					for (int k = 0; k < opensToCount; k++) {
-						int opensToIndex = dis.readUnsignedShort();
+						opensToIndexList.add(dis.readUnsignedShort());
 					}
+
+					opensMap.put("opensToIndexList", opensToIndexList);
+
+					opensList.add(opensMap);
 				}
+
+				attrMap.put("opensList", opensList);
 
 				// u2 uses_count;
 				int usesCount = dis.readUnsignedShort();
+				attrMap.put("usesCount", usesCount);
+
+				List<Object> usesIndexList = new ArrayList<>();
 
 				// u2 uses_index[uses_count];
 				for (int i = 0; i < usesCount; i++) {
-					int usesIndex = dis.readUnsignedShort();
+					usesIndexList.add(dis.readUnsignedShort());
 				}
+
+				attrMap.put("usesIndexList", usesIndexList);
 
 				// u2 provides_count;
 				int providesCount = dis.readUnsignedShort();
+				attrMap.put("providesCount", providesCount);
 
+				List<Map<String, Object>> providesList = new ArrayList<>();
+
+				// provides[provides_count];
 				for (int i = 0; i < providesCount; i++) {
+					Map<String, Object> opensMap = new LinkedHashMap<>();
+
 					// u2 provides_index;
-					int providesIndex = dis.readUnsignedShort();
+					opensMap.put("providesIndex", dis.readUnsignedShort());
 
 					// u2 provides_with_count;
 					int providesWithCount = dis.readUnsignedShort();
+					opensMap.put("providesWithCount", providesWithCount);
+
+					List<Object> providesWithIndexList = new ArrayList<>();
 
 					// u2 provides_with_index[provides_with_count];
 					for (int k = 0; k < providesWithCount; k++) {
-						int providesWithIndex = dis.readUnsignedShort();
+						providesWithIndexList.add(dis.readUnsignedShort());
 					}
+
+					opensMap.put("providesWithIndexList", providesWithIndexList);
+
+					providesList.add(opensMap);
 				}
+
+				attrMap.put("providesList", providesList);
+				attributeMap.put("Module", attrMap);
 			} else if ("ModulePackages".equals(attributeName)) {
 //				ModulePackages_attribute {
 //					u2 attribute_name_index;
@@ -1087,7 +1122,7 @@ public class ClassByteCodeParser {
 				Map<String, Object> attrMap = new LinkedHashMap<>();
 
 				// u2 main_class_index;
-				attributeMap.put("mainClassIndex", dis.readUnsignedShort());
+				attrMap.put("mainClassIndex", dis.readUnsignedShort());
 				attributeMap.put("ModuleMainClass", attrMap);
 			} else if ("NestHost".equals(attributeName)) {
 //				NestHost_attribute {
@@ -1100,7 +1135,7 @@ public class ClassByteCodeParser {
 				Map<String, Object> attrMap = new LinkedHashMap<>();
 
 				// u2 host_class_index;
-				attributeMap.put("hostClassIndex", dis.readUnsignedShort());
+				attrMap.put("hostClassIndex", dis.readUnsignedShort());
 				attributeMap.put("NestHost", attrMap);
 			} else if ("NestMembers".equals(attributeName)) {
 //				NestMembers_attribute {
@@ -1110,14 +1145,20 @@ public class ClassByteCodeParser {
 //					u2 classes[number_of_classes];
 //				}
 
-				int numberOfClasses = dis.readUnsignedShort();
-
-				for (int i = 0; i < numberOfClasses; i++) {
-
-				}
-
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
+
+				// u2 number_of_classes;
+				int numberOfClasses = dis.readUnsignedShort();
+				attrMap.put("numberOfClasses", numberOfClasses);
+
+				int[] classes = new int[numberOfClasses];
+
+				for (int i = 0; i < numberOfClasses; i++) {
+					classes[i] = dis.readUnsignedShort();
+				}
+
+				attrMap.put("classes", classes);
 				attributeMap.put("NestMembers", attrMap);
 			}
 		}
@@ -1126,9 +1167,75 @@ public class ClassByteCodeParser {
 	}
 
 	/**
+	 * 读取RuntimeVisibleAnnotations
+	 *
+	 * @return attrMap
+	 * @throws IOException 读取异常
+	 */
+	private Map<String, Object> readRuntimeVisibleAnnotations() throws IOException {
+		// 创建属性Map
+		Map<String, Object> attrMap = new LinkedHashMap<>();
+
+		// u2 num_annotations;
+		int numAnnotations = dis.readUnsignedShort();
+		attrMap.put("numAnnotations", numAnnotations);
+
+		List<Map<String, Object>> annotationList = new ArrayList<>();
+
+		// annotation annotations[num_annotations];
+		for (int i = 0; i < numAnnotations; i++) {
+			annotationList.add(readAnnotation());
+		}
+
+		attrMap.put("annotationList", annotationList);
+
+		return attrMap;
+	}
+
+	/**
+	 * 读取参数的注解
+	 *
+	 * @return attrMap
+	 * @throws IOException 读取异常
+	 */
+	private Map<String, Object> readParametersAnnotations() throws IOException {
+		// 创建属性Map
+		Map<String, Object> attrMap = new LinkedHashMap<>();
+
+		// u1 num_parameters;
+		int numParameters = dis.readUnsignedByte();
+		attrMap.put("numParameters", numParameters);
+
+		List<Map<String, Object>> parameterList = new ArrayList<>();
+
+		// parameter_annotations[num_parameters];
+		for (int i = 0; i < numParameters; i++) {
+			// u2 num_annotations;
+			int numAnnotations = dis.readUnsignedShort();
+
+			List<Map<String, Object>> annotationList = new ArrayList<>();
+			Map<String, Object>       parameterMap   = new LinkedHashMap<>();
+			parameterMap.put("numAnnotations", numAnnotations);
+
+			// annotation annotations[num_annotations];
+			for (int k = 0; k < numAnnotations; k++) {
+				annotationList.add(readAnnotation());
+			}
+
+			parameterMap.put("annotationList", annotationList);
+
+			parameterList.add(parameterMap);
+		}
+
+		attrMap.put("parameterList", parameterList);
+
+		return attrMap;
+	}
+
+	/**
 	 * 读取异常表数据
 	 *
-	 * @throws IOException 解析异常
+	 * @throws IOException 读取异常
 	 */
 	private Map<String, Object> readExceptionTable() throws IOException {
 		Map<String, Object> exceptionTable = new LinkedHashMap<>();
@@ -1158,6 +1265,12 @@ public class ClassByteCodeParser {
 		return exceptionTable;
 	}
 
+	/**
+	 * 读取注解
+	 *
+	 * @return annotationMap
+	 * @throws IOException 读取异常
+	 */
 	private Map<String, Object> readAnnotation() throws IOException {
 //		annotation {
 //			u2 type_index;
@@ -1172,12 +1285,22 @@ public class ClassByteCodeParser {
 		// u2 type_index;
 		annotationMap.put("typeIndex", dis.readUnsignedShort());
 
+		// element_value_pairs[num_element_value_pairs];
+		annotationMap.put("elementvaluepairs", readAnnotationElementValuePairs());
+
+		return annotationMap;
+	}
+
+	private Map<String, Object> readAnnotationElementValuePairs() throws IOException {
+		Map<String, Object> annotationMap = new LinkedHashMap<>();
+
 		// u2 num_element_value_pairs;
 		int numElementValuePairs = dis.readUnsignedShort();
 		annotationMap.put("numElementValuePairs", numElementValuePairs);
 
 		List<Map<String, Object>> elementValueList = new ArrayList<>();
 
+		// element_value_pairs[num_element_value_pairs];
 		for (int i = 0; i < numElementValuePairs; i++) {
 			Map<String, Object> elementValueMap = new LinkedHashMap<>();
 
@@ -1185,7 +1308,7 @@ public class ClassByteCodeParser {
 			elementValueMap.put("elementName", getConstantPoolValue(dis.readUnsignedShort(), "value"));
 
 			// element_value value;
-			elementValueMap.put("elementTypeMap", readElementType());
+			elementValueMap.put("elementTypeMap", readAnnotationElementType());
 
 			elementValueList.add(elementValueMap);
 		}
@@ -1195,11 +1318,255 @@ public class ClassByteCodeParser {
 		return annotationMap;
 	}
 
-	private void readTypeAnnotation() {
+	private Map<String, Object> readTypeAnnotation(boolean isInvisible) throws IOException {
+		// u2 num_annotations;
+		int numAnnotations = dis.readUnsignedShort();
 
+		// 创建属性Map
+		Map<String, Object> attrMap = new LinkedHashMap<>();
+		attrMap.put("numAnnotations", numAnnotations);
+
+		List<Map<String, Object>> typeAnnotationList = new ArrayList<>();
+
+		// type_annotation annotations[num_annotations];
+		for (int i = 0; i < numAnnotations; i++) {
+//			type_annotation {
+//				u1 target_type;
+//				union {
+//					type_parameter_target;
+//					supertype_target;
+//					type_parameter_bound_target;
+//					empty_target;
+//					formal_parameter_target;
+//					throws_target;
+//					localvar_target;
+//					catch_target;
+//					offset_target;
+//					type_argument_target;
+//				} target_info;
+//				type_path target_path;
+//				u2 type_index;
+//				u2 num_element_value_pairs;
+//				{ u2 element_name_index;
+//					element_value value;
+//				} element_value_pairs[num_element_value_pairs];
+//			}
+
+			Map<String, Object> typeAnnotationMap = new LinkedHashMap<>();
+
+			// u1 target_type;
+			int tag = dis.readUnsignedByte();
+			typeAnnotationMap.put("targetType", tag);
+
+			// Table 4.7.20-A/B. Interpretation of target_type values
+			// Value    Kind of target                                                                                          target_info item
+			// 0x00     type parameter declaration of generic class  or interface                                               type_parameter_target
+			// 0x01     type parameter declaration of generic method or constructor                                             type_parameter_target
+			// 0x10     type in extends or implements clause of class declaration (including the direct superclass or direct superinterface of an anonymous class declaration), or in extends clause of interface declaration   supertype_target
+			// 0x11     type in bound of type parameter declaration of generic class or interface                               type_parameter_bound_target
+			// 0x12     type in bound of type parameter declaration of generic method or constructor                            type_parameter_bound_target
+			// 0x13     type in field declaration                                                                               empty_target
+			// 0x14     return type of method, or type of newly constructed object                                              empty_target
+			// 0x15     receiver type of method or constructor                                                                  empty_target
+			// 0x16     type in formal parameter declaration of method, constructor, or lambda expression                       formal_parameter_target
+			// 0x17     type in throws clause of method or constructor                                                          throws_target
+			// 0x40     type in local variable declaration                                                                      localvar_target
+			// 0x41     type in resource variable declaration                                                                   localvar_target
+			// 0x42     type in exception parameter declaration                                                                 catch_target
+			// 0x43     type in instanceof expression                                                                           offset_target
+			// 0x44     type in new expression                                                                                  offset_target
+			// 0x45     type in method reference expression using ::new                                                         offset_target
+			// 0x46     type in method reference expression using ::Identifier                                                  offset_target
+			// 0x47     type in cast expression                                                                                 type_argument_target
+			// 0x48     type argument for generic constructor in new expression or explicit constructor invocation statement    type_argument_target
+			// 0x49     type argument for generic method in method invocation expression                                        type_argument_target
+			// 0x4A     type argument for generic constructor in method reference expression using ::new                        type_argument_target
+			// 0x4B     type argument for generic method in method reference expression using ::Identifier                      type_argument_target
+
+			// Table 4.7.20-C. Location of enclosing attribute for target_type values
+			// Value        Kind of target                                                                                                          Location
+			// 0x00         type parameter declaration of generic class or interface                                                                ClassFile
+			// 0x01         type parameter declaration of generic method or constructor                                                             method_info
+			// 0x10         type in extends clause of class or interface declaration, or in implements clause of interface declaration              ClassFile
+			// 0x11         type in bound of type parameter declaration of generic class or interface                                               ClassFile
+			// 0x12         type in bound of type parameter declaration of generic method or constructor                                            method_info
+			// 0x13         type in field declaration                                                                                               field_info
+			// 0x14         return type of method or constructor                                                                                    method_info
+			// 0x15         receiver type of method or constructor                                                                                  method_info
+			// 0x16         type in formal parameter declaration of method, constructor, or lambda expression                                       method_info
+			// 0x17         type in throws clause of method or constructor                                                                          method_info
+			// 0x40-0x4B    types in local variable declarations, resource variable declarations, exception parameter declarations, expressions     Code
+
+			if (isInvisible) {
+				if (tag == 0x00 || tag == 0x01) {
+//				    type_parameter_target {
+//				    	u1 type_parameter_index;
+//				    }
+
+					int typeParameterTarget = dis.readUnsignedByte();
+				} else if (tag == 0x10) {
+//				    supertype_target {
+//				    	u2 supertype_index;
+//				    }
+
+					int superTypeTarget = dis.readUnsignedShort();
+				} else if (tag == 0x11 || tag == 0x12) {
+//				    type_parameter_bound_target {
+//				    	u1 type_parameter_index;
+//				    	u1 bound_index;
+//				    }
+
+					int typeParameterIndex = dis.readUnsignedByte();
+					int boundIndex         = dis.readUnsignedByte();
+				} else if (tag == 0x13 || tag == 0x14 || tag == 0x15) {
+//				    empty_target {
+//				    }
+				} else if (tag == 0x16) {
+//				    formal_parameter_target {
+//				    	u1 formal_parameter_index;
+//				    }
+
+					int formalParameterTarget = dis.readUnsignedByte();
+				} else if (tag == 0x17) {
+//				    throws_target {
+//				    	u2 throws_type_index;
+//				    }
+
+					int throwsTarget = dis.readUnsignedShort();
+				} else if (tag == 0x40 || tag == 0x41) {
+//				    localvar_target {
+//				    	u2 table_length;
+//				    	{ u2 start_pc;
+//				    		u2 length;
+//				    		u2 index;
+//				    	} table[table_length];
+//				    }
+
+					// u2 table_length;
+					int tableLength = dis.readUnsignedShort();
+
+					for (int k = 0; k < tableLength; k++) {
+						// u2 start_pc
+						int startPc = dis.readUnsignedShort();
+
+						// u2 length
+						int length = dis.readUnsignedShort();
+
+						// u2 index;
+						int index = dis.readUnsignedShort();
+					}
+				} else if (tag == 0x42) {
+//				    catch_target {
+//				    	u2 exception_table_index;
+//				    }
+
+					int exceptionTableIndex = dis.readUnsignedShort();
+				} else if (tag == 0x43 || tag == 0x44 || tag == 0x45 || tag == 0x46) {
+//				    offset_target {
+//				    	u2 offset;
+//				    }
+
+					// u2 offset;
+					int offset = dis.readUnsignedShort();
+				} else if (tag == 0x47 || tag == 0x48 || tag == 0x49 || tag == 0x4A || tag == 0x4B) {
+//				    type_argument_target {
+//				    	u2 offset;
+//				    	u1 type_argument_index;
+//				    }
+
+					// u2 offset;
+					int offset = dis.readUnsignedShort();
+
+					// u1 type_argument_index;
+					int typeArgumentIndex = dis.readUnsignedByte();
+				}
+			} else {
+				if (tag == 0x00) {
+
+				} else if (tag == 0x01) {
+
+				} else if (tag == 0x10 || tag == 0x11) {
+
+				} else if (tag == 0x13) {
+
+				} else if (tag == 0x12 || tag == 0x14 || tag == 0x15 || tag == 0x16 || tag == 0x17) {
+
+				} else if (tag == 0x40 || tag == 0x41 || tag == 0x42 || tag == 0x43 || tag == 0x44 || tag == 0x45 ||
+						tag == 0x46 || tag == 0x47 || tag == 0x48 || tag == 0x49 || tag == 0x4A || tag == 0x4B) {
+
+				}
+			}
+
+			// type_path target_path;
+//			type_path {
+//				u1 path_length;
+//				{ u1 type_path_kind;
+//					u1 type_argument_index;
+//				} path[path_length];
+//			}
+
+			// u1 path_length;
+			int pathLength = dis.readUnsignedByte();
+			typeAnnotationMap.put("pathLength", pathLength);
+
+			// path[path_length];
+			for (int k = 0; k < pathLength; k++) {
+				// u1 type_path_kind;
+				int typePathKind = dis.readUnsignedByte();
+
+				// u1 type_argument_index;
+				int typeArgumentIndex = dis.readUnsignedByte();
+			}
+
+			// u2 type_index;
+			typeAnnotationMap.put("typeIndex", dis.readUnsignedShort());
+
+			// u2 num_element_value_pairs;
+			int numElementValuePairs = dis.readUnsignedShort();
+			typeAnnotationMap.put("numElementValuePairs", numElementValuePairs);
+
+			List<Map<String, Object>> elementValuePairsList = new ArrayList<>();
+
+			// element_value_pairs[num_element_value_pairs];
+			for (int k = 0; k < numElementValuePairs; k++) {
+				Map<String, Object> elementValuePairsMap = new LinkedHashMap<>();
+
+				// u2 element_name_index;
+				int elementNameIndex = dis.readUnsignedShort();
+				elementValuePairsMap.put("elementNameIndex", elementNameIndex);
+
+				// element_value value;
+//				element_value {
+//					u1 tag;
+//					union {
+//						u2 const_value_index;
+//						{ u2 type_name_index;
+//							u2 const_name_index;
+//						} enum_const_value;
+//						u2 class_info_index;
+//						annotation annotation_value;
+//						{ u2 num_values;
+//							element_value values[num_values];
+//						} array_value;
+//					} value;
+//				}
+
+				elementValuePairsMap.put("annotationElementType", readAnnotationElementType());
+
+				elementValuePairsList.add(elementValuePairsMap);
+			}
+
+			typeAnnotationMap.put("elementValuePairsList", elementValuePairsList);
+
+			typeAnnotationList.add(typeAnnotationMap);
+		}
+
+		attrMap.put("typeAnnotationList", typeAnnotationList);
+
+		return attrMap;
 	}
 
-	private Map<String, Object> readElementType() throws IOException {
+	private Map<String, Object> readAnnotationElementType() throws IOException {
 		Map<String, Object> elementTypeMap = new LinkedHashMap<>();
 
 //			element_value {
@@ -1239,28 +1606,14 @@ public class ClassByteCodeParser {
 
 			elementTypeMap.put("constValue", getConstantPoolValue(dis.readUnsignedShort(), "value"));
 		} else if (tag == 'e') {
-			elementTypeMap.put("typeNameIndex", getConstantPoolValue(dis.readUnsignedShort(), "value"));
-			elementTypeMap.put("constNameIndex", getConstantPoolValue(dis.readUnsignedShort(), "value"));
+			elementTypeMap.put("typeName", getConstantPoolValue(dis.readUnsignedShort(), "value"));
+			elementTypeMap.put("constName", getConstantPoolValue(dis.readUnsignedShort(), "value"));
 		} else if (tag == 'c') {
-			elementTypeMap.put("classInfoIndex", getConstantPoolValue(dis.readUnsignedShort(), "value"));
+			elementTypeMap.put("classInfo", getConstantPoolValue(dis.readUnsignedShort(), "value"));
 		} else if (tag == '@') {
-			elementTypeMap.put("typeIndex", getConstantPoolValue(dis.readUnsignedShort(), "value"));
-			int numElementValuePairs = dis.readUnsignedShort();
-			elementTypeMap.put("numElementValuePairs", numElementValuePairs);
+			elementTypeMap.put("type", getConstantPoolValue(dis.readUnsignedShort(), "value"));
 
-			List<Map<String, Object>> elementValueList = new ArrayList<>();
-
-			for (int i = 0; i < numElementValuePairs; i++) {
-				Map<String, Object> elementValueMap = new LinkedHashMap<>();
-				elementValueMap.put("elementNameIndex", getConstantPoolValue(dis.readUnsignedShort(), "value"));
-
-				// element_value value;
-				elementValueMap.put("elementTypeMap", readElementType());
-
-				elementValueList.add(elementValueMap);
-			}
-
-			elementTypeMap.put("elementValueList", elementValueList);
+			elementTypeMap.put("elementValueList", readAnnotationElementValuePairs());
 		} else if (tag == '[') {
 			int numValues = dis.readUnsignedShort();
 			elementTypeMap.put("numValues", numValues);
@@ -1271,7 +1624,7 @@ public class ClassByteCodeParser {
 				Map<String, Object> elementValueMap = new LinkedHashMap<>();
 
 				// element_value value;
-				elementValueMap.put("elementTypeMap", readElementType());
+				elementValueMap.put("elementTypeMap", readAnnotationElementType());
 
 				elementValueList.add(elementValueMap);
 			}
@@ -1382,7 +1735,7 @@ public class ClassByteCodeParser {
 	/**
 	 * 解析常量池数据
 	 *
-	 * @throws IOException 数据解析异常
+	 * @throws IOException 数据读取异常
 	 */
 	private void parseConstantPool() throws IOException {
 		// u2 constant_pool_count;
