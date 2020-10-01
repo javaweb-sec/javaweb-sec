@@ -1,7 +1,6 @@
 package com.anbai.sec.bytecode;
 
 import com.alibaba.fastjson.JSON;
-import org.javaweb.utils.FileUtils;
 
 import java.io.*;
 import java.util.*;
@@ -49,12 +48,12 @@ public class ClassByteCodeParser {
 	/**
 	 * thisClass
 	 */
-	private int thisClass;
+	private String thisClass;
 
 	/**
 	 * superClass
 	 */
-	private int superClass;
+	private String superClass;
 
 	/**
 	 * 接口数
@@ -165,10 +164,10 @@ public class ClassByteCodeParser {
 			this.accessFlags = dis.readUnsignedShort();
 
 			// u2 this_class;
-			this.thisClass = dis.readUnsignedShort();
+			this.thisClass = (String) getConstantPoolValue(dis.readUnsignedShort(), "nameValue");
 
 			// u2 super_class;
-			this.superClass = dis.readUnsignedShort();
+			this.superClass = (String) getConstantPoolValue(dis.readUnsignedShort(), "nameValue");
 
 			// u2 interfaces_count;
 			this.interfacesCount = dis.readUnsignedShort();
@@ -579,11 +578,11 @@ public class ClassByteCodeParser {
 //					u2 sourcefile_index;
 //				}
 
-				int sourceFileIndex = dis.readUnsignedShort();
-
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
-				attrMap.put("sourceFileIndex", sourceFileIndex);
+
+				// u2 sourcefile_index;
+				attrMap.put("sourceFile", getConstantPoolValue(dis.readUnsignedShort(), "value"));
 				attributeMap.put("SourceFile", attrMap);
 			} else if ("SourceDebugExtension".equals(attributeName)) {
 //				SourceDebugExtension_attribute {
@@ -1283,7 +1282,7 @@ public class ClassByteCodeParser {
 		Map<String, Object> annotationMap = new LinkedHashMap<>();
 
 		// u2 type_index;
-		annotationMap.put("typeIndex", dis.readUnsignedShort());
+		annotationMap.put("type", getConstantPoolValue(dis.readUnsignedShort(), "value"));
 
 		// element_value_pairs[num_element_value_pairs];
 		annotationMap.put("elementvaluepairs", readAnnotationElementValuePairs());
@@ -1820,12 +1819,9 @@ public class ClassByteCodeParser {
 //					u2 name_and_type_index;
 //				}
 
-				int classIndex       = dis.readUnsignedShort();
-				int nameAndTypeIndex = dis.readUnsignedShort();
-
 				map.put("tag", CONSTANT_FIELD_REF);
-				map.put("classIndex", classIndex);
-				map.put("nameAndTypeIndex", nameAndTypeIndex);
+				map.put("classIndex", dis.readUnsignedShort());
+				map.put("nameAndTypeIndex", dis.readUnsignedShort());
 			} else if (tag == CONSTANT_METHOD_REF.flag) {
 //				CONSTANT_Methodref_info {
 //					u1 tag;
@@ -1833,12 +1829,9 @@ public class ClassByteCodeParser {
 //					u2 name_and_type_index;
 //				}
 
-				int classIndex       = dis.readUnsignedShort();
-				int nameAndTypeIndex = dis.readUnsignedShort();
-
 				map.put("tag", CONSTANT_METHOD_REF);
-				map.put("classIndex", classIndex);
-				map.put("nameAndTypeIndex", nameAndTypeIndex);
+				map.put("classIndex", dis.readUnsignedShort());
+				map.put("nameAndTypeIndex", dis.readUnsignedShort());
 			} else if (tag == CONSTANT_INTERFACE_METHOD_REF.flag) {
 //				CONSTANT_InterfaceMethodref_info {
 //					u1 tag;
@@ -1846,12 +1839,9 @@ public class ClassByteCodeParser {
 //					u2 name_and_type_index;
 //				}
 
-				int classIndex       = dis.readUnsignedShort();
-				int nameAndTypeIndex = dis.readUnsignedShort();
-
 				map.put("tag", CONSTANT_INTERFACE_METHOD_REF);
-				map.put("classIndex", classIndex);
-				map.put("nameAndTypeIndex", nameAndTypeIndex);
+				map.put("classIndex", dis.readUnsignedShort());
+				map.put("nameAndTypeIndex", dis.readUnsignedShort());
 			} else if (tag == CONSTANT_NAME_AND_TYPE.flag) {
 //				CONSTANT_NameAndType_info {
 //					u1 tag;
@@ -1859,12 +1849,9 @@ public class ClassByteCodeParser {
 //					u2 descriptor_index;
 //				}
 
-				int nameIndex       = dis.readUnsignedShort();
-				int descriptorIndex = dis.readUnsignedShort();
-
 				map.put("tag", CONSTANT_NAME_AND_TYPE);
-				map.put("nameIndex", nameIndex);
-				map.put("descriptorIndex", descriptorIndex);
+				map.put("nameIndex", dis.readUnsignedShort());
+				map.put("descriptorIndex", dis.readUnsignedShort());
 			} else if (tag == CONSTANT_METHOD_HANDLE.flag) {
 //				CONSTANT_MethodHandle_info {
 //					u1 tag;
@@ -1872,22 +1859,17 @@ public class ClassByteCodeParser {
 //					u2 reference_index;
 //				}
 
-				int referenceKind  = dis.readUnsignedByte();
-				int referenceIndex = dis.readUnsignedShort();
-
 				map.put("tag", CONSTANT_METHOD_HANDLE);
-				map.put("referenceKind", referenceKind);
-				map.put("referenceIndex", referenceIndex);
+				map.put("referenceKind", dis.readUnsignedByte());
+				map.put("referenceIndex", dis.readUnsignedShort());
 			} else if (tag == CONSTANT_METHOD_TYPE.flag) {
 //				CONSTANT_MethodType_info {
 //					u1 tag;
 //					u2 descriptor_index;
 //				}
 
-				int descriptorIndex = dis.readUnsignedShort();
-
 				map.put("tag", CONSTANT_METHOD_TYPE);
-				map.put("descriptorIndex", descriptorIndex);
+				map.put("descriptorIndex", dis.readUnsignedShort());
 			} else if (tag == CONSTANT_DYNAMIC.flag) {
 //				CONSTANT_Dynamic_info {
 //					u1 tag;
@@ -1895,12 +1877,9 @@ public class ClassByteCodeParser {
 //					u2 name_and_type_index;
 //				}
 
-				int bootstrapMethodAttrIndex = dis.readUnsignedShort();
-				int nameAndTypeIndex         = dis.readUnsignedShort();
-
 				map.put("tag", CONSTANT_DYNAMIC);
-				map.put("bootstrapMethodAttrIndex", bootstrapMethodAttrIndex);
-				map.put("nameAndTypeIndex", nameAndTypeIndex);
+				map.put("bootstrapMethodAttrIndex", dis.readUnsignedShort());
+				map.put("nameAndTypeIndex", dis.readUnsignedShort());
 			} else if (tag == CONSTANT_INVOKE_DYNAMIC.flag) {
 //				CONSTANT_InvokeDynamic_info {
 //					u1 tag;
@@ -1908,32 +1887,25 @@ public class ClassByteCodeParser {
 //					u2 name_and_type_index;
 //				}
 
-				int bootstrapMethodAttrIndex = dis.readUnsignedShort();
-				int nameAndTypeIndex         = dis.readUnsignedShort();
-
 				map.put("tag", CONSTANT_INVOKE_DYNAMIC);
-				map.put("bootstrapMethodAttrIndex", bootstrapMethodAttrIndex);
-				map.put("nameAndTypeIndex", nameAndTypeIndex);
+				map.put("bootstrapMethodAttrIndex", dis.readUnsignedShort());
+				map.put("nameAndTypeIndex", dis.readUnsignedShort());
 			} else if (tag == CONSTANT_MODULE.flag) {
 //				CONSTANT_Module_info {
 //					u1 tag;
 //					u2 name_index;
 //				}
 
-				int nameIndex = dis.readUnsignedShort();
-
 				map.put("tag", CONSTANT_MODULE);
-				map.put("nameIndex", nameIndex);
+				map.put("nameIndex", dis.readUnsignedShort());
 			} else if (tag == CONSTANT_PACKAGE.flag) {
 //				CONSTANT_Package_info {
 //					u1 tag;
 //					u2 name_index;
 //				}
 
-				int nameIndex = dis.readUnsignedShort();
-
 				map.put("tag", CONSTANT_PACKAGE);
-				map.put("nameIndex", nameIndex);
+				map.put("nameIndex", dis.readUnsignedShort());
 			}
 
 			constantPoolMap.put(i, map);
@@ -1946,10 +1918,6 @@ public class ClassByteCodeParser {
 
 		// 链接常量池中的引用
 		linkConstantPool();
-	}
-
-	public DataInputStream getDis() {
-		return dis;
 	}
 
 	public int getMagic() {
@@ -1976,11 +1944,11 @@ public class ClassByteCodeParser {
 		return accessFlags;
 	}
 
-	public int getThisClass() {
+	public String getThisClass() {
 		return thisClass;
 	}
 
-	public int getSuperClass() {
+	public String getSuperClass() {
 		return superClass;
 	}
 
@@ -2017,21 +1985,21 @@ public class ClassByteCodeParser {
 	}
 
 	public static void main(String[] args) throws IOException {
-		File                classFile  = new File("/Users/yz/IdeaProjects/Servers/TW_7_2020-01-16/lib/tongweb/com/tongweb/tomee/catalina/session/FastNonSecureRandom.class");
+		File                classFile  = new File("/Users/ly/IdeaProjects/javaweb-sec/javaweb-sec-source/javase/src/main/java/com/anbai/sec/bytecode/TestHelloWorld.class");
 		ClassByteCodeParser codeParser = new ClassByteCodeParser();
 
 		codeParser.parseByteCode(new FileInputStream(classFile));
 		System.out.println(JSON.toJSONString(codeParser));
 
-		Collection<File> files = FileUtils.listFiles(new File("/Users/yz/IdeaProjects/Servers/TW_7_2020-01-16/lib/tongweb"), new String[]{"class"}, true);
-
-		for (File file : files) {
-			System.out.println(file);
-			ClassByteCodeParser parser = new ClassByteCodeParser();
-
-			parser.parseByteCode(new FileInputStream(file));
-			System.out.println(JSON.toJSONString(parser));
-		}
+//		Collection<File> files = FileUtils.listFiles(new File("/Users/yz/IdeaProjects/Servers/TW_7_2020-01-16/lib/tongweb"), new String[]{"class"}, true);
+//
+//		for (File file : files) {
+//			System.out.println(file);
+//			ClassByteCodeParser parser = new ClassByteCodeParser();
+//
+//			parser.parseByteCode(new FileInputStream(file));
+//			System.out.println(JSON.toJSONString(parser));
+//		}
 	}
 
 }
