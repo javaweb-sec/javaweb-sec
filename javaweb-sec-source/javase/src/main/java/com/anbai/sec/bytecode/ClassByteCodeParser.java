@@ -580,10 +580,10 @@ public class ClassByteCodeParser {
 //					attribute_info attributes[attributes_count];
 //				}
 
-				int      maxStack   = dis.readUnsignedShort();
-				int      maxLocals  = dis.readUnsignedShort();
-				int      codeLength = dis.readInt();
-				String[] opcodes    = new String[codeLength];
+				int          maxStack   = dis.readUnsignedShort();
+				int          maxLocals  = dis.readUnsignedShort();
+				int          codeLength = dis.readInt();
+				List<Object> opcodeList = new ArrayList<>();
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
@@ -593,10 +593,18 @@ public class ClassByteCodeParser {
 
 				for (int i = 0; i < codeLength; i++) {
 					int opcode = dis.readUnsignedByte();
-					opcodes[i] = Opcodes.getOpcodes(opcode).getDesc();
+
+					if (opcode == Opcodes.NOP.opCode) {
+						// 常量池索引，获取引用对象
+						int nextOpcode = dis.readUnsignedByte();
+						i++;
+					} else {
+						opcodeList.add(Opcodes.getOpcodes(opcode).getDesc());
+					}
+
 				}
 
-				attrMap.put("opcodes", opcodes);
+				attrMap.put("opcodes", opcodeList);
 
 				// 读取异常表
 				attrMap.put("exceptionTable", readExceptionTable());
