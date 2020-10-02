@@ -4,7 +4,10 @@ import com.alibaba.fastjson.JSON;
 import org.javaweb.utils.EncryptUtils;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -394,13 +397,93 @@ public class SimpleClassByteCodeParser {
 			// u4 attribute_length;
 			int attributeLength = dis.readInt();
 
-			byte[] bytes = new byte[attributeLength];
-			dis.read(bytes);
+			// 示例程序，只解析Code属性，其他属性一律不解析
+			if ("Code".equals(attributeName)) {
+//				Code_attribute {
+//					u2 attribute_name_index;
+//					u4 attribute_length;
+//					u2 max_stack;
+//					u2 max_locals;
+//					u4 code_length;
+//					u1 code[code_length];
+//					u2 exception_table_length;
+//					{ u2 start_pc;
+//						u2 end_pc;
+//						u2 handler_pc;
+//						u2 catch_type;
+//					} exception_table[exception_table_length];
+//					u2 attributes_count;
+//					attribute_info attributes[attributes_count];
+//				}
 
-			attributeMap.put("attributeValue", EncryptUtils.base64Encode(bytes));
+				int   maxStack   = dis.readUnsignedShort();
+				int   maxLocals  = dis.readUnsignedShort();
+				int   codeLength = dis.readInt();
+				int[] opCodes    = new int[codeLength];
+
+				// 创建属性Map
+				Map<String, Object> attrMap = new LinkedHashMap<>();
+				attrMap.put("maxStack", maxStack);
+				attrMap.put("maxLocals", maxLocals);
+				attrMap.put("codeLength", codeLength);
+
+				for (int i = 0; i < codeLength; i++) {
+					opCodes[i] = dis.readUnsignedByte();
+				}
+
+				attrMap.put("opCodes", opCodes);
+
+				// 读取异常表
+				attrMap.put("exceptionTable", readExceptionTable());
+
+				// u2 attributes_count;
+				int attributesCount = dis.readShort();
+				attrMap.put("attributeLength", attributeLength);
+				attrMap.put("attributes", readAttributes(attributesCount, poolMap));
+
+				// 递归读取属性信息
+				attributeMap.put("Code", attrMap);
+			} else {
+				byte[] bytes = new byte[attributeLength];
+				dis.read(bytes);
+				attributeMap.put("attributeValue", EncryptUtils.base64Encode(bytes));
+			}
 		}
 
 		return attributeMap;
+	}
+
+	/**
+	 * 读取异常表数据
+	 *
+	 * @throws IOException 读取异常
+	 */
+	private Map<String, Object> readExceptionTable() throws IOException {
+		Map<String, Object> exceptionTable = new LinkedHashMap<>();
+
+		int exceptionTableLength = dis.readUnsignedShort();
+		exceptionTable.put("exceptionTableLength", exceptionTableLength);
+
+		List<Map<String, Object>> exceptionTableList = new ArrayList<>();
+
+		for (int i = 0; i < exceptionTableLength; i++) {
+			int startPc   = dis.readUnsignedShort();
+			int endPc     = dis.readUnsignedShort();
+			int handlerPc = dis.readUnsignedShort();
+			int catchType = dis.readUnsignedShort();
+
+			Map<String, Object> map = new LinkedHashMap<>();
+			map.put("startPc", startPc);
+			map.put("endPc", endPc);
+			map.put("handlerPc", handlerPc);
+			map.put("catchType", catchType);
+
+			exceptionTableList.add(map);
+		}
+
+		exceptionTable.put("exceptionTableList", exceptionTableList);
+
+		return exceptionTable;
 	}
 
 	/**
@@ -433,7 +516,7 @@ public class SimpleClassByteCodeParser {
 	}
 
 	public static void main(String[] args) throws IOException {
-		File classFile = new File("/Users/ly/IdeaProjects/javaweb-sec/javaweb-sec-source/javase/src/main/java/com/anbai/sec/bytecode/TestHelloWorld.class");
+		File classFile = new File("/Users/yz/IdeaProjects/javaweb-sec/javaweb-sec-source/javase/src/main/java/com/anbai/sec/bytecode/TestHelloWorld.class");
 
 		SimpleClassByteCodeParser codeParser  = new SimpleClassByteCodeParser();
 		Map<String, Object>       byteCodeMap = codeParser.parseByteCode(new FileInputStream(classFile));
