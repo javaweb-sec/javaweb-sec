@@ -1,11 +1,13 @@
 package com.anbai.sec.bytecode;
 
 import com.alibaba.fastjson.JSON;
+import org.javaweb.utils.FileUtils;
 
 import java.io.*;
 import java.util.*;
 
 import static com.anbai.sec.bytecode.ClassByteCodeParser.Constant.*;
+import static com.anbai.sec.bytecode.ClassByteCodeParser.Opcodes.WIDE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ClassByteCodeParser {
@@ -584,6 +586,13 @@ public class ClassByteCodeParser {
 				int          maxLocals  = dis.readUnsignedShort();
 				int          codeLength = dis.readInt();
 				List<Object> opcodeList = new ArrayList<>();
+				byte[]       bytes      = new byte[codeLength];
+
+				// 读取所有的code字节
+				dis.read(bytes);
+
+				// 创建Code输入流
+				DataInputStream bis = new DataInputStream(new ByteArrayInputStream(bytes));
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
@@ -591,17 +600,184 @@ public class ClassByteCodeParser {
 				attrMap.put("maxLocals", maxLocals);
 				attrMap.put("codeLength", codeLength);
 
-				for (int i = 0; i < codeLength; i++) {
-					int opcode = dis.readUnsignedByte();
+				// 是否是宽类型
+				boolean wide = false;
 
-					if (opcode == Opcodes.NOP.opCode) {
-						// 常量池索引，获取引用对象
-						int nextOpcode = dis.readUnsignedByte();
-						i++;
-					} else {
-						opcodeList.add(Opcodes.getOpcodes(opcode).getDesc());
+				for (int offset = 0; offset < codeLength; offset++) {
+					int     branchOffset   = -1;
+					int     defaultOffset  = -1;
+					int     immediateByte  = -1;
+					int     immediateShort = -1;
+					int     incrementConst = -1;
+					int     match          = -1;
+					int     bytesToRead    = 0;
+					int     code           = bis.readUnsignedByte();
+					Opcodes opcode         = Opcodes.getOpcodes(code);
+
+					if (opcode == null) {
+						continue;
 					}
 
+					switch (opcode) {
+						case BIPUSH:
+						case LDC:
+						case ILOAD:
+						case LLOAD:
+						case FLOAD:
+						case DLOAD:
+						case ALOAD:
+						case ISTORE:
+						case LSTORE:
+						case FSTORE:
+						case DSTORE:
+						case ASTORE:
+						case RET:
+						case NEWARRAY:
+							if (wide) {
+								immediateByte = bis.readUnsignedShort();
+							} else {
+								immediateByte = bis.readUnsignedByte();
+							}
+
+							opcodeList.add(opcode.getDesc() + " " + immediateByte);
+
+							// 因为读取了byte，所以需要重新计算bis偏移量
+							offset += wide ? 2 : 1;
+							break;
+						case LDC_W:
+						case LDC2_W:
+						case GETSTATIC:
+						case PUTSTATIC:
+						case GETFIELD:
+						case PUTFIELD:
+						case INVOKEVIRTUAL:
+						case INVOKESPECIAL:
+						case INVOKESTATIC:
+						case NEW:
+						case ANEWARRAY:
+						case CHECKCAST:
+						case INSTANCEOF:
+						case SIPUSH:
+							immediateShort = bis.readUnsignedShort();
+							opcodeList.add(opcode.getDesc() + " " + immediateShort);
+
+							offset += 2;
+							break;
+						case IFEQ:
+						case IFNE:
+						case IFLT:
+						case IFGE:
+						case IFGT:
+						case IFLE:
+						case IF_ICMPEQ:
+						case IF_ICMPNE:
+						case IF_ICMPLT:
+						case IF_ICMPGE:
+						case IF_ICMPGT:
+						case IF_ICMPLE:
+						case IF_ACMPEQ:
+						case IF_ACMPNE:
+						case GOTO:
+						case JSR:
+						case IFNULL:
+						case IFNONNULL:
+							branchOffset = bis.readShort();
+
+							opcodeList.add(opcode.getDesc() + " " + branchOffset);
+
+							offset += 2;
+							break;
+						case GOTO_W:
+						case JSR_W:
+							branchOffset = bis.readInt();
+
+							opcodeList.add(opcode.getDesc() + " " + branchOffset);
+
+							offset += 4;
+							break;
+						case IINC:
+							if (wide) {
+								incrementConst = bis.readUnsignedShort();
+							} else {
+								incrementConst = bis.readUnsignedByte();
+							}
+
+							opcodeList.add(opcode.getDesc() + " " + incrementConst);
+
+							offset += wide ? 2 : 1;
+							break;
+						case TABLESWITCH:
+							bytesToRead = readPaddingBytes(bytes, bis);
+
+							defaultOffset = bis.readInt();
+							int lowByte = bis.readInt();
+							int highByte = bis.readInt();
+
+							int numberOfOffsets = highByte - lowByte + 1;
+							int[] jumpOffsets = new int[numberOfOffsets];
+
+							for (int k = 0; k < numberOfOffsets; k++) {
+								jumpOffsets[k] = bis.readInt();
+							}
+
+							opcodeList.add(opcode.getDesc());
+
+							offset += bytesToRead + 12 + 4 * numberOfOffsets;
+							break;
+						case LOOKUPSWITCH:
+							bytesToRead = readPaddingBytes(bytes, bis);
+
+							defaultOffset = bis.readInt();
+							int numberOfPairs = bis.readInt();
+
+							for (int k = 0; k < numberOfPairs; k++) {
+								match = bis.readInt();
+								offset = bis.readInt();
+							}
+
+							opcodeList.add(opcode.getDesc());
+
+							offset += bytesToRead + 8 + 8 * numberOfPairs;
+							break;
+						case INVOKEINTERFACE:
+							immediateShort = bis.readUnsignedShort();
+							offset += 2;
+
+							int count = bis.readUnsignedByte();
+
+							// 下1个byte永远为0，所以直接丢弃
+							bis.readByte();
+
+							opcodeList.add(opcode.getDesc());
+
+							offset += 2;
+							break;
+						case INVOKEDYNAMIC:
+							immediateShort = bis.readUnsignedShort();
+							offset += 2;
+
+							// 下2个byte永远为0，所以直接丢弃
+							bis.readUnsignedShort();
+
+							opcodeList.add(opcode.getDesc() + " " + immediateShort);
+
+							offset += 2;
+							break;
+						case MULTIANEWARRAY:
+							immediateShort = bis.readUnsignedShort();
+							offset += 2;
+
+							int dimensions = bis.readUnsignedByte();
+
+							opcodeList.add(opcode.getDesc() + " " + immediateShort);
+
+							offset += 1;
+							break;
+						default:
+							opcodeList.add(opcode.getDesc());
+					}
+
+					wide = (WIDE == opcode);
 				}
 
 				attrMap.put("opcodes", opcodeList);
@@ -1436,6 +1612,26 @@ public class ClassByteCodeParser {
 	}
 
 	/**
+	 * 读取栈指令中的无用padding
+	 * @param bytes
+	 * @param dis
+	 * @return
+	 * @throws IOException
+	 */
+	private int readPaddingBytes(byte[] bytes, DataInputStream dis) throws IOException {
+		int bytesCount = bytes.length - dis.available();
+		int bytesToPad = 4 - bytesCount % 4;
+
+		int bytesToRead = (bytesToPad == 4) ? 0 : bytesToPad;
+
+		for (int i = 0; i < bytesToRead; i++) {
+			dis.readByte();
+		}
+
+		return bytesToRead;
+	}
+
+	/**
 	 * 读取RuntimeVisibleAnnotations
 	 *
 	 * @return attrMap
@@ -2255,21 +2451,21 @@ public class ClassByteCodeParser {
 	}
 
 	public static void main(String[] args) throws IOException {
-		File                classFile  = new File("/Users/yz/IdeaProjects/javaweb-sec/javaweb-sec-source/javase/src/main/java/com/anbai/sec/bytecode/TestHelloWorld.class");
+		File                classFile  = new File("/Users/yz/IdeaProjects/Servers/TW_7_2020-01-16/lib/tongweb/com/tongtech/a/a/a/b.class");
 		ClassByteCodeParser codeParser = new ClassByteCodeParser();
 
 		codeParser.parseByteCode(new FileInputStream(classFile));
 		System.out.println(JSON.toJSONString(codeParser));
 
-//		Collection<File> files = FileUtils.listFiles(new File("/Users/yz/IdeaProjects/Servers/TW_7_2020-01-16/lib/tongweb"), new String[]{"class"}, true);
-//
-//		for (File file : files) {
-//			System.out.println(file);
-//			ClassByteCodeParser parser = new ClassByteCodeParser();
-//
-//			parser.parseByteCode(new FileInputStream(file));
-//			System.out.println(JSON.toJSONString(parser));
-//		}
+		Collection<File> files = FileUtils.listFiles(new File("/Users/yz/IdeaProjects/Servers/TW_7_2020-01-16/lib/tongweb"), new String[]{"class"}, true);
+
+		for (File file : files) {
+			System.out.println(file);
+			ClassByteCodeParser parser = new ClassByteCodeParser();
+
+			parser.parseByteCode(new FileInputStream(file));
+			System.out.println(JSON.toJSONString(parser));
+		}
 	}
 
 }
