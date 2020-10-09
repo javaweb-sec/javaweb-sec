@@ -1,7 +1,6 @@
 package com.anbai.sec.bytecode;
 
 import com.alibaba.fastjson.JSON;
-import org.javaweb.utils.FileUtils;
 
 import java.io.*;
 import java.util.*;
@@ -10,6 +9,9 @@ import static com.anbai.sec.bytecode.ClassByteCodeParser.Constant.*;
 import static com.anbai.sec.bytecode.ClassByteCodeParser.Opcodes.WIDE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+/**
+ * Java类字节码解析，参考：https://docs.oracle.com/javase/specs/jvms/se15/jvms15.pdf和https://github.com/ingokegel/jclasslib
+ */
 public class ClassByteCodeParser {
 
 	/**
@@ -424,10 +426,10 @@ public class ClassByteCodeParser {
 			this.accessFlags = dis.readUnsignedShort();
 
 			// u2 this_class;
-			this.thisClass = (String) getConstantPoolValue(dis.readUnsignedShort(), "nameValue");
+			this.thisClass = (String) getConstantPoolValue(dis.readUnsignedShort());
 
 			// u2 super_class;
-			this.superClass = (String) getConstantPoolValue(dis.readUnsignedShort(), "nameValue");
+			this.superClass = (String) getConstantPoolValue(dis.readUnsignedShort());
 
 			// u2 interfaces_count;
 			this.interfacesCount = dis.readUnsignedShort();
@@ -440,7 +442,7 @@ public class ClassByteCodeParser {
 				int index = dis.readUnsignedShort();
 
 				// 设置接口名称
-				this.interfaces[i] = (String) getConstantPoolValue(index, "nameValue");
+				this.interfaces[i] = (String) getConstantPoolValue(index);
 			}
 
 			// u2 fields_count;
@@ -498,10 +500,10 @@ public class ClassByteCodeParser {
 		dataMap.put("access", dis.readUnsignedShort());
 
 		// u2 name_index;
-		dataMap.put("name", getConstantPoolValue(dis.readUnsignedShort(), "value"));
+		dataMap.put("name", getConstantPoolValue(dis.readUnsignedShort()));
 
 		// u2 descriptor_index;
-		dataMap.put("desc", getConstantPoolValue(dis.readUnsignedShort(), "value"));
+		dataMap.put("desc", getConstantPoolValue(dis.readUnsignedShort()));
 
 		// u2 attributes_count;
 		int attributesCount = dis.readUnsignedShort();
@@ -516,12 +518,45 @@ public class ClassByteCodeParser {
 	/**
 	 * 通过常量池中的索引ID和名称获取常量池中的值
 	 *
-	 * @param index     索引ID
-	 * @param nameValue 键名
-	 * @return 常量池中的值
+	 * @param index 索引ID
+	 * @return 常量池对象值
 	 */
-	private Object getConstantPoolValue(int index, String nameValue) {
-		return constantPoolMap.get(index).get(nameValue);
+	private Object getConstantPoolValue(int index) {
+		if (constantPoolMap.containsKey(index)) {
+			Map<String, Object> dataMap  = constantPoolMap.get(index);
+			Constant            constant = (Constant) dataMap.get("tag");
+
+			switch (constant) {
+				case CONSTANT_UTF8:
+				case CONSTANT_INTEGER:
+				case CONSTANT_FLOAT:
+				case CONSTANT_LONG:
+				case CONSTANT_DOUBLE:
+					return dataMap.get("value");
+				case CONSTANT_CLASS:
+				case CONSTANT_MODULE:
+				case CONSTANT_PACKAGE:
+					return dataMap.get("nameValue");
+				case CONSTANT_STRING:
+					return dataMap.get("stringValue");
+				case CONSTANT_FIELD_REF:
+				case CONSTANT_METHOD_REF:
+				case CONSTANT_INTERFACE_METHOD_REF:
+					return dataMap.get("classValue") + "." + dataMap.get("nameAndTypeValue");
+				case CONSTANT_NAME_AND_TYPE:
+				case CONSTANT_METHOD_TYPE:
+					return dataMap.get("classValue") + "." + dataMap.get("descriptorValue");
+				case CONSTANT_METHOD_HANDLE:
+					return dataMap.get("referenceValue");
+				case CONSTANT_DYNAMIC:
+				case CONSTANT_INVOKE_DYNAMIC:
+					return dataMap.get("bootstrapMethodAttrValue") + "." + dataMap.get("nameAndTypeValue");
+				default:
+					break;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -542,7 +577,7 @@ public class ClassByteCodeParser {
 //			}
 
 			// u2 attribute_name_index;
-			String attributeName = (String) getConstantPoolValue(dis.readUnsignedShort(), "value");
+			String attributeName = (String) getConstantPoolValue(dis.readUnsignedShort());
 			attributeMap.put("attributeName", attributeName);
 
 			// u4 attribute_length;
@@ -561,7 +596,7 @@ public class ClassByteCodeParser {
 				Map<String, Object> attrMap = new LinkedHashMap<>();
 
 				// u2 constantvalue_index;
-				attrMap.put("constantValue", getConstantPoolValue(dis.readUnsignedShort(), "value"));
+				attrMap.put("constantValue", getConstantPoolValue(dis.readUnsignedShort()));
 
 				attributeMap.put("ConstantValue", attrMap);
 			} else if ("Code".equals(attributeName)) {
@@ -585,7 +620,7 @@ public class ClassByteCodeParser {
 				int          maxStack   = dis.readUnsignedShort();
 				int          maxLocals  = dis.readUnsignedShort();
 				int          codeLength = dis.readInt();
-				List<Object> opcodeList = new ArrayList<>();
+				List<String> opcodeList = new ArrayList<>();
 				byte[]       bytes      = new byte[codeLength];
 
 				// 读取所有的code字节
@@ -604,15 +639,20 @@ public class ClassByteCodeParser {
 				boolean wide = false;
 
 				for (int offset = 0; offset < codeLength; offset++) {
-					int     branchOffset   = -1;
-					int     defaultOffset  = -1;
-					int     immediateByte  = -1;
-					int     immediateShort = -1;
-					int     incrementConst = -1;
-					int     match          = -1;
-					int     bytesToRead    = 0;
-					int     code           = bis.readUnsignedByte();
-					Opcodes opcode         = Opcodes.getOpcodes(code);
+					int     branchOffset          = -1;
+					int     defaultOffset         = -1;
+					int     switchNumberofPairs   = -1;
+					int     switchNumberOfOffsets = -1;
+					int     immediateByte         = -1;
+					int     immediateShort        = -1;
+					int     arrayDimensions       = 0;
+					int     incrementConst        = -1;
+					int     switchMatch           = -1;
+					int     switchOffset          = -1;
+					int[]   switchJumpOffsets     = null;
+					int     bytesToRead           = 0;
+					int     code                  = bis.readUnsignedByte();
+					Opcodes opcode                = Opcodes.getOpcodes(code);
 
 					if (opcode == null) {
 						continue;
@@ -639,7 +679,7 @@ public class ClassByteCodeParser {
 								immediateByte = bis.readUnsignedByte();
 							}
 
-							opcodeList.add(opcode.getDesc() + " " + immediateByte);
+							addOpcodes(opcodeList, opcode, immediateByte);
 
 							// 因为读取了byte，所以需要重新计算bis偏移量
 							offset += wide ? 2 : 1;
@@ -658,8 +698,7 @@ public class ClassByteCodeParser {
 						case CHECKCAST:
 						case INSTANCEOF:
 						case SIPUSH:
-							immediateShort = bis.readUnsignedShort();
-							opcodeList.add(opcode.getDesc() + " " + immediateShort);
+							addOpcodes(opcodeList, opcode, bis.readUnsignedShort());
 
 							offset += 2;
 							break;
@@ -713,31 +752,31 @@ public class ClassByteCodeParser {
 							int lowByte = bis.readInt();
 							int highByte = bis.readInt();
 
-							int numberOfOffsets = highByte - lowByte + 1;
-							int[] jumpOffsets = new int[numberOfOffsets];
+							switchNumberOfOffsets = highByte - lowByte + 1;
+							switchJumpOffsets = new int[switchNumberOfOffsets];
 
-							for (int k = 0; k < numberOfOffsets; k++) {
-								jumpOffsets[k] = bis.readInt();
+							for (int k = 0; k < switchNumberOfOffsets; k++) {
+								switchJumpOffsets[k] = bis.readInt();
 							}
 
 							opcodeList.add(opcode.getDesc());
 
-							offset += bytesToRead + 12 + 4 * numberOfOffsets;
+							offset += bytesToRead + 12 + 4 * switchNumberOfOffsets;
 							break;
 						case LOOKUPSWITCH:
 							bytesToRead = readPaddingBytes(bytes, bis);
 
 							defaultOffset = bis.readInt();
-							int numberOfPairs = bis.readInt();
+							switchNumberofPairs = bis.readInt();
 
-							for (int k = 0; k < numberOfPairs; k++) {
-								match = bis.readInt();
-								offset = bis.readInt();
+							for (int k = 0; k < switchNumberofPairs; k++) {
+								switchMatch = bis.readInt();
+								switchOffset = bis.readInt();
 							}
 
 							opcodeList.add(opcode.getDesc());
 
-							offset += bytesToRead + 8 + 8 * numberOfPairs;
+							offset += bytesToRead + 8 + 8 * switchNumberofPairs;
 							break;
 						case INVOKEINTERFACE:
 							immediateShort = bis.readUnsignedShort();
@@ -748,7 +787,7 @@ public class ClassByteCodeParser {
 							// 下1个byte永远为0，所以直接丢弃
 							bis.readByte();
 
-							opcodeList.add(opcode.getDesc());
+							addOpcodes(opcodeList, opcode, immediateShort);
 
 							offset += 2;
 							break;
@@ -759,7 +798,7 @@ public class ClassByteCodeParser {
 							// 下2个byte永远为0，所以直接丢弃
 							bis.readUnsignedShort();
 
-							opcodeList.add(opcode.getDesc() + " " + immediateShort);
+							addOpcodes(opcodeList, opcode, immediateShort);
 
 							offset += 2;
 							break;
@@ -767,9 +806,9 @@ public class ClassByteCodeParser {
 							immediateShort = bis.readUnsignedShort();
 							offset += 2;
 
-							int dimensions = bis.readUnsignedByte();
+							arrayDimensions = bis.readUnsignedByte();
 
-							opcodeList.add(opcode.getDesc() + " " + immediateShort);
+							addOpcodes(opcodeList, opcode, immediateShort);
 
 							offset += 1;
 							break;
@@ -953,7 +992,7 @@ public class ClassByteCodeParser {
 				List<Object> exceptionList = new ArrayList<>();
 
 				for (int i = 0; i < numberOfExceptions; i++) {
-					exceptionList.add(getConstantPoolValue(dis.readUnsignedShort(), "value"));
+					exceptionList.add(getConstantPoolValue(dis.readUnsignedShort()));
 				}
 
 				attrMap.put("exceptionList", exceptionList);
@@ -1028,7 +1067,7 @@ public class ClassByteCodeParser {
 				Map<String, Object> attrMap = new LinkedHashMap<>();
 
 				// u2 sourcefile_index;
-				attrMap.put("sourceFile", getConstantPoolValue(dis.readUnsignedShort(), "value"));
+				attrMap.put("sourceFile", getConstantPoolValue(dis.readUnsignedShort()));
 				attributeMap.put("SourceFile", attrMap);
 			} else if ("SourceDebugExtension".equals(attributeName)) {
 //				SourceDebugExtension_attribute {
@@ -1062,6 +1101,7 @@ public class ClassByteCodeParser {
 				attrMap.put("lineNumberTableLength", lineNumberTableLength);
 
 				List<Map<String, Object>> lineNumberTableList = new ArrayList<>();
+
 				for (int i = 0; i < lineNumberTableLength; i++) {
 					int startPc    = dis.readUnsignedShort();
 					int lineNumber = dis.readUnsignedShort();
@@ -1069,6 +1109,8 @@ public class ClassByteCodeParser {
 					Map<String, Object> lineNumberTableMap = new LinkedHashMap<>();
 					lineNumberTableMap.put("startPc", startPc);
 					lineNumberTableMap.put("lineNumber", lineNumber);
+
+					lineNumberTableList.add(lineNumberTableMap);
 				}
 
 				attrMap.put("lineNumberTableList", lineNumberTableList);
@@ -1105,10 +1147,10 @@ public class ClassByteCodeParser {
 					localVariableTableMap.put("length", dis.readUnsignedShort());
 
 					// u2 name_index; 参数名称
-					localVariableTableMap.put("name", getConstantPoolValue(dis.readUnsignedShort(), "value"));
+					localVariableTableMap.put("name", getConstantPoolValue(dis.readUnsignedShort()));
 
 					// u2 descriptor_index; 参数描述符
-					localVariableTableMap.put("desc", getConstantPoolValue(dis.readUnsignedShort(), "value"));
+					localVariableTableMap.put("desc", getConstantPoolValue(dis.readUnsignedShort()));
 
 					// u2 index;
 					localVariableTableMap.put("index", dis.readUnsignedShort());
@@ -1304,7 +1346,7 @@ public class ClassByteCodeParser {
 					List<Object> argumentList = new ArrayList<>();
 
 					for (int k = 0; k < bootstrapArguments; k++) {
-						argumentList.add(getConstantPoolValue(dis.readUnsignedShort(), "value"));
+						argumentList.add(getConstantPoolValue(dis.readUnsignedShort()));
 					}
 
 					bootstrapMethodMap.put("argumentList", argumentList);
@@ -1339,7 +1381,7 @@ public class ClassByteCodeParser {
 					Map<String, Object> parameterMap = new LinkedHashMap<>();
 
 					// u2 name_index;
-					parameterMap.put("name", getConstantPoolValue(dis.readUnsignedShort(), "value"));
+					parameterMap.put("name", getConstantPoolValue(dis.readUnsignedShort()));
 
 					// u2 access_flags;
 					parameterMap.put("accessFlags", dis.readUnsignedShort());
@@ -1550,7 +1592,7 @@ public class ClassByteCodeParser {
 				List<Object> packageList = new ArrayList<>();
 
 				for (int i = 0; i < packageCount; i++) {
-					packageList.add(getConstantPoolValue(dis.readUnsignedShort(), "value"));
+					packageList.add(getConstantPoolValue(dis.readUnsignedShort()));
 				}
 
 				attrMap.put("packageList", packageList);
@@ -1611,8 +1653,19 @@ public class ClassByteCodeParser {
 		return attributeMap;
 	}
 
+	private void addOpcodes(List<String> opcodeList, Opcodes opcode, int val) {
+		Object value = getConstantPoolValue(val);
+
+		if (value != null) {
+			opcodeList.add(opcode.getDesc() + " " + "#" + val + " <" + value + ">");
+		} else {
+			opcodeList.add(opcode.getDesc() + " " + val);
+		}
+	}
+
 	/**
 	 * 读取栈指令中的无用padding
+	 *
 	 * @param bytes
 	 * @param dis
 	 * @return
@@ -1748,7 +1801,7 @@ public class ClassByteCodeParser {
 		Map<String, Object> annotationMap = new LinkedHashMap<>();
 
 		// u2 type_index;
-		annotationMap.put("type", getConstantPoolValue(dis.readUnsignedShort(), "value"));
+		annotationMap.put("type", getConstantPoolValue(dis.readUnsignedShort()));
 
 		// element_value_pairs[num_element_value_pairs];
 		annotationMap.put("elementvaluepairs", readAnnotationElementValuePairs());
@@ -1770,7 +1823,7 @@ public class ClassByteCodeParser {
 			Map<String, Object> elementValueMap = new LinkedHashMap<>();
 
 			// u2 element_name_index;
-			elementValueMap.put("elementName", getConstantPoolValue(dis.readUnsignedShort(), "value"));
+			elementValueMap.put("elementName", getConstantPoolValue(dis.readUnsignedShort()));
 
 			// element_value value;
 			elementValueMap.put("elementTypeMap", readAnnotationElementType());
@@ -2069,14 +2122,14 @@ public class ClassByteCodeParser {
 		if (tag == 'B' || tag == 'C' || tag == 'D' || tag == 'F' || tag == 'I' ||
 				tag == 'J' || tag == 'S' || tag == 'Z' || tag == 's') {
 
-			elementTypeMap.put("constValue", getConstantPoolValue(dis.readUnsignedShort(), "value"));
+			elementTypeMap.put("constValue", getConstantPoolValue(dis.readUnsignedShort()));
 		} else if (tag == 'e') {
-			elementTypeMap.put("typeName", getConstantPoolValue(dis.readUnsignedShort(), "value"));
-			elementTypeMap.put("constName", getConstantPoolValue(dis.readUnsignedShort(), "value"));
+			elementTypeMap.put("typeName", getConstantPoolValue(dis.readUnsignedShort()));
+			elementTypeMap.put("constName", getConstantPoolValue(dis.readUnsignedShort()));
 		} else if (tag == 'c') {
-			elementTypeMap.put("classInfo", getConstantPoolValue(dis.readUnsignedShort(), "value"));
+			elementTypeMap.put("classInfo", getConstantPoolValue(dis.readUnsignedShort()));
 		} else if (tag == '@') {
-			elementTypeMap.put("type", getConstantPoolValue(dis.readUnsignedShort(), "value"));
+			elementTypeMap.put("type", getConstantPoolValue(dis.readUnsignedShort()));
 
 			elementTypeMap.put("elementValueList", readAnnotationElementValuePairs());
 		} else if (tag == '[') {
@@ -2451,21 +2504,24 @@ public class ClassByteCodeParser {
 	}
 
 	public static void main(String[] args) throws IOException {
+		// 解析单个class文件
 		File                classFile  = new File("/Users/yz/IdeaProjects/Servers/TW_7_2020-01-16/lib/tongweb/com/tongtech/a/a/a/b.class");
 		ClassByteCodeParser codeParser = new ClassByteCodeParser();
 
 		codeParser.parseByteCode(new FileInputStream(classFile));
 		System.out.println(JSON.toJSONString(codeParser));
 
-		Collection<File> files = FileUtils.listFiles(new File("/Users/yz/IdeaProjects/Servers/TW_7_2020-01-16/lib/tongweb"), new String[]{"class"}, true);
-
-		for (File file : files) {
-			System.out.println(file);
-			ClassByteCodeParser parser = new ClassByteCodeParser();
-
-			parser.parseByteCode(new FileInputStream(file));
-			System.out.println(JSON.toJSONString(parser));
-		}
+//		// 解析目录下所有的.class文件
+//		Collection<File> files = FileUtils.listFiles(new File("/Users/yz/IdeaProjects/Servers/TW_7_2020-01-16/lib/tongweb"), new String[]{"class"}, true);
+//
+//		for (File file : files) {
+//			long                ctime  = System.currentTimeMillis();
+//			ClassByteCodeParser parser = new ClassByteCodeParser();
+//
+//			parser.parseByteCode(new FileInputStream(file));
+//			System.out.println(JSON.toJSONString(parser));
+//			System.out.println(file + "\t" + (System.currentTimeMillis() - ctime));
+//		}
 	}
 
 }
