@@ -1,14 +1,5 @@
 # Java 字节码
 
-Java 字节码(`Java bytecode`)是Java虚拟机执行的一种指令格式。
+Java源文件(`*.java`)通过编译后会变成`class文件`，`class文件`有固定的二进制格式，`class文件`的结构在JVM虚拟机规范[第四章：The class File Format](https://docs.oracle.com/javase/specs/jvms/se15/html/jvms-4.html)中有详细的说明。本章节将学习`class文件结构`、`class文件解析`、`class文件反编译`以及`ASM字节码库`。
 
-指令可以基本分为以下几类：
-
-1. 存储指令(例如：`aload_0`, `istore`)
-2. 算术与逻辑指令(例如: `ladd`, `fcmpl`)
-3.  类型转换指令(例如：`i2b`, `d2i`)
-4.  对象创建与操作指令(例如：`new`, `putfield`)
-5.  堆栈操作指令(例如：`swap`, `dup2`)
-6.  控制转移指令(例如：`ifeq`, `goto`)
-7.  方法调用与返回指令(例如：`invokespecial`, `areturn`)
-
+[Java语言和JVM虚拟机规范](https://docs.oracle.com/javase/specs/)：[《Java15语言规范》](https://docs.oracle.com/javase/specs/jls/se15/jls15.pdf)、[《Java15虚拟机实现规范》](https://docs.oracle.com/javase/specs/jvms/se15/jvms15.pdf)

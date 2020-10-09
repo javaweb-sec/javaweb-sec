@@ -14,14 +14,13 @@ Java代码审计其本身并无多大难度，只要熟练掌握审计流程和�
 
 强烈推荐下列辅助工具：
 
-1. `Jetbrains IDEA(IDE)`
-2. `Sublime text(文本编辑器)`
-3. `JD-GUI(反编译)`
-4. `Fernflower(反编译)`
-5. `Bytecode-Viewer`
-6. `Eclipse(IDE)`
-7. `NetBeans(IDE)`
-8. `Visual Studio Code`
+| 类型         | 名称                                                         |
+| ------------ | ------------------------------------------------------------ |
+| IDE          | [Jetbrains IDEA](https://www.jetbrains.com/idea/)、[Eclipse](https://www.eclipse.org/)、[NetBeans](https://netbeans.org/) |
+| 编辑器       | [Visual Studio Code](https://code.visualstudio.com/)、[Sublime text](http://www.sublimetext.com/3) |
+| 反编译工具   | [JD-GUI](http://jd.benow.ca/)、[Recaf](https://github.com/Col-E/Recaf)、[IDEA Fernflower](https://github.com/JetBrains/intellij-community/tree/master/plugins/java-decompiler/engine/src/org/jetbrains/java/decompiler)、[Bytecode-Viewer](https://github.com/Konloch/bytecode-viewer/releases)/[Fernflower](https://the.bytecode.club/showthread.php?tid=5)、[JAD](http://www.javadecompilers.com/jad)、[JBE](http://www.cs.ioc.ee/~ando/jbe/)、[Cafebabe](https://github.com/GraxCode/Cafebabe)、[JByteMod](https://github.com/GraxCode/JByteMod-Beta) |
+| 商业审计工具 | [Fortify](https://www.microfocus.com/zh-cn/products/static-code-analysis-sast/overview)、[CodePecker](http://www.codepecker.com.cn/Analyse) |
 
 ![code-tools](../images/code-tools.png)
 
+`IntelliJ IDEA`是`Jetbrains`出品的一款非常强大的`Java IDE`，IDEA提供了强大的代码搜索、反编译、动态调试等功能可以最大程度的辅助我们代码审计。

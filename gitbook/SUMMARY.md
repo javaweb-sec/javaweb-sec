@@ -27,6 +27,8 @@
     * [JNDI](javase/JNDI/README.md)
     * [JShell](javase/JShell/README.md)
     * [Java 字节码](javase/JavaByteCode/README.md)
+        * [Java class解析-文件格式](javase/JavaByteCode/ClassFileFormat.md)
+        * [Java 反编译](javase/JavaByteCode/Decompile.md)
     * [Java Agent](javase/JavaAgent/README.md)
         * [Java Instrumentation](javase/JavaAgent/Instrumentation.md)
     * [Java XXE漏洞](javase/XXE/README.md)
@@ -124,7 +126,6 @@
 
 -----
 * [代码审计基础](java-source-code-audit/README.md)
-    * [Java类编译与反编译基础](java-source-code-audit/Decompile.md)
     * [IntelliJ IDEA技巧](java-source-code-audit/IntelliJ IDEA.md)
     * [IntelliJ IDEA Java程序调试](java-source-code-audit/IDEA-Debug.md)
     * [Java常见漏洞](java-source-code-audit/vuls/README.md)
