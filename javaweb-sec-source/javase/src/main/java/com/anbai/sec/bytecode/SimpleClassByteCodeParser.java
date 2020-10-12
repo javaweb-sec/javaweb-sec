@@ -278,7 +278,7 @@ public class SimpleClassByteCodeParser {
 //				}
 
 				map.put("tag", "CONSTANT_DYNAMIC");
-				map.put("bootstrapMethodAttrIndex", dis.readUnsignedShort());
+				map.put("bootstrapMethodAttrIdx", dis.readUnsignedShort());
 				map.put("nameAndTypeIndex", dis.readUnsignedShort());
 			} else if (tag == 18) {
 //				CONSTANT_InvokeDynamic_info {
@@ -288,7 +288,7 @@ public class SimpleClassByteCodeParser {
 //				}
 
 				map.put("tag", "CONSTANT_INVOKE_DYNAMIC");
-				map.put("bootstrapMethodAttrIndex", dis.readUnsignedShort());
+				map.put("bootstrapMethodAttrIdx", dis.readUnsignedShort());
 				map.put("nameAndTypeIndex", dis.readUnsignedShort());
 			} else if (tag == 19) {
 //				CONSTANT_Module_info {
@@ -516,7 +516,7 @@ public class SimpleClassByteCodeParser {
 	}
 
 	public static void main(String[] args) throws IOException {
-		File classFile = new File("/Users/yz/IdeaProjects/javaweb-sec/javaweb-sec-source/javase/src/main/java/com/anbai/sec/bytecode/TestHelloWorld.class");
+		File classFile = new File("/Users/yz/IdeaProjects/anbai-lingxe-cloud/target/classes/com/tongtech/asdp/cloud/config/RedisConfig.class");
 
 		SimpleClassByteCodeParser codeParser  = new SimpleClassByteCodeParser();
 		Map<String, Object>       byteCodeMap = codeParser.parseByteCode(new FileInputStream(classFile));
