@@ -545,7 +545,7 @@ public class ClassByteCodeParser {
 					return dataMap.get("classValue") + "." + dataMap.get("nameAndTypeValue");
 				case CONSTANT_NAME_AND_TYPE:
 				case CONSTANT_METHOD_TYPE:
-					return dataMap.get("classValue") + "." + dataMap.get("descriptorValue");
+					return dataMap.get("descriptorValue");
 				case CONSTANT_METHOD_HANDLE:
 					return dataMap.get("referenceValue");
 				case CONSTANT_DYNAMIC:
@@ -1334,22 +1334,33 @@ public class ClassByteCodeParser {
 					Map<String, Object> bootstrapMethodMap = new LinkedHashMap<>();
 
 					// u2 bootstrap_method_ref;
-					bootstrapMethodMap.put("bootstrapMethodRef", dis.readUnsignedShort());
+					bootstrapMethodMap.put("bootstrapMethodRef", getConstantPoolValue(dis.readUnsignedShort()));
 
 					// u2 num_bootstrap_arguments;
-					bootstrapMethodMap.put("numBootstrapArguments", dis.readUnsignedShort());
-
-					// u2 bootstrap_arguments[num_bootstrap_arguments];
-					int bootstrapArguments = dis.readUnsignedShort();
-					bootstrapMethodMap.put("bootstrapArguments", bootstrapArguments);
+					int numBootstrapArguments = dis.readUnsignedShort();
+					bootstrapMethodMap.put("numBootstrapArguments", numBootstrapArguments);
 
 					List<Object> argumentList = new ArrayList<>();
 
-					for (int k = 0; k < bootstrapArguments; k++) {
-						argumentList.add(getConstantPoolValue(dis.readUnsignedShort()));
+					// u2 bootstrap_arguments[num_bootstrap_arguments];
+					for (int k = 0; k < numBootstrapArguments; k++) {
+						int index = dis.readUnsignedShort();
+						argumentList.add(getConstantPoolValue(index));
 					}
 
 					bootstrapMethodMap.put("argumentList", argumentList);
+
+					// 特殊处理CONSTANT_DYNAMIC和CONSTANT_INVOKE_DYNAMIC，反向关联修改常量池中的bootstrapMethodAttrIdx值
+					for (Integer id : constantPoolMap.keySet()) {
+						Map<String, Object> map  = constantPoolMap.get(id);
+						Constant            type = (Constant) map.get("tag");
+
+						if (CONSTANT_DYNAMIC == type || CONSTANT_INVOKE_DYNAMIC == type) {
+							Integer bootstrapMethodAttrIdx = (Integer) map.get("bootstrapMethodAttrIdx");
+
+							map.put("bootstrapMethodAttrVal", argumentList.get(bootstrapMethodAttrIdx));
+						}
+					}
 
 					bootstrapMethodList.add(bootstrapMethodMap);
 				}
@@ -2397,7 +2408,7 @@ public class ClassByteCodeParser {
 //				}
 
 				map.put("tag", CONSTANT_DYNAMIC);
-				map.put("bootstrapMethodAttrIndex", dis.readUnsignedShort());
+				map.put("bootstrapMethodAttrIdx", dis.readUnsignedShort());
 				map.put("nameAndTypeIndex", dis.readUnsignedShort());
 			} else if (tag == CONSTANT_INVOKE_DYNAMIC.flag) {
 //				CONSTANT_InvokeDynamic_info {
@@ -2407,7 +2418,7 @@ public class ClassByteCodeParser {
 //				}
 
 				map.put("tag", CONSTANT_INVOKE_DYNAMIC);
-				map.put("bootstrapMethodAttrIndex", dis.readUnsignedShort());
+				map.put("bootstrapMethodAttrIdx", dis.readUnsignedShort());
 				map.put("nameAndTypeIndex", dis.readUnsignedShort());
 			} else if (tag == CONSTANT_MODULE.flag) {
 //				CONSTANT_Module_info {
@@ -2505,16 +2516,17 @@ public class ClassByteCodeParser {
 
 	public static void main(String[] args) throws IOException {
 		// 解析单个class文件
-		File                classFile  = new File("/Users/yz/IdeaProjects/Servers/TW_7_2020-01-16/lib/tongweb/com/tongtech/a/a/a/b.class");
+		File                classFile  = new File("/Users/yz/IdeaProjects/anbai-lingxe-cloud/target/classes/com/tongtech/asdp/cloud/config/RedisConfig.class");
 		ClassByteCodeParser codeParser = new ClassByteCodeParser();
 
 		codeParser.parseByteCode(new FileInputStream(classFile));
 		System.out.println(JSON.toJSONString(codeParser));
-
+//
 //		// 解析目录下所有的.class文件
-//		Collection<File> files = FileUtils.listFiles(new File("/Users/yz/IdeaProjects/Servers/TW_7_2020-01-16/lib/tongweb"), new String[]{"class"}, true);
+//		Collection<File> files = FileUtils.listFiles(new File("/Users/yz/IdeaProjects/anbai-lingxe-cloud/target/classes"), new String[]{"class"}, true);
 //
 //		for (File file : files) {
+//			System.out.println(file);
 //			long                ctime  = System.currentTimeMillis();
 //			ClassByteCodeParser parser = new ClassByteCodeParser();
 //
