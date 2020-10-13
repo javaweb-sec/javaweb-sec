@@ -14,7 +14,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <asm.version>7.1</asm.version>
+        <asm.version>9.0</asm.version>
         <java.version>1.7</java.version>
         <maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
     </properties>
@@ -25,6 +25,12 @@
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-commons</artifactId>
             <version>${asm.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.javaweb</groupId>
+            <artifactId>javaweb-utils</artifactId>
+            <version>${javaweb.version}</version>
         </dependency>
 
     </dependencies>
