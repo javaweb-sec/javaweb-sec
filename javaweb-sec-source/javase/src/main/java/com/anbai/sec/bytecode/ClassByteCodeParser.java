@@ -155,6 +155,8 @@ public class ClassByteCodeParser {
 		public String getDesc() {
 			return desc;
 		}
+
+
 	}
 
 	/**
@@ -2273,6 +2275,8 @@ public class ClassByteCodeParser {
 		// cp_info constant_pool[constant_pool_count-1];
 		for (int i = 1; i <= poolCount - 1; i++) {
 			int                 tag = dis.readUnsignedByte();
+
+
 			Map<String, Object> map = new LinkedHashMap<>();
 
 			if (tag == CONSTANT_UTF8.flag) {
@@ -2516,7 +2520,7 @@ public class ClassByteCodeParser {
 
 	public static void main(String[] args) throws IOException {
 		// 解析单个class文件
-		File                classFile  = new File("/Users/yz/IdeaProjects/anbai-lingxe-cloud/target/classes/com/tongtech/asdp/cloud/config/RedisConfig.class");
+		File                classFile  = new File(System.getProperty("user.dir"), "javaweb-sec-source/javase/target/classes/com/anbai/sec/bytecode/TestHelloWorld.class");
 		ClassByteCodeParser codeParser = new ClassByteCodeParser();
 
 		codeParser.parseByteCode(new FileInputStream(classFile));
