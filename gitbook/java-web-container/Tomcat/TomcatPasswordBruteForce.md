@@ -163,7 +163,7 @@ Authorization: Basic dG9tY2F0OjEyMzEyMw==
 
 <img src="../../images/image-20200924190438021.png" alt="image-20200924190438021" style="zoom:50%;" />
 
-在 `authenticate` 方法中进行身份验证，如果用户登陆失败，将调用 `registerAuthFailure` 方法标记用户的登录失败状态，如果
+在 `authenticate` 方法中进行身份验证，如果用户登陆失败，将调用 `registerAuthFailure` 方法标记用户的登录失败状态
 
 ![image-20200924190057039](../../images/image-20200924190057039.png)
 
