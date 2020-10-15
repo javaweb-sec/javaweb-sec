@@ -54,7 +54,14 @@ public class SimpleClassByteCodeParser {
 			byteCodeMap.put("thisClass", getConstantPoolValue(dis.readUnsignedShort(), "nameValue", constantPoolMap));
 
 			// u2 super_class;
-			byteCodeMap.put("superClass", getConstantPoolValue(dis.readUnsignedShort(), "nameValue", constantPoolMap));
+			int superClassIndex = dis.readUnsignedShort();
+
+			// 当解析Object类的时候super_class为0
+			if (superClassIndex != 0) {
+				byteCodeMap.put("superClass", getConstantPoolValue(superClassIndex, "nameValue", constantPoolMap));
+			} else {
+				byteCodeMap.put("superClass", "java/lang/Object");
+			}
 
 			// u2 interfaces_count;
 			int interfacesCount = dis.readUnsignedShort();

@@ -156,6 +156,17 @@ public class ClassByteCodeParser {
 			return desc;
 		}
 
+		public static Constant getConstant(int tag) {
+			Constant[] constants = Constant.values();
+
+			for (Constant constant : constants) {
+				if (constant.flag == tag) {
+					return constant;
+				}
+			}
+
+			return null;
+		}
 
 	}
 
@@ -397,6 +408,7 @@ public class ClassByteCodeParser {
 
 			return null;
 		}
+
 	}
 
 	/**
@@ -431,7 +443,14 @@ public class ClassByteCodeParser {
 			this.thisClass = (String) getConstantPoolValue(dis.readUnsignedShort());
 
 			// u2 super_class;
-			this.superClass = (String) getConstantPoolValue(dis.readUnsignedShort());
+			int superClassIndex = dis.readUnsignedShort();
+
+			// 当解析Object类的时候super_class为0
+			if (superClassIndex != 0) {
+				this.superClass = (String) getConstantPoolValue(superClassIndex);
+			} else {
+				this.superClass = "java/lang/Object";
+			}
 
 			// u2 interfaces_count;
 			this.interfacesCount = dis.readUnsignedShort();
@@ -452,13 +471,13 @@ public class ClassByteCodeParser {
 
 			// field_info fields[fields_count];
 			for (int i = 0; i < this.fieldsCount; i++) {
-//				field_info {
-//					u2 access_flags;
-//					u2 name_index;
-//					u2 descriptor_index;
-//					u2 attributes_count;
-//					attribute_info attributes[attributes_count];
-//				}
+//              field_info {
+//                  u2 access_flags;
+//                  u2 name_index;
+//                  u2 descriptor_index;
+//                  u2 attributes_count;
+//                  attribute_info attributes[attributes_count];
+//              }
 
 				this.fieldList.add(readFieldOrMethod());
 			}
@@ -468,13 +487,13 @@ public class ClassByteCodeParser {
 
 			// method_info methods[methods_count];
 			for (int i = 0; i < this.methodsCount; i++) {
-//				method_info {
-//					u2 access_flags;
-//					u2 name_index;
-//					u2 descriptor_index;
-//					u2 attributes_count;
-//					attribute_info attributes[attributes_count];
-//				}
+//              method_info {
+//                  u2 access_flags;
+//                  u2 name_index;
+//                  u2 descriptor_index;
+//                  u2 attributes_count;
+//                  attribute_info attributes[attributes_count];
+//              }
 
 				methodList.add(readFieldOrMethod());
 			}
@@ -572,11 +591,11 @@ public class ClassByteCodeParser {
 
 		// attribute_info attributes[attributes_count];
 		for (int j = 0; j < attrCount; j++) {
-//			attribute_info {
-//				u2 attribute_name_index;
-//				u4 attribute_length;
-//				u1 info[attribute_length];
-//			}
+//          attribute_info {
+//              u2 attribute_name_index;
+//              u4 attribute_length;
+//              u1 info[attribute_length];
+//          }
 
 			// u2 attribute_name_index;
 			String attributeName = (String) getConstantPoolValue(dis.readUnsignedShort());
@@ -588,11 +607,11 @@ public class ClassByteCodeParser {
 
 			// u1 info[attribute_length];
 			if ("ConstantValue".equals(attributeName)) {
-//				ConstantValue_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 constantvalue_index;
-//				}
+//              ConstantValue_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 constantvalue_index;
+//              }
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
@@ -602,22 +621,22 @@ public class ClassByteCodeParser {
 
 				attributeMap.put("ConstantValue", attrMap);
 			} else if ("Code".equals(attributeName)) {
-//				Code_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 max_stack;
-//					u2 max_locals;
-//					u4 code_length;
-//					u1 code[code_length];
-//					u2 exception_table_length;
-//					{ u2 start_pc;
-//						u2 end_pc;
-//						u2 handler_pc;
-//						u2 catch_type;
-//					} exception_table[exception_table_length];
-//					u2 attributes_count;
-//					attribute_info attributes[attributes_count];
-//				}
+//              Code_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 max_stack;
+//                  u2 max_locals;
+//                  u4 code_length;
+//                  u1 code[code_length];
+//                  u2 exception_table_length;
+//                  { u2 start_pc;
+//                      u2 end_pc;
+//                      u2 handler_pc;
+//                      u2 catch_type;
+//                  } exception_table[exception_table_length];
+//                  u2 attributes_count;
+//                  attribute_info attributes[attributes_count];
+//              }
 
 				int          maxStack   = dis.readUnsignedShort();
 				int          maxLocals  = dis.readUnsignedShort();
@@ -649,6 +668,7 @@ public class ClassByteCodeParser {
 					int     immediateShort        = -1;
 					int     arrayDimensions       = 0;
 					int     incrementConst        = -1;
+					int     incrementConst2       = -1;
 					int     switchMatch           = -1;
 					int     switchOffset          = -1;
 					int[]   switchJumpOffsets     = null;
@@ -743,9 +763,15 @@ public class ClassByteCodeParser {
 								incrementConst = bis.readUnsignedByte();
 							}
 
-							opcodeList.add(opcode.getDesc() + " " + incrementConst);
+							if (wide) {
+								incrementConst2 = bis.readUnsignedShort();
+							} else {
+								incrementConst2 = bis.readUnsignedByte();
+							}
 
-							offset += wide ? 2 : 1;
+							opcodeList.add(opcode.getDesc() + " " + incrementConst + " by " + incrementConst2);
+
+							offset += wide ? 4 : 2;
 							break;
 						case TABLESWITCH:
 							bytesToRead = readPaddingBytes(bytes, bis);
@@ -834,12 +860,12 @@ public class ClassByteCodeParser {
 				// 递归读取属性信息
 				attributeMap.put("Code", attrMap);
 			} else if ("StackMapTable".equals(attributeName)) {
-//				StackMapTable_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 number_of_entries;
-//					stack_map_frame entries[number_of_entries];
-//				}
+//              StackMapTable_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 number_of_entries;
+//                  stack_map_frame entries[number_of_entries];
+//              }
 
 				int numberOfEntries = dis.readUnsignedShort();
 
@@ -853,39 +879,39 @@ public class ClassByteCodeParser {
 					Map<String, Object> entryMap  = new LinkedHashMap<>();
 					entryMap.put("frameType", frameType);
 
-//					union stack_map_frame {
-//						same_frame;
-//						same_locals_1_stack_item_frame;
-//						same_locals_1_stack_item_frame_extended;
-//						chop_frame;
-//						same_frame_extended;
-//						append_frame;
-//						full_frame;
-//					}
+//                  union stack_map_frame {
+//                      same_frame;
+//                      same_locals_1_stack_item_frame;
+//                      same_locals_1_stack_item_frame_extended;
+//                      chop_frame;
+//                      same_frame_extended;
+//                      append_frame;
+//                      full_frame;
+//                  }
 
 					if (frameType >= 0 && frameType <= 63) {
 						// same_frame 0-63
 
-//						same_frame {
-//							u1 frame_type = SAME; /* 0-63 */
-//						}
+//                      same_frame {
+//                          u1 frame_type = SAME; /* 0-63 */
+//                      }
 					} else if (frameType >= 64 && frameType <= 127) {
 						// same_locals_1_stack_item_frame 64-127
 
-//						same_locals_1_stack_item_frame {
-//							u1 frame_type = SAME_LOCALS_1_STACK_ITEM; /* 64-127 */
-//							verification_type_info stack[1];
-//						}
+//                      same_locals_1_stack_item_frame {
+//                          u1 frame_type = SAME_LOCALS_1_STACK_ITEM; /* 64-127 */
+//                          verification_type_info stack[1];
+//                      }
 
 						attrMap.put("typeInfoMap", readVerificationTypeInfo());
 					} else if (frameType == 247) {
 						// same_locals_1_stack_item_frame_extended 247
 
-//						same_locals_1_stack_item_frame_extended {
-//							u1 frame_type = SAME_LOCALS_1_STACK_ITEM_EXTENDED; /* 247 */
-//							u2 offset_delta;
-//							verification_type_info stack[1];
-//						}
+//                      same_locals_1_stack_item_frame_extended {
+//                          u1 frame_type = SAME_LOCALS_1_STACK_ITEM_EXTENDED; /* 247 */
+//                          u2 offset_delta;
+//                          verification_type_info stack[1];
+//                      }
 
 						int offsetDelta = dis.readUnsignedShort();
 
@@ -894,31 +920,31 @@ public class ClassByteCodeParser {
 					} else if (frameType >= 248 && frameType <= 250) {
 						//  chop_frame 248-250
 
-//						chop_frame {
-//							u1 frame_type = CHOP; /* 248-250 */
-//							u2 offset_delta;
-//						}
+//                      chop_frame {
+//                          u1 frame_type = CHOP; /* 248-250 */
+//                          u2 offset_delta;
+//                      }
 
 						int offsetDelta = dis.readUnsignedShort();
 						attrMap.put("offsetDelta", offsetDelta);
 					} else if (frameType == 251) {
 						// same_frame_extended 251
 
-//						same_frame_extended {
-//							u1 frame_type = SAME_FRAME_EXTENDED; /* 251 */
-//							u2 offset_delta;
-//						}
+//                      same_frame_extended {
+//                          u1 frame_type = SAME_FRAME_EXTENDED; /* 251 */
+//                          u2 offset_delta;
+//                      }
 
 						int offsetDelta = dis.readUnsignedShort();
 						attrMap.put("offsetDelta", offsetDelta);
 					} else if (frameType >= 252 && frameType <= 254) {
 						// append_frame 252-254
 
-//						append_frame {
-//							u1 frame_type = APPEND; /* 252-254 */
-//							u2 offset_delta;
-//							verification_type_info locals[frame_type - 251];
-//						}
+//                      append_frame {
+//                          u1 frame_type = APPEND; /* 252-254 */
+//                          u2 offset_delta;
+//                          verification_type_info locals[frame_type - 251];
+//                      }
 
 						int offsetDelta = dis.readUnsignedShort();
 						attrMap.put("offsetDelta", offsetDelta);
@@ -933,14 +959,14 @@ public class ClassByteCodeParser {
 					} else {
 						// full_frame 255
 
-//						full_frame {
-//							u1 frame_type = FULL_FRAME; /* 255 */
-//							u2 offset_delta;
-//							u2 number_of_locals;
-//							verification_type_info locals[number_of_locals];
-//							u2 number_of_stack_items;
-//							verification_type_info stack[number_of_stack_items];
-//						}
+//                      full_frame {
+//                          u1 frame_type = FULL_FRAME; /* 255 */
+//                          u2 offset_delta;
+//                          u2 number_of_locals;
+//                          verification_type_info locals[number_of_locals];
+//                          u2 number_of_stack_items;
+//                          verification_type_info stack[number_of_stack_items];
+//                      }
 
 						// u2 offset_delta;
 						attrMap.put("offsetDelta", dis.readUnsignedShort());
@@ -978,12 +1004,12 @@ public class ClassByteCodeParser {
 				attrMap.put("entryList", entryList);
 				attributeMap.put("StackMapTable", attrMap);
 			} else if ("Exceptions".equals(attributeName)) {
-//				Exceptions_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 number_of_exceptions;
-//					u2 exception_index_table[number_of_exceptions];
-//				}
+//              Exceptions_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 number_of_exceptions;
+//                  u2 exception_index_table[number_of_exceptions];
+//              }
 
 				int numberOfExceptions = dis.readUnsignedShort();
 
@@ -1000,28 +1026,28 @@ public class ClassByteCodeParser {
 				attrMap.put("exceptionList", exceptionList);
 				attributeMap.put("Exceptions", attrMap);
 			} else if ("InnerClasses".equals(attributeName)) {
-//				InnerClasses_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 number_of_classes;
-//					{ u2 inner_class_info_index;
-//						u2 outer_class_info_index;
-//						u2 inner_name_index;
-//						u2 inner_class_access_flags;
-//					} classes[number_of_classes];
-//				}
+//              InnerClasses_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 number_of_classes;
+//                  { u2 inner_class_info_index;
+//                      u2 outer_class_info_index;
+//                      u2 inner_name_index;
+//                      u2 inner_class_access_flags;
+//                  } classes[number_of_classes];
+//              }
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
 				attrMap.put("exceptionTable", readExceptionTable());
 				attributeMap.put("InnerClasses", attrMap);
 			} else if ("EnclosingMethod".equals(attributeName)) {
-//				EnclosingMethod_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 class_index;
-//					u2 method_index;
-//				}
+//              EnclosingMethod_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 class_index;
+//                  u2 method_index;
+//              }
 
 				// u2 class_index;
 				int classIndex = dis.readUnsignedShort();
@@ -1037,20 +1063,20 @@ public class ClassByteCodeParser {
 
 				attributeMap.put("EnclosingMethod", attrMap);
 			} else if ("Synthetic".equals(attributeName)) {
-//				Synthetic_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//				}
+//              Synthetic_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//              }
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
 				attributeMap.put("Synthetic", attrMap);
 			} else if ("Signature".equals(attributeName)) {
-//				Signature_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 signature_index;
-//				}
+//              Signature_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 signature_index;
+//              }
 
 				int signatureIndex = dis.readUnsignedShort();
 
@@ -1059,11 +1085,11 @@ public class ClassByteCodeParser {
 				attrMap.put("signatureIndex", signatureIndex);
 				attributeMap.put("Signature", attrMap);
 			} else if ("SourceFile".equals(attributeName)) {
-//				SourceFile_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 sourcefile_index;
-//				}
+//              SourceFile_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 sourcefile_index;
+//              }
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
@@ -1072,11 +1098,11 @@ public class ClassByteCodeParser {
 				attrMap.put("sourceFile", getConstantPoolValue(dis.readUnsignedShort()));
 				attributeMap.put("SourceFile", attrMap);
 			} else if ("SourceDebugExtension".equals(attributeName)) {
-//				SourceDebugExtension_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u1 debug_extension[attribute_length];
-//				}
+//              SourceDebugExtension_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u1 debug_extension[attribute_length];
+//              }
 
 				byte[] bytes = new byte[attributeLength];
 
@@ -1087,14 +1113,14 @@ public class ClassByteCodeParser {
 				attrMap.put("bytes", bytes);
 				attributeMap.put("SourceDebugExtension", attrMap);
 			} else if ("LineNumberTable".equals(attributeName)) {
-//				LineNumberTable_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 line_number_table_length;
-//					{ u2 start_pc;
-//						u2 line_number;
-//					} line_number_table[line_number_table_length];
-//				}
+//              LineNumberTable_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 line_number_table_length;
+//                  { u2 start_pc;
+//                      u2 line_number;
+//                  } line_number_table[line_number_table_length];
+//              }
 
 				int lineNumberTableLength = dis.readUnsignedShort();
 
@@ -1118,17 +1144,17 @@ public class ClassByteCodeParser {
 				attrMap.put("lineNumberTableList", lineNumberTableList);
 				attributeMap.put("LineNumberTable", attrMap);
 			} else if ("LocalVariableTable".equals(attributeName)) {
-//				LocalVariableTable_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 local_variable_table_length;
-//					{ u2 start_pc;
-//						u2 length;
-//						u2 name_index;
-//						u2 descriptor_index;
-//						u2 index;
-//					} local_variable_table[local_variable_table_length];
-//				}
+//              LocalVariableTable_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 local_variable_table_length;
+//                  { u2 start_pc;
+//                      u2 length;
+//                      u2 name_index;
+//                      u2 descriptor_index;
+//                      u2 index;
+//                  } local_variable_table[local_variable_table_length];
+//              }
 
 				int localVariableTableLength = dis.readUnsignedShort();
 
@@ -1163,17 +1189,17 @@ public class ClassByteCodeParser {
 				attrMap.put("localVariableTableList", localVariableTableList);
 				attributeMap.put("LocalVariableTable", attrMap);
 			} else if ("LocalVariableTypeTable".equals(attributeName)) {
-//				LocalVariableTypeTable_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 local_variable_type_table_length;
-//					{ u2 start_pc;
-//						u2 length;
-//						u2 name_index;
-//						u2 signature_index;
-//						u2 index;
-//					} local_variable_type_table[local_variable_type_table_length];
-//				}
+//              LocalVariableTypeTable_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 local_variable_type_table_length;
+//                  { u2 start_pc;
+//                      u2 length;
+//                      u2 name_index;
+//                      u2 signature_index;
+//                      u2 index;
+//                  } local_variable_type_table[local_variable_type_table_length];
+//              }
 
 				int localVariableTypeTableLength = dis.readUnsignedShort();
 
@@ -1208,21 +1234,21 @@ public class ClassByteCodeParser {
 				attrMap.put("localVariableTypeTableList", localVariableTypeTableList);
 				attributeMap.put("LocalVariableTypeTable", attrMap);
 			} else if ("Deprecated".equals(attributeName)) {
-//				Deprecated_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//				}
+//              Deprecated_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//              }
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
 				attributeMap.put("Deprecated", attrMap);
 			} else if ("RuntimeVisibleAnnotations".equals(attributeName)) {
-//				RuntimeVisibleAnnotations_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 num_annotations;
-//					annotation annotations[num_annotations];
-//				}
+//              RuntimeVisibleAnnotations_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 num_annotations;
+//                  annotation annotations[num_annotations];
+//              }
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
@@ -1230,12 +1256,12 @@ public class ClassByteCodeParser {
 
 				attributeMap.put("RuntimeVisibleAnnotations", attrMap);
 			} else if ("RuntimeInvisibleAnnotations".equals(attributeName)) {
-//				RuntimeInvisibleAnnotations_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 num_annotations;
-//					annotation annotations[num_annotations];
-//				}
+//              RuntimeInvisibleAnnotations_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 num_annotations;
+//                  annotation annotations[num_annotations];
+//              }
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
@@ -1243,14 +1269,14 @@ public class ClassByteCodeParser {
 
 				attributeMap.put("RuntimeInvisibleAnnotations", attrMap);
 			} else if ("RuntimeVisibleParameterAnnotations".equals(attributeName)) {
-//				RuntimeVisibleParameterAnnotations_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u1 num_parameters;
-//					{ u2 num_annotations;
-//						annotation annotations[num_annotations];
-//					} parameter_annotations[num_parameters];
-//				}
+//              RuntimeVisibleParameterAnnotations_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u1 num_parameters;
+//                  { u2 num_annotations;
+//                      annotation annotations[num_annotations];
+//                  } parameter_annotations[num_parameters];
+//              }
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
@@ -1258,14 +1284,14 @@ public class ClassByteCodeParser {
 
 				attributeMap.put("RuntimeVisibleParameterAnnotations", attrMap);
 			} else if ("RuntimeInvisibleParameterAnnotations".equals(attributeName)) {
-//				RuntimeInvisibleParameterAnnotations_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u1 num_parameters;
-//					{ u2 num_annotations;
-//						annotation annotations[num_annotations];
-//					} parameter_annotations[num_parameters];
-//				}
+//              RuntimeInvisibleParameterAnnotations_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u1 num_parameters;
+//                  { u2 num_annotations;
+//                      annotation annotations[num_annotations];
+//                  } parameter_annotations[num_parameters];
+//              }
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
@@ -1273,12 +1299,12 @@ public class ClassByteCodeParser {
 
 				attributeMap.put("RuntimeInvisibleParameterAnnotations", attrMap);
 			} else if ("RuntimeVisibleTypeAnnotations".equals(attributeName)) {
-//				RuntimeVisibleTypeAnnotations_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 num_annotations;
-//					type_annotation annotations[num_annotations];
-//				}
+//              RuntimeVisibleTypeAnnotations_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 num_annotations;
+//                  type_annotation annotations[num_annotations];
+//              }
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
@@ -1286,12 +1312,12 @@ public class ClassByteCodeParser {
 
 				attributeMap.put("RuntimeVisibleTypeAnnotations", attrMap);
 			} else if ("RuntimeInvisibleTypeAnnotations".equals(attributeName)) {
-//				RuntimeInvisibleTypeAnnotations_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 num_annotations;
-//					type_annotation annotations[num_annotations];
-//				}
+//              RuntimeInvisibleTypeAnnotations_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 num_annotations;
+//                  type_annotation annotations[num_annotations];
+//              }
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
@@ -1299,11 +1325,11 @@ public class ClassByteCodeParser {
 
 				attributeMap.put("RuntimeInvisibleTypeAnnotations", attrMap);
 			} else if ("AnnotationDefault".equals(attributeName)) {
-//				AnnotationDefault_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					element_value default_value;
-//				}
+//              AnnotationDefault_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  element_value default_value;
+//              }
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
@@ -1313,15 +1339,15 @@ public class ClassByteCodeParser {
 
 				attributeMap.put("AnnotationDefault", attrMap);
 			} else if ("BootstrapMethods".equals(attributeName)) {
-//				BootstrapMethods_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 num_bootstrap_methods;
-//					{ u2 bootstrap_method_ref;
-//						u2 num_bootstrap_arguments;
-//						u2 bootstrap_arguments[num_bootstrap_arguments];
-//					} bootstrap_methods[num_bootstrap_methods];
-//				}
+//              BootstrapMethods_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 num_bootstrap_methods;
+//                  { u2 bootstrap_method_ref;
+//                      u2 num_bootstrap_arguments;
+//                      u2 bootstrap_arguments[num_bootstrap_arguments];
+//                  } bootstrap_methods[num_bootstrap_methods];
+//              }
 
 				// u2 num_bootstrap_methods;
 				int numBootstrapMethods = dis.readUnsignedShort();
@@ -1334,6 +1360,7 @@ public class ClassByteCodeParser {
 
 				for (int i = 0; i < numBootstrapMethods; i++) {
 					Map<String, Object> bootstrapMethodMap = new LinkedHashMap<>();
+					List<Object>        argumentList       = new ArrayList<>();
 
 					// u2 bootstrap_method_ref;
 					bootstrapMethodMap.put("bootstrapMethodRef", getConstantPoolValue(dis.readUnsignedShort()));
@@ -1341,8 +1368,6 @@ public class ClassByteCodeParser {
 					// u2 num_bootstrap_arguments;
 					int numBootstrapArguments = dis.readUnsignedShort();
 					bootstrapMethodMap.put("numBootstrapArguments", numBootstrapArguments);
-
-					List<Object> argumentList = new ArrayList<>();
 
 					// u2 bootstrap_arguments[num_bootstrap_arguments];
 					for (int k = 0; k < numBootstrapArguments; k++) {
@@ -1352,33 +1377,33 @@ public class ClassByteCodeParser {
 
 					bootstrapMethodMap.put("argumentList", argumentList);
 
-					// 特殊处理CONSTANT_DYNAMIC和CONSTANT_INVOKE_DYNAMIC，反向关联修改常量池中的bootstrapMethodAttrIdx值
-					for (Integer id : constantPoolMap.keySet()) {
-						Map<String, Object> map  = constantPoolMap.get(id);
-						Constant            type = (Constant) map.get("tag");
-
-						if (CONSTANT_DYNAMIC == type || CONSTANT_INVOKE_DYNAMIC == type) {
-							Integer bootstrapMethodAttrIdx = (Integer) map.get("bootstrapMethodAttrIdx");
-
-							map.put("bootstrapMethodAttrVal", argumentList.get(bootstrapMethodAttrIdx));
-						}
-					}
-
 					bootstrapMethodList.add(bootstrapMethodMap);
+				}
+
+				// 特殊处理CONSTANT_DYNAMIC和CONSTANT_INVOKE_DYNAMIC，反向关联修改常量池中的bootstrapMethodAttrIdx值
+				for (Integer id : constantPoolMap.keySet()) {
+					Map<String, Object> map  = constantPoolMap.get(id);
+					Constant            type = (Constant) map.get("tag");
+
+					if (CONSTANT_DYNAMIC == type || CONSTANT_INVOKE_DYNAMIC == type) {
+						Integer bootstrapMethodAttrIdx = (Integer) map.get("bootstrapMethodAttrIdx");
+
+						map.put("bootstrapMethodAttrVal", bootstrapMethodList.get(bootstrapMethodAttrIdx));
+					}
 				}
 
 				attrMap.put("bootstrapMethodList", bootstrapMethodList);
 
 				attributeMap.put("BootstrapMethods", attrMap);
 			} else if ("MethodParameters".equals(attributeName)) {
-//				MethodParameters_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u1 parameters_count;
-//					{ u2 name_index;
-//						u2 access_flags;
-//					} parameters[parameters_count];
-//				}
+//              MethodParameters_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u1 parameters_count;
+//                  { u2 name_index;
+//                      u2 access_flags;
+//                  } parameters[parameters_count];
+//              }
 
 				// u1 parameters_count;
 				int parametersCount = dis.readUnsignedByte();
@@ -1406,37 +1431,37 @@ public class ClassByteCodeParser {
 
 				attributeMap.put("MethodParameters", attrMap);
 			} else if ("Module".equals(attributeName)) {
-//				Module_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 module_name_index;
-//					u2 module_flags;
-//					u2 module_version_index;
-//					u2 requires_count;
-//					{ u2 requires_index;
-//						u2 requires_flags;
-//						u2 requires_version_index;
-//					} requires[requires_count];
-//					u2 exports_count;
-//					{ u2 exports_index;
-//						u2 exports_flags;
-//						u2 exports_to_count;
-//						u2 exports_to_index[exports_to_count];
-//					} exports[exports_count];
-//					u2 opens_count;
-//					{ u2 opens_index;
-//						u2 opens_flags;
-//						u2 opens_to_count;
-//						u2 opens_to_index[opens_to_count];
-//					} opens[opens_count];
-//					u2 uses_count;
-//					u2 uses_index[uses_count];
-//					u2 provides_count;
-//					{ u2 provides_index;
-//						u2 provides_with_count;
-//						u2 provides_with_index[provides_with_count];
-//					} provides[provides_count];
-//				}
+//              Module_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 module_name_index;
+//                  u2 module_flags;
+//                  u2 module_version_index;
+//                  u2 requires_count;
+//                  { u2 requires_index;
+//                      u2 requires_flags;
+//                      u2 requires_version_index;
+//                  } requires[requires_count];
+//                  u2 exports_count;
+//                  { u2 exports_index;
+//                      u2 exports_flags;
+//                      u2 exports_to_count;
+//                      u2 exports_to_index[exports_to_count];
+//                  } exports[exports_count];
+//                  u2 opens_count;
+//                  { u2 opens_index;
+//                      u2 opens_flags;
+//                      u2 opens_to_count;
+//                      u2 opens_to_index[opens_to_count];
+//                  } opens[opens_count];
+//                  u2 uses_count;
+//                  u2 uses_index[uses_count];
+//                  u2 provides_count;
+//                  { u2 provides_index;
+//                      u2 provides_with_count;
+//                      u2 provides_with_index[provides_with_count];
+//                  } provides[provides_count];
+//              }
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
@@ -1587,12 +1612,12 @@ public class ClassByteCodeParser {
 				attrMap.put("providesList", providesList);
 				attributeMap.put("Module", attrMap);
 			} else if ("ModulePackages".equals(attributeName)) {
-//				ModulePackages_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 package_count;
-//					u2 package_index[package_count];
-//				}
+//              ModulePackages_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 package_count;
+//                  u2 package_index[package_count];
+//              }
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
@@ -1612,11 +1637,11 @@ public class ClassByteCodeParser {
 
 				attributeMap.put("ModulePackages", attrMap);
 			} else if ("ModuleMainClass".equals(attributeName)) {
-//				ModuleMainClass_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 main_class_index;
-//				}
+//              ModuleMainClass_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 main_class_index;
+//              }
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
@@ -1625,11 +1650,11 @@ public class ClassByteCodeParser {
 				attrMap.put("mainClassIndex", dis.readUnsignedShort());
 				attributeMap.put("ModuleMainClass", attrMap);
 			} else if ("NestHost".equals(attributeName)) {
-//				NestHost_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 host_class_index;
-//				}
+//              NestHost_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 host_class_index;
+//              }
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
@@ -1638,12 +1663,12 @@ public class ClassByteCodeParser {
 				attrMap.put("hostClassIndex", dis.readUnsignedShort());
 				attributeMap.put("NestHost", attrMap);
 			} else if ("NestMembers".equals(attributeName)) {
-//				NestMembers_attribute {
-//					u2 attribute_name_index;
-//					u4 attribute_length;
-//					u2 number_of_classes;
-//					u2 classes[number_of_classes];
-//				}
+//              NestMembers_attribute {
+//                  u2 attribute_name_index;
+//                  u4 attribute_length;
+//                  u2 number_of_classes;
+//                  u2 classes[number_of_classes];
+//              }
 
 				// 创建属性Map
 				Map<String, Object> attrMap = new LinkedHashMap<>();
@@ -1803,13 +1828,13 @@ public class ClassByteCodeParser {
 	 * @throws IOException 读取异常
 	 */
 	private Map<String, Object> readAnnotation() throws IOException {
-//		annotation {
-//			u2 type_index;
-//			u2 num_element_value_pairs;
-//			{ u2 element_name_index;
-//				element_value value;
-//			} element_value_pairs[num_element_value_pairs];
-//		}
+//      annotation {
+//          u2 type_index;
+//          u2 num_element_value_pairs;
+//          { u2 element_name_index;
+//              element_value value;
+//          } element_value_pairs[num_element_value_pairs];
+//      }
 
 		Map<String, Object> annotationMap = new LinkedHashMap<>();
 
@@ -1861,27 +1886,27 @@ public class ClassByteCodeParser {
 
 		// type_annotation annotations[num_annotations];
 		for (int i = 0; i < numAnnotations; i++) {
-//			type_annotation {
-//				u1 target_type;
-//				union {
-//					type_parameter_target;
-//					supertype_target;
-//					type_parameter_bound_target;
-//					empty_target;
-//					formal_parameter_target;
-//					throws_target;
-//					localvar_target;
-//					catch_target;
-//					offset_target;
-//					type_argument_target;
-//				} target_info;
-//				type_path target_path;
-//				u2 type_index;
-//				u2 num_element_value_pairs;
-//				{ u2 element_name_index;
-//					element_value value;
-//				} element_value_pairs[num_element_value_pairs];
-//			}
+//          type_annotation {
+//              u1 target_type;
+//              union {
+//                  type_parameter_target;
+//                  supertype_target;
+//                  type_parameter_bound_target;
+//                  empty_target;
+//                  formal_parameter_target;
+//                  throws_target;
+//                  localvar_target;
+//                  catch_target;
+//                  offset_target;
+//                  type_argument_target;
+//              } target_info;
+//              type_path target_path;
+//              u2 type_index;
+//              u2 num_element_value_pairs;
+//              { u2 element_name_index;
+//                  element_value value;
+//              } element_value_pairs[num_element_value_pairs];
+//          }
 
 			Map<String, Object> typeAnnotationMap = new LinkedHashMap<>();
 
@@ -1930,48 +1955,48 @@ public class ClassByteCodeParser {
 
 			if (isInvisible) {
 				if (tag == 0x00 || tag == 0x01) {
-//				    type_parameter_target {
-//				    	u1 type_parameter_index;
-//				    }
+//                  type_parameter_target {
+//                      u1 type_parameter_index;
+//                  }
 
 					int typeParameterTarget = dis.readUnsignedByte();
 				} else if (tag == 0x10) {
-//				    supertype_target {
-//				    	u2 supertype_index;
-//				    }
+//                  supertype_target {
+//                      u2 supertype_index;
+//                  }
 
 					int superTypeTarget = dis.readUnsignedShort();
 				} else if (tag == 0x11 || tag == 0x12) {
-//				    type_parameter_bound_target {
-//				    	u1 type_parameter_index;
-//				    	u1 bound_index;
-//				    }
+//                  type_parameter_bound_target {
+//                      u1 type_parameter_index;
+//                      u1 bound_index;
+//                  }
 
 					int typeParameterIndex = dis.readUnsignedByte();
 					int boundIndex         = dis.readUnsignedByte();
 				} else if (tag == 0x13 || tag == 0x14 || tag == 0x15) {
-//				    empty_target {
-//				    }
+//                  empty_target {
+//                  }
 				} else if (tag == 0x16) {
-//				    formal_parameter_target {
-//				    	u1 formal_parameter_index;
-//				    }
+//                  formal_parameter_target {
+//                      u1 formal_parameter_index;
+//                  }
 
 					int formalParameterTarget = dis.readUnsignedByte();
 				} else if (tag == 0x17) {
-//				    throws_target {
-//				    	u2 throws_type_index;
-//				    }
+//                  throws_target {
+//                      u2 throws_type_index;
+//                  }
 
 					int throwsTarget = dis.readUnsignedShort();
 				} else if (tag == 0x40 || tag == 0x41) {
-//				    localvar_target {
-//				    	u2 table_length;
-//				    	{ u2 start_pc;
-//				    		u2 length;
-//				    		u2 index;
-//				    	} table[table_length];
-//				    }
+//                  localvar_target {
+//                      u2 table_length;
+//                      { u2 start_pc;
+//                          u2 length;
+//                          u2 index;
+//                      } table[table_length];
+//                  }
 
 					// u2 table_length;
 					int tableLength = dis.readUnsignedShort();
@@ -1987,23 +2012,23 @@ public class ClassByteCodeParser {
 						int index = dis.readUnsignedShort();
 					}
 				} else if (tag == 0x42) {
-//				    catch_target {
-//				    	u2 exception_table_index;
-//				    }
+//                  catch_target {
+//                      u2 exception_table_index;
+//                  }
 
 					int exceptionTableIndex = dis.readUnsignedShort();
 				} else if (tag == 0x43 || tag == 0x44 || tag == 0x45 || tag == 0x46) {
-//				    offset_target {
-//				    	u2 offset;
-//				    }
+//                  offset_target {
+//                      u2 offset;
+//                  }
 
 					// u2 offset;
 					int offset = dis.readUnsignedShort();
 				} else if (tag == 0x47 || tag == 0x48 || tag == 0x49 || tag == 0x4A || tag == 0x4B) {
-//				    type_argument_target {
-//				    	u2 offset;
-//				    	u1 type_argument_index;
-//				    }
+//                  type_argument_target {
+//                      u2 offset;
+//                      u1 type_argument_index;
+//                  }
 
 					// u2 offset;
 					int offset = dis.readUnsignedShort();
@@ -2029,12 +2054,12 @@ public class ClassByteCodeParser {
 			}
 
 			// type_path target_path;
-//			type_path {
-//				u1 path_length;
-//				{ u1 type_path_kind;
-//					u1 type_argument_index;
-//				} path[path_length];
-//			}
+//          type_path {
+//              u1 path_length;
+//              { u1 type_path_kind;
+//                  u1 type_argument_index;
+//              } path[path_length];
+//          }
 
 			// u1 path_length;
 			int pathLength = dis.readUnsignedByte();
@@ -2067,20 +2092,20 @@ public class ClassByteCodeParser {
 				elementValuePairsMap.put("elementNameIndex", elementNameIndex);
 
 				// element_value value;
-//				element_value {
-//					u1 tag;
-//					union {
-//						u2 const_value_index;
-//						{ u2 type_name_index;
-//							u2 const_name_index;
-//						} enum_const_value;
-//						u2 class_info_index;
-//						annotation annotation_value;
-//						{ u2 num_values;
-//							element_value values[num_values];
-//						} array_value;
-//					} value;
-//				}
+//              element_value {
+//                  u1 tag;
+//                  union {
+//                      u2 const_value_index;
+//                      { u2 type_name_index;
+//                          u2 const_name_index;
+//                      } enum_const_value;
+//                      u2 class_info_index;
+//                      annotation annotation_value;
+//                      { u2 num_values;
+//                          element_value values[num_values];
+//                      } array_value;
+//                  } value;
+//              }
 
 				elementValuePairsMap.put("annotationElementType", readAnnotationElementType());
 
@@ -2100,20 +2125,20 @@ public class ClassByteCodeParser {
 	private Map<String, Object> readAnnotationElementType() throws IOException {
 		Map<String, Object> elementTypeMap = new LinkedHashMap<>();
 
-//			element_value {
-//				u1 tag;
-//				union {
-//					u2 const_value_index;
-//					{ u2 type_name_index;
-//						u2 const_name_index;
-//					} enum_const_value;
-//					u2 class_info_index;
-//					annotation annotation_value;
-//					{ u2 num_values;
-//						element_value values[num_values];
-//					} array_value;
-//				} value;
-//			}
+//          element_value {
+//              u1 tag;
+//              union {
+//                  u2 const_value_index;
+//                  { u2 type_name_index;
+//                      u2 const_name_index;
+//                  } enum_const_value;
+//                  u2 class_info_index;
+//                  annotation annotation_value;
+//                  { u2 num_values;
+//                      element_value values[num_values];
+//                  } array_value;
+//              } value;
+//          }
 
 		char tag = (char) dis.readUnsignedByte();
 		elementTypeMap.put("tag", tag);
@@ -2172,17 +2197,17 @@ public class ClassByteCodeParser {
 		Map<String, Object> typeInfoMap = new LinkedHashMap<>();
 		typeInfoMap.put("tag", tag);
 
-//		union verification_type_info {
-//			Top_variable_info;
-//			Integer_variable_info;
-//			Float_variable_info;
-//			Long_variable_info;
-//			Double_variable_info;
-//			Null_variable_info;
-//			UninitializedThis_variable_info;
-//			Object_variable_info;
-//			Uninitialized_variable_info;
-//		}
+//      union verification_type_info {
+//          Top_variable_info;
+//          Integer_variable_info;
+//          Float_variable_info;
+//          Long_variable_info;
+//          Double_variable_info;
+//          Null_variable_info;
+//          UninitializedThis_variable_info;
+//          Object_variable_info;
+//          Uninitialized_variable_info;
+//      }
 
 		if (tag == 0) {
 			// Top_variable_info
@@ -2274,184 +2299,219 @@ public class ClassByteCodeParser {
 
 		// cp_info constant_pool[constant_pool_count-1];
 		for (int i = 1; i <= poolCount - 1; i++) {
-			int                 tag = dis.readUnsignedByte();
+//          cp_info {
+//              u1 tag;
+//              u1 info[];
+//          }
 
+			int      tag      = dis.readUnsignedByte();
+			Constant constant = Constant.getConstant(tag);
 
-			Map<String, Object> map = new LinkedHashMap<>();
-
-			if (tag == CONSTANT_UTF8.flag) {
-//				CONSTANT_Utf8_info {
-//					u1 tag;
-//					u2 length;
-//					u1 bytes[length];
-//				}
-
-				int    length = dis.readUnsignedShort();
-				byte[] bytes  = new byte[length];
-				dis.read(bytes);
-
-				map.put("tag", CONSTANT_UTF8);
-				map.put("value", new String(bytes, UTF_8));
-			} else if (tag == CONSTANT_INTEGER.flag) {
-//				CONSTANT_Integer_info {
-//					u1 tag;
-//					u4 bytes;
-//				}
-
-				map.put("tag", CONSTANT_INTEGER);
-				map.put("value", dis.readInt());
-			} else if (tag == CONSTANT_FLOAT.flag) {
-//				CONSTANT_Float_info {
-//					u1 tag;
-//					u4 bytes;
-//				}
-
-				map.put("tag", CONSTANT_FLOAT);
-				map.put("value", dis.readFloat());
-			} else if (tag == CONSTANT_LONG.flag) {
-//				CONSTANT_Long_info {
-//					u1 tag;
-//					u4 high_bytes;
-//					u4 low_bytes;
-//				}
-
-				map.put("tag", CONSTANT_LONG);
-				map.put("value", dis.readLong());
-			} else if (tag == CONSTANT_DOUBLE.flag) {
-//				CONSTANT_Double_info {
-//					u1 tag;
-//					u4 high_bytes;
-//					u4 low_bytes;
-//				}
-
-				map.put("tag", CONSTANT_DOUBLE);
-				map.put("value", dis.readDouble());
-			} else if (tag == CONSTANT_CLASS.flag) {
-//				CONSTANT_Class_info {
-//					u1 tag;
-//					u2 name_index;
-//				}
-
-				int nameIndex = dis.readUnsignedShort();
-
-				map.put("tag", CONSTANT_CLASS);
-				map.put("nameIndex", nameIndex);
-			} else if (tag == CONSTANT_STRING.flag) {
-//				CONSTANT_String_info {
-//					u1 tag;
-//					u2 string_index;
-//				}
-
-				int stringIndex = dis.readUnsignedShort();
-
-				map.put("tag", CONSTANT_STRING);
-				map.put("stringIndex", stringIndex);
-			} else if (tag == CONSTANT_FIELD_REF.flag) {
-//				CONSTANT_Fieldref_info {
-//					u1 tag;
-//					u2 class_index;
-//					u2 name_and_type_index;
-//				}
-
-				map.put("tag", CONSTANT_FIELD_REF);
-				map.put("classIndex", dis.readUnsignedShort());
-				map.put("nameAndTypeIndex", dis.readUnsignedShort());
-			} else if (tag == CONSTANT_METHOD_REF.flag) {
-//				CONSTANT_Methodref_info {
-//					u1 tag;
-//					u2 class_index;
-//					u2 name_and_type_index;
-//				}
-
-				map.put("tag", CONSTANT_METHOD_REF);
-				map.put("classIndex", dis.readUnsignedShort());
-				map.put("nameAndTypeIndex", dis.readUnsignedShort());
-			} else if (tag == CONSTANT_INTERFACE_METHOD_REF.flag) {
-//				CONSTANT_InterfaceMethodref_info {
-//					u1 tag;
-//					u2 class_index;
-//					u2 name_and_type_index;
-//				}
-
-				map.put("tag", CONSTANT_INTERFACE_METHOD_REF);
-				map.put("classIndex", dis.readUnsignedShort());
-				map.put("nameAndTypeIndex", dis.readUnsignedShort());
-			} else if (tag == CONSTANT_NAME_AND_TYPE.flag) {
-//				CONSTANT_NameAndType_info {
-//					u1 tag;
-//					u2 name_index;
-//					u2 descriptor_index;
-//				}
-
-				map.put("tag", CONSTANT_NAME_AND_TYPE);
-				map.put("nameIndex", dis.readUnsignedShort());
-				map.put("descriptorIndex", dis.readUnsignedShort());
-			} else if (tag == CONSTANT_METHOD_HANDLE.flag) {
-//				CONSTANT_MethodHandle_info {
-//					u1 tag;
-//					u1 reference_kind;
-//					u2 reference_index;
-//				}
-
-				map.put("tag", CONSTANT_METHOD_HANDLE);
-				map.put("referenceKind", dis.readUnsignedByte());
-				map.put("referenceIndex", dis.readUnsignedShort());
-			} else if (tag == CONSTANT_METHOD_TYPE.flag) {
-//				CONSTANT_MethodType_info {
-//					u1 tag;
-//					u2 descriptor_index;
-//				}
-
-				map.put("tag", CONSTANT_METHOD_TYPE);
-				map.put("descriptorIndex", dis.readUnsignedShort());
-			} else if (tag == CONSTANT_DYNAMIC.flag) {
-//				CONSTANT_Dynamic_info {
-//					u1 tag;
-//					u2 bootstrap_method_attr_index;
-//					u2 name_and_type_index;
-//				}
-
-				map.put("tag", CONSTANT_DYNAMIC);
-				map.put("bootstrapMethodAttrIdx", dis.readUnsignedShort());
-				map.put("nameAndTypeIndex", dis.readUnsignedShort());
-			} else if (tag == CONSTANT_INVOKE_DYNAMIC.flag) {
-//				CONSTANT_InvokeDynamic_info {
-//					u1 tag;
-//					u2 bootstrap_method_attr_index;
-//					u2 name_and_type_index;
-//				}
-
-				map.put("tag", CONSTANT_INVOKE_DYNAMIC);
-				map.put("bootstrapMethodAttrIdx", dis.readUnsignedShort());
-				map.put("nameAndTypeIndex", dis.readUnsignedShort());
-			} else if (tag == CONSTANT_MODULE.flag) {
-//				CONSTANT_Module_info {
-//					u1 tag;
-//					u2 name_index;
-//				}
-
-				map.put("tag", CONSTANT_MODULE);
-				map.put("nameIndex", dis.readUnsignedShort());
-			} else if (tag == CONSTANT_PACKAGE.flag) {
-//				CONSTANT_Package_info {
-//					u1 tag;
-//					u2 name_index;
-//				}
-
-				map.put("tag", CONSTANT_PACKAGE);
-				map.put("nameIndex", dis.readUnsignedShort());
+			if (constant == null) {
+				throw new RuntimeException("解析常量池异常，无法识别的常量池类型：" + tag);
 			}
 
-			constantPoolMap.put(i, map);
+			// 解析常量池对象
+			parseConstantItems(constant, i);
 
 			// Long和Double是宽类型，占两位
-			if (tag == CONSTANT_LONG.flag || tag == CONSTANT_DOUBLE.flag) {
+			if (CONSTANT_LONG == constant || CONSTANT_DOUBLE == constant) {
 				i++;
 			}
 		}
 
 		// 链接常量池中的引用
 		linkConstantPool();
+	}
+
+	/**
+	 * 解析常量池中的对象
+	 *
+	 * @param constant 常量池
+	 * @param index    常量池中的索引位置
+	 * @throws IOException 数据读取异常
+	 */
+	private void parseConstantItems(Constant constant, int index) throws IOException {
+		Map<String, Object> map = new LinkedHashMap<>();
+
+		switch (constant) {
+			case CONSTANT_UTF8:
+//                  CONSTANT_Utf8_info {
+//                      u1 tag;
+//                      u2 length;
+//                      u1 bytes[length];
+//                  }
+
+				int length = dis.readUnsignedShort();
+				byte[] bytes = new byte[length];
+				dis.read(bytes);
+
+				map.put("tag", CONSTANT_UTF8);
+				map.put("value", new String(bytes, UTF_8));
+				break;
+			case CONSTANT_INTEGER:
+//                  CONSTANT_Integer_info {
+//                      u1 tag;
+//                      u4 bytes;
+//                  }
+
+				map.put("tag", CONSTANT_INTEGER);
+				map.put("value", dis.readInt());
+				break;
+			case CONSTANT_FLOAT:
+//                  CONSTANT_Float_info {
+//                      u1 tag;
+//                      u4 bytes;
+//                  }
+
+				map.put("tag", CONSTANT_FLOAT);
+				map.put("value", dis.readFloat());
+				break;
+			case CONSTANT_LONG:
+//                  CONSTANT_Long_info {
+//                      u1 tag;
+//                      u4 high_bytes;
+//                      u4 low_bytes;
+//                  }
+
+				map.put("tag", CONSTANT_LONG);
+				map.put("value", dis.readLong());
+				break;
+			case CONSTANT_DOUBLE:
+//                  CONSTANT_Double_info {
+//                      u1 tag;
+//                      u4 high_bytes;
+//                      u4 low_bytes;
+//                  }
+
+				map.put("tag", CONSTANT_DOUBLE);
+				map.put("value", dis.readDouble());
+				break;
+			case CONSTANT_CLASS:
+//                  CONSTANT_Class_info {
+//                      u1 tag;
+//                      u2 name_index;
+//                  }
+
+				map.put("tag", CONSTANT_CLASS);
+				map.put("nameIndex", dis.readUnsignedShort());
+				break;
+			case CONSTANT_STRING:
+//                  CONSTANT_String_info {
+//                      u1 tag;
+//                      u2 string_index;
+//                  }
+
+				map.put("tag", CONSTANT_STRING);
+				map.put("stringIndex", dis.readUnsignedShort());
+				break;
+			case CONSTANT_FIELD_REF:
+//                  CONSTANT_Fieldref_info {
+//                      u1 tag;
+//                      u2 class_index;
+//                      u2 name_and_type_index;
+//                  }
+
+				map.put("tag", CONSTANT_FIELD_REF);
+				map.put("classIndex", dis.readUnsignedShort());
+				map.put("nameAndTypeIndex", dis.readUnsignedShort());
+				break;
+			case CONSTANT_METHOD_REF:
+//                  CONSTANT_Methodref_info {
+//                      u1 tag;
+//                      u2 class_index;
+//                      u2 name_and_type_index;
+//                  }
+
+				map.put("tag", CONSTANT_METHOD_REF);
+				map.put("classIndex", dis.readUnsignedShort());
+				map.put("nameAndTypeIndex", dis.readUnsignedShort());
+				break;
+			case CONSTANT_INTERFACE_METHOD_REF:
+//                  CONSTANT_InterfaceMethodref_info {
+//                      u1 tag;
+//                      u2 class_index;
+//                      u2 name_and_type_index;
+//                  }
+
+				map.put("tag", CONSTANT_INTERFACE_METHOD_REF);
+				map.put("classIndex", dis.readUnsignedShort());
+				map.put("nameAndTypeIndex", dis.readUnsignedShort());
+				break;
+			case CONSTANT_NAME_AND_TYPE:
+//                  CONSTANT_NameAndType_info {
+//                      u1 tag;
+//                      u2 name_index;
+//                      u2 descriptor_index;
+//                  }
+
+				map.put("tag", CONSTANT_NAME_AND_TYPE);
+				map.put("nameIndex", dis.readUnsignedShort());
+				map.put("descriptorIndex", dis.readUnsignedShort());
+				break;
+			case CONSTANT_METHOD_HANDLE:
+//                  CONSTANT_MethodHandle_info {
+//                      u1 tag;
+//                      u1 reference_kind;
+//                      u2 reference_index;
+//                  }
+
+				map.put("tag", CONSTANT_METHOD_HANDLE);
+				map.put("referenceKind", dis.readUnsignedByte());
+				map.put("referenceIndex", dis.readUnsignedShort());
+				break;
+			case CONSTANT_METHOD_TYPE:
+//                  CONSTANT_MethodType_info {
+//                      u1 tag;
+//                      u2 descriptor_index;
+//                  }
+
+				map.put("tag", CONSTANT_METHOD_TYPE);
+				map.put("descriptorIndex", dis.readUnsignedShort());
+				break;
+			case CONSTANT_DYNAMIC:
+//                  CONSTANT_Dynamic_info {
+//                      u1 tag;
+//                      u2 bootstrap_method_attr_index;
+//                      u2 name_and_type_index;
+//                  }
+
+				map.put("tag", CONSTANT_DYNAMIC);
+				map.put("bootstrapMethodAttrIdx", dis.readUnsignedShort());
+				map.put("nameAndTypeIndex", dis.readUnsignedShort());
+				break;
+			case CONSTANT_INVOKE_DYNAMIC:
+//                  CONSTANT_InvokeDynamic_info {
+//                      u1 tag;
+//                      u2 bootstrap_method_attr_index;
+//                      u2 name_and_type_index;
+//                  }
+
+				map.put("tag", CONSTANT_INVOKE_DYNAMIC);
+				map.put("bootstrapMethodAttrIdx", dis.readUnsignedShort());
+				map.put("nameAndTypeIndex", dis.readUnsignedShort());
+				break;
+			case CONSTANT_MODULE:
+//                  CONSTANT_Module_info {
+//                      u1 tag;
+//                      u2 name_index;
+//                  }
+
+				map.put("tag", CONSTANT_MODULE);
+				map.put("nameIndex", dis.readUnsignedShort());
+				break;
+			case CONSTANT_PACKAGE:
+//                  CONSTANT_Package_info {
+//                      u1 tag;
+//                      u2 name_index;
+//                  }
+
+				map.put("tag", CONSTANT_PACKAGE);
+				map.put("nameIndex", dis.readUnsignedShort());
+				break;
+		}
+
+		constantPoolMap.put(index, map);
 	}
 
 	public int getMagic() {
