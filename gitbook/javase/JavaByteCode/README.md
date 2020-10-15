@@ -22,11 +22,11 @@ public class TestHelloWorld {
 }
 ```
 
-**TestHelloWorld.java编译解析流程:**
+**TestHelloWorld.java编译解析流程：**
 
-<img src="../../images/image-20200919110424641.png" alt="image-20200919110424641" style="zoom:50%;" />
+<img src="../../images/image-20201015170935576.png" alt="image-20201015170935576" style="zoom:50%;" />
 
-**TestHelloWorld.java 源码、字节码**
+**TestHelloWorld.java 源码、字节码：**
 
 <img src="../../images/image-20201014104801579.png" alt="image-20201014104801579" style="zoom:50%;" />
 

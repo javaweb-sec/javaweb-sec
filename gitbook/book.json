@@ -45,10 +45,10 @@
       ]
     },
     "donate": {
-      "alipay": "http://p2j.cn/images/wechat.jpg",
+      "alipay": "https://javaweb.org/images/wechat.jpg",
       "title": "",
-      "button": "赞赏",
-      "alipayText": " "
+      "button": "微信群",
+      "alipayText": "微信群"
     },
     "sharing": {
       "douban": false,

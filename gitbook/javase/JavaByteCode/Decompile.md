@@ -1,45 +1,14 @@
-# Java反编译
+# Java class反编译
 
 在渗透测试的时候需要审计的代码通常是`class文件`或者`jar包`，在没有源文件的情况下我们可以通过反编译`class/jar`的方式阅读程序逻辑。
 
-##  Java类编译与反编译
+Java源码就是未经编译的`.java`文件，我们可以很轻松的阅读其中的代码逻辑，而字节码`.class`文件则是`.java`文件经过编译之后产生的无法直接阅读的二进制文件，不过我们可以通过反编译工具将`class文件`反编译成`java源文件`。我们通常会使用到[JD-GUI](http://jd.benow.ca/)、[Recaf](https://github.com/Col-E/Recaf)、[IDEA Fernflower插件](https://github.com/JetBrains/intellij-community/tree/master/plugins/java-decompiler/engine/src/org/jetbrains/java/decompiler)、[Bytecode-Viewer](https://github.com/Konloch/bytecode-viewer/releases)/[Fernflower](https://the.bytecode.club/showthread.php?tid=5)、[JAD](http://www.javadecompilers.com/jad)、[JBE](http://www.cs.ioc.ee/~ando/jbe/)、[Cafebabe](https://github.com/GraxCode/Cafebabe)、[JByteMod](https://github.com/GraxCode/JByteMod-Beta)等工具来反编译`class文件`。
 
-Java源码就是未经编译的`.java`文件，我们可以很轻松的阅读其中的代码逻辑，而字节码`.class`文件则是`.java`文件经过编译之后产生的无法直接阅读的二进制文件，不过我们可以通过反编译工具将`class文件`反编译成`java源文件`。
+当然，反编译工具很多时候也不是万能的，`JD-GUI`经常遇到无法反编译或反编译过程中程序直接崩溃的情况，遇到这类情况我们通常可以使用`IDEA`反编译试试，如果`IDEA`也无法反编译可以使用`JBE`或者`JDK`自带的`javap命令`来读取`class类字节码`，如果连`javap`都无法识别该`class文件`，那么这个类必然存在无法编译问题，也有可能类文件被加密处理过(自定义`ClassLoader`来`loadClass`加密后的类、或者借助`JVMTI`调用动态链接库)。
 
-**示例代码Test.java:**
+## JD-GUI
 
-```java
-/**
- * @author yz
- */
-public class Test {
-
-	public static void hello() {
-		System.out.println("Hello~");
-	}
-
-	public void world() {
-		System.out.println("World!");
-	}
-
-	public static void main(String[] args) {
-		hello();
-	}
-
-}
-```
-
-**Test.java编译执行流程:**
-
-![image-20200919110424641](../../images/image-20200919110424641.png)
-
-**Test.java 源码、字节码**
-
-![4](../../images/4.png)
-
-由于`class文件`是我们无法直接阅读的二进制格式，所以我们需要使用Java反编译工具来反编译`class文件`。我们通常会使用到[JD-GUI](http://jd.benow.ca/)、[Recaf](https://github.com/Col-E/Recaf)、[IDEA Fernflower插件](https://github.com/JetBrains/intellij-community/tree/master/plugins/java-decompiler/engine/src/org/jetbrains/java/decompiler)、[Bytecode-Viewer](https://github.com/Konloch/bytecode-viewer/releases)/[Fernflower](https://the.bytecode.club/showthread.php?tid=5)、[JAD](http://www.javadecompilers.com/jad)、[JBE](http://www.cs.ioc.ee/~ando/jbe/)、[Cafebabe](https://github.com/GraxCode/Cafebabe)、[JByteMod](https://github.com/GraxCode/JByteMod-Beta)等工具来反编译`class文件`。
-
-当然，反编译工具很多时候也不是万能的，`JD-GUI`经常遇到无法反编译或反编译过程中程序直接崩溃的情况，遇到这类情况我们通常可以使用`IDEA`反编译试试，如果`IDEA`也无法反编译可以使用`JBE`或者`JDK`自带的`javap命令`来读取`class类字节码`，如果连`javap`都无法识别该`class文件`，那么恐怕是这个类本身就存在无法编译问题要么可能就是类文件被加密处理过(自定义`ClassLoader`来`loadClass`加密后的类、或者借助`JVMTI`调用动态链接库)。
+`JD-GUI`是一个非常常用的反编译工具，它可以直接
 
 ## 反编译整个Jar技巧
 

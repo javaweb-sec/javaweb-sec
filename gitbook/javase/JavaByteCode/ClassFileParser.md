@@ -252,19 +252,404 @@ u2 constant_pool_count;
 cp_info constant_pool[constant_pool_count-1];
 ```
 
-解析片段：
+为了便于理解解析过程，特意将常量池解析流程单独拆开成如下几步：
+
+1. 读取常量池数量（`u2 constant_pool_count;`）；
+2. 读取`tag`；
+3. 根据不同的`tag`类型解析常量池对象；
+4. 解析常量池中的对象；
+5. 链接常量池中的索引引用；
+
+**常量池解析片段：**
 
 ```java
-// u2 constant_pool_count;
-this.poolCount = dis.readUnsignedShort();
+/**
+ * 解析常量池数据
+ *
+ * @throws IOException 数据读取异常
+ */
+private void parseConstantPool() throws IOException {
+    // u2 constant_pool_count;
+    this.poolCount = dis.readUnsignedShort();
 
-// cp_info constant_pool[constant_pool_count-1];
-for (int i = 1; i <= poolCount - 1; i++) {
-   int tag = dis.readUnsignedByte();
+    // cp_info constant_pool[constant_pool_count-1];
+    for (int i = 1; i <= poolCount - 1; i++) {
+        //			cp_info {
+        //				u1 tag;
+        //				u1 info[];
+        //			}
+        int      tag      = dis.readUnsignedByte();
+        Constant constant = Constant.getConstant(tag);
+
+        if (constant == null) {
+          	throw new RuntimeException("解析常量池异常，无法识别的常量池类型：" + tag);
+        }
+
+        // 解析常量池对象
+        parseConstantItems(constant, i);
+
+        // Long和Double是宽类型，占两位
+        if (CONSTANT_LONG == constant || CONSTANT_DOUBLE == constant) {
+          	i++;
+        }
+    }
+
+    // 链接常量池中的引用
+    linkConstantPool();
+}
+```
+
+**解析常量池对象代码片段：**
+
+```java
+/**
+	 * 解析常量池中的对象
+	 *
+	 * @param constant 常量池
+	 * @param index    常量池中的索引位置
+	 * @throws IOException 数据读取异常
+	 */
+private void parseConstantItems(Constant constant, int index) throws IOException {
+    Map<String, Object> map = new LinkedHashMap<>();
+
+    switch (constant) {
+        case CONSTANT_UTF8:
+          //					CONSTANT_Utf8_info {
+          //						u1 tag;
+          //						u2 length;
+          //						u1 bytes[length];
+          //					}
+
+          int length = dis.readUnsignedShort();
+          byte[] bytes = new byte[length];
+          dis.read(bytes);
+
+          map.put("tag", CONSTANT_UTF8);
+          map.put("value", new String(bytes, UTF_8));
+          break;
+        case CONSTANT_INTEGER:
+          //					CONSTANT_Integer_info {
+          //						u1 tag;
+          //						u4 bytes;
+          //					}
+
+          map.put("tag", CONSTANT_INTEGER);
+          map.put("value", dis.readInt());
+          break;
+        case CONSTANT_FLOAT:
+          //					CONSTANT_Float_info {
+          //						u1 tag;
+          //						u4 bytes;
+          //					}
+
+          map.put("tag", CONSTANT_FLOAT);
+          map.put("value", dis.readFloat());
+          break;
+        case CONSTANT_LONG:
+          //					CONSTANT_Long_info {
+          //						u1 tag;
+          //						u4 high_bytes;
+          //						u4 low_bytes;
+          //					}
+
+          map.put("tag", CONSTANT_LONG);
+          map.put("value", dis.readLong());
+          break;
+        case CONSTANT_DOUBLE:
+          //					CONSTANT_Double_info {
+          //						u1 tag;
+          //						u4 high_bytes;
+          //						u4 low_bytes;
+          //					}
+
+          map.put("tag", CONSTANT_DOUBLE);
+          map.put("value", dis.readDouble());
+          break;
+        case CONSTANT_CLASS:
+          //					CONSTANT_Class_info {
+          //						u1 tag;
+          //						u2 name_index;
+          //					}
+
+          map.put("tag", CONSTANT_CLASS);
+          map.put("nameIndex", dis.readUnsignedShort());
+          break;
+        case CONSTANT_STRING:
+          //					CONSTANT_String_info {
+          //						u1 tag;
+          //						u2 string_index;
+          //					}
+
+          map.put("tag", CONSTANT_STRING);
+          map.put("stringIndex", dis.readUnsignedShort());
+          break;
+        case CONSTANT_FIELD_REF:
+          //					CONSTANT_Fieldref_info {
+          //						u1 tag;
+          //						u2 class_index;
+          //						u2 name_and_type_index;
+          //					}
+
+          map.put("tag", CONSTANT_FIELD_REF);
+          map.put("classIndex", dis.readUnsignedShort());
+          map.put("nameAndTypeIndex", dis.readUnsignedShort());
+          break;
+        case CONSTANT_METHOD_REF:
+          //					CONSTANT_Methodref_info {
+          //						u1 tag;
+          //						u2 class_index;
+          //						u2 name_and_type_index;
+          //					}
+
+          map.put("tag", CONSTANT_METHOD_REF);
+          map.put("classIndex", dis.readUnsignedShort());
+          map.put("nameAndTypeIndex", dis.readUnsignedShort());
+          break;
+        case CONSTANT_INTERFACE_METHOD_REF:
+          //					CONSTANT_InterfaceMethodref_info {
+          //						u1 tag;
+          //						u2 class_index;
+          //						u2 name_and_type_index;
+          //					}
+
+          map.put("tag", CONSTANT_INTERFACE_METHOD_REF);
+          map.put("classIndex", dis.readUnsignedShort());
+          map.put("nameAndTypeIndex", dis.readUnsignedShort());
+          break;
+        case CONSTANT_NAME_AND_TYPE:
+          //					CONSTANT_NameAndType_info {
+          //						u1 tag;
+          //						u2 name_index;
+          //						u2 descriptor_index;
+          //					}
+
+          map.put("tag", CONSTANT_NAME_AND_TYPE);
+          map.put("nameIndex", dis.readUnsignedShort());
+          map.put("descriptorIndex", dis.readUnsignedShort());
+          break;
+        case CONSTANT_METHOD_HANDLE:
+          //					CONSTANT_MethodHandle_info {
+          //						u1 tag;
+          //						u1 reference_kind;
+          //						u2 reference_index;
+          //					}
+
+          map.put("tag", CONSTANT_METHOD_HANDLE);
+          map.put("referenceKind", dis.readUnsignedByte());
+          map.put("referenceIndex", dis.readUnsignedShort());
+          break;
+        case CONSTANT_METHOD_TYPE:
+          //					CONSTANT_MethodType_info {
+          //						u1 tag;
+          //						u2 descriptor_index;
+          //					}
+
+          map.put("tag", CONSTANT_METHOD_TYPE);
+          map.put("descriptorIndex", dis.readUnsignedShort());
+          break;
+        case CONSTANT_DYNAMIC:
+          //					CONSTANT_Dynamic_info {
+          //						u1 tag;
+          //						u2 bootstrap_method_attr_index;
+          //						u2 name_and_type_index;
+          //					}
+
+          map.put("tag", CONSTANT_DYNAMIC);
+          map.put("bootstrapMethodAttrIdx", dis.readUnsignedShort());
+          map.put("nameAndTypeIndex", dis.readUnsignedShort());
+          break;
+        case CONSTANT_INVOKE_DYNAMIC:
+          //					CONSTANT_InvokeDynamic_info {
+          //						u1 tag;
+          //						u2 bootstrap_method_attr_index;
+          //						u2 name_and_type_index;
+          //					}
+
+          map.put("tag", CONSTANT_INVOKE_DYNAMIC);
+          map.put("bootstrapMethodAttrIdx", dis.readUnsignedShort());
+          map.put("nameAndTypeIndex", dis.readUnsignedShort());
+          break;
+        case CONSTANT_MODULE:
+          //					CONSTANT_Module_info {
+          //						u1 tag;
+          //						u2 name_index;
+          //					}
+
+          map.put("tag", CONSTANT_MODULE);
+          map.put("nameIndex", dis.readUnsignedShort());
+          break;
+        case CONSTANT_PACKAGE:
+          //					CONSTANT_Package_info {
+          //						u1 tag;
+          //						u2 name_index;
+          //					}
+
+          map.put("tag", CONSTANT_PACKAGE);
+          map.put("nameIndex", dis.readUnsignedShort());
+          break;
+    }
+
+    constantPoolMap.put(index, map);
+}
+```
+
+解析完常量池的对象后会发现很多数据结构中都引用了其他对象，比如ID（索引位置）为1的常量池对象`CONSTANT_METHOD_REF`引用了ID为21的`CONSTANT_CLASS`对象和ID为64的`CONSTANT_NAME_AND_TYPE`对象，而`CONSTANT_CLASS`对象又引用了`CONSTANT_UTF8`（`java/lang/Object`）、`CONSTANT_NAME_AND_TYPE`同时引用了`CONSTANT_UTF8`（`<init>`）和`CONSTANT_UTF8`（`()V`）,为了能够直观的看到常量池ID为1的对象信息我们就必须要将所有使用索引方式链接的映射关系改成直接字符串引用，最终得到如下结果：
+
+```json
+{
+    "constantPoolMap": {
+        "1": {
+            "tag": "CONSTANT_METHOD_REF", 
+            "classIndex": 21, 
+            "nameAndTypeIndex": 64, 
+            "classValue": "java/lang/Object", 
+            "nameAndTypeValue": "<init>"
+        }
+     		.... 省略其他对象
+    }
+}
+```
+
+**常量池对象链接代码片段：**
+
+```java
+/**
+ * 链接常量池中的引用
+ */
+private void linkConstantPool() {
+    for (Integer id : constantPoolMap.keySet()) {
+        Map<String, Object> valueMap = constantPoolMap.get(id);
+
+        if (!valueMap.containsKey("value")) {
+            Map<String, Object> newMap = new LinkedHashMap<>();
+
+            for (String key : valueMap.keySet()) {
+                if (key.endsWith("Index")) {
+                  	Object value = recursionValue((Integer) valueMap.get(key));
+
+                    if (value != null) {
+                        String newKey = key.substring(0, key.indexOf("Index"));
+
+                        newMap.put(newKey + "Value", value);
+                    }
+                }
+            }
+
+            valueMap.putAll(newMap);
+        }
+    }
+}
+
+/**
+ * 递归查找ID对应的常量池中的值
+ *
+ * @param id 常量池ID
+ * @return 常量池中存储的值
+ */
+private Object recursionValue(Integer id) {
+    Map<String, Object> map = constantPoolMap.get(id);
+
+    if (map.containsKey("value")) {
+        return map.get("value");
+    }
+
+    for (String key : map.keySet()) {
+        if (key.endsWith("Index")) {
+            Integer value = (Integer) map.get(key);
+
+            return recursionValue(value);
+        }
+    }
+
+    return null;
+}
+```
+
+为了方便通过ID（常量池索引）访问常量池中的对象值，封装了一个`getConstantPoolValue`方法：
+
+```java
+/**
+ * 通过常量池中的索引ID和名称获取常量池中的值
+ *
+ * @param index 索引ID
+ * @return 常量池对象值
+ */
+private Object getConstantPoolValue(int index) {
+     if (constantPoolMap.containsKey(index)) {
+        Map<String, Object> dataMap  = constantPoolMap.get(index);
+        Constant            constant = (Constant) dataMap.get("tag");
+
+        switch (constant) {
+           case CONSTANT_UTF8:
+           case CONSTANT_INTEGER:
+           case CONSTANT_FLOAT:
+           case CONSTANT_LONG:
+           case CONSTANT_DOUBLE:
+              return dataMap.get("value");
+           case CONSTANT_CLASS:
+           case CONSTANT_MODULE:
+           case CONSTANT_PACKAGE:
+              return dataMap.get("nameValue");
+           case CONSTANT_STRING:
+              return dataMap.get("stringValue");
+           case CONSTANT_FIELD_REF:
+           case CONSTANT_METHOD_REF:
+           case CONSTANT_INTERFACE_METHOD_REF:
+              return dataMap.get("classValue") + "." + dataMap.get("nameAndTypeValue");
+           case CONSTANT_NAME_AND_TYPE:
+           case CONSTANT_METHOD_TYPE:
+              return dataMap.get("descriptorValue");
+           case CONSTANT_METHOD_HANDLE:
+              return dataMap.get("referenceValue");
+           case CONSTANT_DYNAMIC:
+           case CONSTANT_INVOKE_DYNAMIC:
+              return dataMap.get("bootstrapMethodAttrValue") + "." + dataMap.get("nameAndTypeValue");
+           default:
+              break;
+        }
+     }
+
+     return null;
 }
 ```
 
 
+
+## 访问标志解析
+
+```java
+// u2 access_flags;
+this.accessFlags = dis.readUnsignedShort();
+```
+
+
+
+## 当前类名称解析
+
+解析类名称的时候直接读取2个无符号数，获取到类名所在的常量池中的索引位置，然后根据常量池ID读取常量池中的字符串内容即可解析出类名。
+
+```java
+// u2 this_class;
+this.thisClass = (String) getConstantPoolValue(dis.readUnsignedShort());
+```
+
+
+
+## 当前类的父类名称解析
+
+解析`super_class`的时候也是需要特别注意，当解析`java.lang.Object`时`super_class`的值为0，常量池中不包含索引为0的对象，所以需要直接将父类名称设置为`java/lang/Object`。
+
+```java
+// u2 super_class;
+int superClassIndex = dis.readUnsignedShort();
+
+// 当解析Object类的时候super_class为0
+if (superClassIndex != 0) {
+   this.superClass = (String) getConstantPoolValue(superClassIndex);
+} else {
+   this.superClass = "java/lang/Object";
+}
+```
 
 
 
@@ -294,6 +679,8 @@ for (int i = 0; i < interfacesCount; i++) {
     this.interfaces[i] = (String) getConstantPoolValue(index);
 }
 ```
+
+
 
 ## 成员变量/成员方法解析
 
@@ -347,4 +734,9 @@ private Map<String, Object> readFieldOrMethod() throws IOException {
 }
 ```
 
-`readAttributes`方法这里先不做
+
+
+## 属性解析
+
+成员变量、成员方法、类对象这三种数据结构都需要解析属性信息，因为逻辑非常复杂，将在下一小节详解。
+

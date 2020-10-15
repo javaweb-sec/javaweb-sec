@@ -120,7 +120,7 @@ cp_info {
 
 ## super_class（当前类的父类名称）
 
-`u2 super_class;`表示的是当前class文件的父类类名所在常量池中的索引位置。`super_class`的值要么是0，用于表示`Object`类，否则必须是一个常量池中存在的索引位置。
+`u2 super_class;`表示的是当前class文件的父类类名所在常量池中的索引位置。`java/lang/Object`类的`super_class`的为0，其他任何类的`super_class`都必须是一个常量池中存在的索引位置。
 
 ## interfaces_count（当前类继承或实现的接口数）
 
