@@ -16,7 +16,6 @@
     <properties>
         <asm.version>9.0</asm.version>
         <java.version>1.7</java.version>
-        <maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
     </properties>
 
     <dependencies>
@@ -50,15 +49,27 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven-jar-plugin.version}</version>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
                     <archive>
-                        <manifestFile>src/main/resources/MANIFEST.MF</manifestFile>
+                        <manifest>
+                            <mainClass>com.anbai.sec.agent.JavaSecHelloWorldAgent</mainClass>
+                        </manifest>
                     </archive>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
-
         </plugins>
     </build>
 

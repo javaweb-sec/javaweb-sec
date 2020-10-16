@@ -1,6 +1,6 @@
 # Java class文件解析
 
-为了能够更加深入的学习class结构，本章节将写一个[ClassByteCodeParser类](https://github.com/anbai-inc/javaweb-sec/blob/master/javaweb-sec-source/javase/src/main/java/com/anbai/sec/bytecode/ClassByteCodeParser.java)来实现简单的class文件解析。
+为了能够更加深入的学习class结构，本章节将写一个[ClassByteCodeParser类](https://github.com/anbai-inc/javaweb-sec/blob/master/javaweb-sec-source/javase/src/main/java/com/anbai/sec/bytecode/ClassByteCodeParser.java)（有极小部分数据结构较复杂没解析）来实现简单的class文件解析。
 
 首先我们创建一个用于测试的`TestHelloWorld.java`文件，源码如下：
 
@@ -225,6 +225,16 @@ public class ClassByteCodeParser {
 
 ## 魔数/版本解析
 
+一个合法的class文件以固定的`0xCAFEBABE`格式开始，所以需要先读取4个字节，判断文件二进制格式是否是合法。
+
+```
+u4 magic;
+u2 minor_version;
+u2 major_version;
+```
+
+**魔数和版本号解析代码片段：**
+
 ```java
 // u4 magic;
 int magic = dis.readInt();
@@ -241,7 +251,17 @@ if (0xCAFEBABE == magic) {
 }
 ```
 
+解析结果：
 
+```json
+{
+    "magic": -889275714, 
+    "minor": 0, 
+    "major": 51
+}
+```
+
+其中`"major": 51`对应的JDK版本是JDK1.7。
 
 ## 常量池解析
 
@@ -622,7 +642,7 @@ private Object getConstantPoolValue(int index) {
 this.accessFlags = dis.readUnsignedShort();
 ```
 
-
+解析结果：`"accessFlags": 33,`。
 
 ## 当前类名称解析
 
@@ -633,7 +653,7 @@ this.accessFlags = dis.readUnsignedShort();
 this.thisClass = (String) getConstantPoolValue(dis.readUnsignedShort());
 ```
 
-
+解析结果：`"thisClass": "com/anbai/sec/bytecode/TestHelloWorld"`。
 
 ## 当前类的父类名称解析
 
@@ -651,7 +671,7 @@ if (superClassIndex != 0) {
 }
 ```
 
-
+解析结果：`"superClass": "java/lang/Object",`。
 
 ## 接口解析
 
@@ -680,7 +700,16 @@ for (int i = 0; i < interfacesCount; i++) {
 }
 ```
 
+解析结果：
 
+```json
+{
+    "interfacesCount": 1, 
+    "interfaces": [
+        "java/io/Serializable"
+    ]
+}
+```
 
 ## 成员变量/成员方法解析
 
@@ -731,6 +760,110 @@ private Map<String, Object> readFieldOrMethod() throws IOException {
     dataMap.put("attributes", readAttributes(attributesCount));
 
     return dataMap;
+}
+```
+
+成员变量解析结果：
+
+```json
+{
+    "fieldsCount": 4, 
+    "fieldList": [
+        {
+            "access": 2, 
+            "name": "password", 
+            "desc": "Ljava/lang/String;", 
+            "attributesCount": 0, 
+            "attributes": { }
+        }, 
+        {
+            "access": 2, 
+            "name": "id", 
+            "desc": "J", 
+            "attributesCount": 0, 
+            "attributes": { }
+        }, 
+        {
+            "access": 26, 
+            "name": "serialVersionUID", 
+            "desc": "J", 
+            "attributesCount": 1, 
+            "attributes": {
+                "attributeName": "ConstantValue", 
+                "attributeLength": 2, 
+                "ConstantValue": {
+                    "constantValue": -7366591802115334000
+                }
+            }
+        }, 
+        {
+            "access": 2, 
+            "name": "username", 
+            "desc": "Ljava/lang/String;", 
+            "attributesCount": 0, 
+            "attributes": { }
+        }
+    ]
+}
+```
+
+成员方法解析结果（因结果过大，仅保留了一个`getPassword`方法）：
+
+```json
+{
+    "methodsCount": 10, 
+    "methodList": [
+        {
+            "access": 1, 
+            "name": "getPassword", 
+            "desc": "()Ljava/lang/String;", 
+            "attributesCount": 1, 
+            "attributes": {
+                "attributeName": "Code", 
+                "attributeLength": 47, 
+                "Code": {
+                    "maxStack": 1, 
+                    "maxLocals": 1, 
+                    "codeLength": 5, 
+                    "opcodes": [
+                        "aload_0", 
+                        "getfield #15 <com/anbai/sec/bytecode/TestHelloWorld.password>", 
+                        "areturn"
+                    ], 
+                    "exceptionTable": {
+                        "exceptionTableLength": 0, 
+                        "exceptionTableList": [ ]
+                    }, 
+                    "attributeLength": 47, 
+                    "attributes": {
+                        "attributeName": "LocalVariableTable", 
+                        "attributeLength": 12, 
+                        "LineNumberTable": {
+                            "lineNumberTableLength": 1, 
+                            "lineNumberTableList": [
+                                {
+                                    "startPc": 0, 
+                                    "lineNumber": 49
+                                }
+                            ]
+                        }, 
+                        "LocalVariableTable": {
+                            "localVariableTableLength": 1, 
+                            "localVariableTableList": [
+                                {
+                                    "startPc": 0, 
+                                    "length": 5, 
+                                    "name": "this", 
+                                    "desc": "Lcom/anbai/sec/bytecode/TestHelloWorld;", 
+                                    "index": 0
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    ]
 }
 ```
 
