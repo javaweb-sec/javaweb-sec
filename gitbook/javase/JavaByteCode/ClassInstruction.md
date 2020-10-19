@@ -8,18 +8,18 @@ Java虚拟机中描述类型和方法有固定的描述符和Java语法中所所
 
 **类型描述符表**
 
-| 描述符 | Java类型     |
-| ------ | ------------ |
-| `B`    | `byte`       |
-| `C`    | `char`       |
-| `D`    | `double`     |
-| `F`    | `float`      |
-| `I`    | `int`        |
-| `J`    | `long`       |
-| `S`    | `short`      |
-| `Z`    | `boolean`    |
-| `[`    | 数组类型     |
-| `L`    | 引用类型对象 |
+| 描述符   | Java类型       | 示例                 |
+| -------- | -------------- | -------------------- |
+| `B`      | `byte`         | `B`                  |
+| `C`      | `char`         | `C`                  |
+| `D`      | `double`       | `D`                  |
+| `F`      | `float`        | `F`                  |
+| `I`      | `int`          | `I`                  |
+| `J`      | `long`         | `J`                  |
+| `S`      | `short`        | `S`                  |
+| `Z`      | `boolean`      | `Z`                  |
+| `[`      | `数组`         | `[IJ`                |
+| `L类名;` | `引用类型对象` | `Ljava/lang/Object;` |
 
 **方法描述符示例**
 
@@ -279,7 +279,7 @@ public String hello(String content) {
 
 ### hello方法字节码解析
 
-虽然`hello`方法的代码非常简单，但是翻译成指令后就会变得比较难以理解了，有很多细节是隐藏在JVM细节中的，比如`return str + content;`是一个简单的两个字符串相加的操作，但实际上JVM会创建一个`StringBuilder`对象，然后调用`append`方法来实现`str`字符串和`content`字符串相加的。
+虽然`hello`方法的代码非常简单，但是翻译成指令后就会变得比较难以理解了，有很多细节是隐藏在编译细节中的，比如`return str + content;`是一个简单的两个字符串相加的操作，但实际上`javac`编译时会创建一个`StringBuilder`对象，然后调用`append`方法来实现`str`字符串和`content`字符串相加的。
 
 **hello方法字节码解析：**
 
