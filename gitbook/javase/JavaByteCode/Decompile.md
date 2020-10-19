@@ -4,7 +4,43 @@
 
 Java源码就是未经编译的`.java`文件，我们可以很轻松的阅读其中的代码逻辑，而字节码`.class`文件则是`.java`文件经过编译之后产生的无法直接阅读的二进制文件，不过我们可以通过反编译工具将`class文件`反编译成`java源文件`。我们通常会使用到[JD-GUI](http://jd.benow.ca/)、[Recaf](https://github.com/Col-E/Recaf)、[IDEA Fernflower插件](https://github.com/JetBrains/intellij-community/tree/master/plugins/java-decompiler/engine/src/org/jetbrains/java/decompiler)、[Bytecode-Viewer](https://github.com/Konloch/bytecode-viewer/releases)/[Fernflower](https://the.bytecode.club/showthread.php?tid=5)、[JAD](http://www.javadecompilers.com/jad)、[JBE](http://www.cs.ioc.ee/~ando/jbe/)、[Cafebabe](https://github.com/GraxCode/Cafebabe)、[JByteMod](https://github.com/GraxCode/JByteMod-Beta)、[jclasslib](https://github.com/ingokegel/jclasslib)等工具来反编译/分析`class文件`。
 
-当然，反编译工具很多时候也不是万能的，`JD-GUI`经常遇到无法反编译或反编译过程中程序直接崩溃的情况，遇到这类情况我们通常可以使用`IDEA`反编译试试，如果`IDEA`也无法反编译可以使用`JBE`或者`JDK`自带的`javap命令`来读取`class类字节码`，如果连`javap`都无法识别该`class文件`，那么这个类必然存在无法编译问题，也有可能类文件被加密处理过(自定义`ClassLoader`来`loadClass`加密后的类、或者借助`JVMTI`调用动态链接库)。
+当然，反编译工具很多时候也不是万能的，`JD-GUI`经常遇到无法反编译或反编译过程中程序直接崩溃的情况，遇到这类情况我们通常可以使用`IDEA`反编译试试，如果`IDEA`也无法反编译可以使用`JBE`或者`JDK`自带的`javap命令`来读取`class类字节码`，如果连`javap`都无法识别该`class文件`，那么这个类可能存在无法编译问题，也有可能类文件被加密处理过(自定义`ClassLoader`来`loadClass`加密后的类、或者借助`JNI`、`JVMTI`调用动态链接库)。
+
+## javap
+
+`javap`是JDK自带的一个命令行反汇编工具，命令行参数如下：
+
+```bash
+用法: javap <options> <classes>
+其中, 可能的选项包括:
+  -help  --help  -?        输出此用法消息
+  -version                 版本信息
+  -v  -verbose             输出附加信息
+  -l                       输出行号和本地变量表
+  -public                  仅显示公共类和成员
+  -protected               显示受保护的/公共类和成员
+  -package                 显示程序包/受保护的/公共类
+                           和成员 (默认)
+  -p  -private             显示所有类和成员
+  -c                       对代码进行反汇编
+  -s                       输出内部类型签名
+  -sysinfo                 显示正在处理的类的
+                           系统信息 (路径, 大小, 日期, MD5 散列)
+  -constants               显示最终常量
+  -classpath <path>        指定查找用户类文件的位置
+  -cp <path>               指定查找用户类文件的位置
+  -bootclasspath <path>    覆盖引导类文件的位置
+```
+
+### 查看类字节码
+
+可根据javap命令控制输出信息，如：`javap -c -l TestHelloWorld.class`可显示类方法的字节码信息，如下图：
+
+![image-20201019180336096](../../images/image-20201019180336096.png)
+
+如果想要获取到详细的类信息可使用`-v`参数。
+
+
 
 ## JD-GUI
 
@@ -68,7 +104,7 @@ Github：https://github.com/java-decompiler/jd-gui
 
 ### Java Agent/Attach模式
 
-`Recaf`支持`Agent模式`或者`attach模式（注入）`。
+`Recaf`支持`Agent模式`或者`attach模式`（注入）。
 
 #### Agent Attach模式
 
@@ -78,7 +114,7 @@ Github：https://github.com/java-decompiler/jd-gui
 
 `attach`模式可附加`Recaf`到一个指定的JVM进程：
 
-<img src="../../images/image-20201019140022294.png" alt="image-20201019140022294" style="zoom:50%;" />、
+<img src="../../images/image-20201019140022294.png" alt="image-20201019140022294" style="zoom:50%;" />
 
 #### Agent模式
 
@@ -94,7 +130,7 @@ Github：https://github.com/java-decompiler/jd-gui
 
 字符串搜索测试：
 
-<img src="../../images/image-20201019143217542.png" alt="image-20201019143217542" style="zoom:50%;" />
+<img src="../../images/image-20201019143217542.png" alt="image-20201019143217542" style="zoom:40%;" />
 
 
 
