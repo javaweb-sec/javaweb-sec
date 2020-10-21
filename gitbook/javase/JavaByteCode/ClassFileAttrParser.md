@@ -351,6 +351,8 @@ attrMap.put("attributes", readAttributes(attributesCount));
 attributeMap.put("Code", attrMap);
 ```
 
+在解析`Code`属性时`code_length`表示的是`Code`的字节长度，`max_stack`和`max_locals`是一个固定值，表示的是最大操作数栈和最大局部变量数，这两个值是在编译类方法时自动计算出来的，如果通过`ASM`修改了类方法可能会需要重新计算`max_stack`和`max_locals`。
+
 **示例-TestHelloWorld类Hello方法解析结果：**
 
 ```json

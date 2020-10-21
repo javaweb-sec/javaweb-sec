@@ -10,8 +10,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.objectweb.asm.ClassReader.EXPAND_FRAMES;
-import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.Opcodes.ASM9;
+import static org.objectweb.asm.Opcodes.*;
 
 public class ASMClassWriterTest {
 
@@ -27,7 +26,7 @@ public class ASMClassWriterTest {
 			final ClassReader cr = new ClassReader(className);
 
 			// 创建ClassWriter对象
-			final ClassWriter cw = new ClassWriter(cr, COMPUTE_FRAMES);
+			final ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES);
 
 			// 使用自定义的ClassVisitor访问者对象，访问该类文件的结构
 			cr.accept(new ClassVisitor(ASM9, cw) {
@@ -40,6 +39,9 @@ public class ASMClassWriterTest {
 				public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 					// 将"hello"方法名字修改为"hi"
 					if (name.equals("hello")) {
+						// 修改方法访问修饰符，移除public属性，修改为private
+						access = access & ~ACC_PUBLIC | ACC_PRIVATE;
+
 						return super.visitMethod(access, "hi", desc, signature, exceptions);
 					}
 

@@ -23,13 +23,13 @@ Java虚拟机中描述类型和方法有固定的描述符和Java语法中所所
 
 **方法描述符示例**
 
-| 方法示例                                | 描述符                                   | 描述                      |
-| --------------------------------------- | ---------------------------------------- | ------------------------- |
-| `static{...}`                           | 方法名：`<clinit>`                       | 静态语句块/静态变量初始化 |
-| `public Test (){...}`                   | 方法名：`<init>`，描述符`()V`            | 构造方法                  |
-| `void hello(){...}`                     | `()V`                                    | `V`表示`void`，无返回值   |
-| `public Object login(String str) {...}` | `(Ljava/lang/String;)Ljava/lang/Object;` | 普通方法，返回Object类型  |
-| `public void login(String str) {...}`   | `(Ljava/lang/String;)V`                  | 普通方法，无返回值        |
+| 方法示例                            | 描述符                                   | 描述                      |
+| ----------------------------------- | ---------------------------------------- | ------------------------- |
+| `static{...}`，`static int id = 1;` | 方法名：`<clinit>`                       | 静态语句块/静态变量初始化 |
+| `public Test (){...}`               | 方法名：`<init>`，描述符`()V`            | 构造方法                  |
+| `void hello(){...}`                 | `()V`                                    | `V`表示`void`，无返回值   |
+| `Object login(String str) {...}`    | `(Ljava/lang/String;)Ljava/lang/Object;` | 普通方法，返回Object类型  |
+| `void login(String str) {...}`      | `(Ljava/lang/String;)V`                  | 普通方法，无返回值        |
 
 ## Java虚拟机指令
 

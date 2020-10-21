@@ -31,6 +31,7 @@
         * [Java class文件解析](javase/JavaByteCode/ClassFileParser.md)
         * [Java class文件属性解析](javase/JavaByteCode/ClassFileAttrParser.md)
         * [Java虚拟机指令集](javase/JavaByteCode/ClassInstruction.md)
+        * [Java 类字节码操作库 - ASM](javase/JavaByteCode/ASM.md)
         * [Java class反编译](javase/JavaByteCode/Decompile.md)
     * [Java Agent](javase/JavaAgent/README.md)
         * [Java Instrumentation](javase/JavaAgent/Instrumentation.md)
