@@ -1,4 +1,4 @@
-# Java 类字节码操作库 - ASM
+# Java 类字节码编辑 - ASM
 
 Java字节码库允许我们通过字节码库的API动态创建或修改Java类、方法、变量等操作而被广泛使用，本节将讲解ASM库的使用。
 
@@ -387,7 +387,7 @@ public class ASMMethodVisitorTest {
 }
 ```
 
-程序执行后会在`com.anbai.sec.bytecode.asm`包下创建一个`TestHelloWorld.class`文件：
+程序执行后会在`com.anbai.sec.bytecode`包下创建一个`TestHelloWorld.class`文件：
 
 <img src="../../images/image-20201021174318013.png" alt="image-20201021174318013" style="zoom:50%;" />
 

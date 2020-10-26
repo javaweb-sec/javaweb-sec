@@ -13,6 +13,12 @@
     <artifactId>javase</artifactId>
     <packaging>war</packaging>
 
+    <properties>
+        <jsp-api.version>2.3.3</jsp-api.version>
+        <fastjson.version>1.2.23</fastjson.version>
+        <unboundid.version>7.3.0.0</unboundid.version>
+    </properties>
+
     <dependencies>
 
         <dependency>
@@ -55,7 +61,7 @@
         <dependency>
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>javax.servlet.jsp-api</artifactId>
-            <version>2.3.3</version>
+            <version>${jsp-api.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -68,7 +74,7 @@
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-            <version>3.2.1</version>
+            <version>${commons-collections.version}</version>
         </dependency>
 
         <dependency>
@@ -98,25 +104,25 @@
         <dependency>
             <groupId>com.unboundid</groupId>
             <artifactId>server-sdk</artifactId>
-            <version>7.3.0.0</version>
+            <version>${unboundid.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.23</version>
+            <version>${fastjson.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.10.1</version>
+            <version>${jackson.version}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-dbcp</groupId>
             <artifactId>commons-dbcp</artifactId>
-            <version>1.4</version>
+            <version>${commons-dbcp.version}</version>
         </dependency>
 
         <dependency>
@@ -126,9 +132,15 @@
         </dependency>
 
         <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>${javassist.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.bcel</groupId>
             <artifactId>bcel</artifactId>
-            <version>6.5.0</version>
+            <version>${bcel.version}</version>
         </dependency>
 
         <dependency>
