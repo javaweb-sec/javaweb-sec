@@ -2,7 +2,7 @@
 
 Java字节码库允许我们通过字节码库的API动态创建或修改Java类、方法、变量等操作而被广泛使用，本节将讲解ASM库的使用。
 
-ASM是一种通用Java字节码操作和分析框架，它可以直接以二进制形式修改一个现有的类或动态生成类文件。ASM的版本更新快（`ASM 9.0`已经支持`JDK 16`）、[性能高](https://asm.ow2.io/performance.html)、功能全，学习成本也相对较高。
+ASM是一种通用Java字节码操作和分析框架，它可以直接以二进制形式修改一个现有的类或动态生成类文件。ASM的版本更新快（`ASM 9.0`已经支持`JDK 16`）、[性能高](https://asm.ow2.io/performance.html)、功能全，学习成本也相对较高，ASM官方用户手册：[ASM 4.0 A Java bytecode engineering library](https://asm.ow2.io/asm4-guide.pdf)。
 
 ASM提供了三个基于`ClassVisitor API`的核心API，用于生成和转换类：
 

@@ -10,30 +10,38 @@ import java.io.File;
 
 public class JavassistTest {
 
-	public static void main(String[] args) {
-		ClassPool classPool = ClassPool.getDefault();
-		CtClass   ctClass   = classPool.makeClass("com.anbai.sec.bytecode.javassist.JavassistHelloWorld");
+    public static void main(String[] args) {
+        // 创建ClassPool对象
+        ClassPool classPool = ClassPool.getDefault();
 
-		try {
-			CtField ctField = CtField.make("private static String content = \"Hello world~\";", ctClass);
-			ctClass.addField(ctField);
+        // 使用ClassPool创建一个JavassistHelloWorld类
+        CtClass ctClass = classPool.makeClass("com.anbai.sec.bytecode.javassist.JavassistHelloWorld");
 
-			CtMethod ctMethod = CtMethod.make(
-					"public static void main(String[] args) {System.out.println(content);}", ctClass
-			);
+        try {
+            // 创建类成员变量content
+            CtField ctField = CtField.make("private static String content = \"Hello world~\";", ctClass);
 
-			ctClass.addMethod(ctMethod);
+            // 将成员变量添加到ctClass对象中
+            ctClass.addField(ctField);
 
-			File classFilePath = new File(new File(System.getProperty("user.dir"), "javaweb-sec-source/javase/src/main/java/com/anbai/sec/bytecode/javassist/"), "JavassistHelloWorld.class");
+            // 创建一个主方法并输出content对象值
+            CtMethod ctMethod = CtMethod.make(
+                    "public static void main(String[] args) {System.out.println(content);}", ctClass
+            );
 
-			// 使用类CtClass，生成类二进制
-			byte[] bytes = ctClass.toBytecode();
+            // 将成员方法添加到ctClass对象中
+            ctClass.addMethod(ctMethod);
 
-			// 将class二进制内容写入到类文件
-			FileUtils.writeByteArrayToFile(classFilePath, bytes);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+            File classFilePath = new File(new File(System.getProperty("user.dir"), "javaweb-sec-source/javase/src/main/java/com/anbai/sec/bytecode/javassist/"), "JavassistHelloWorld.class");
+
+            // 使用类CtClass，生成类二进制
+            byte[] bytes = ctClass.toBytecode();
+
+            // 将class二进制内容写入到类文件
+            FileUtils.writeByteArrayToFile(classFilePath, bytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }
