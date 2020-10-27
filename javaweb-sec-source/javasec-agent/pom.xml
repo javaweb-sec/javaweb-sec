@@ -27,6 +27,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>${javassist.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.javaweb</groupId>
             <artifactId>javaweb-utils</artifactId>
             <version>${javaweb.version}</version>
@@ -58,6 +64,12 @@
                         <manifest>
                             <mainClass>com.anbai.sec.agent.JavaSecHelloWorldAgent</mainClass>
                         </manifest>
+                        <manifestEntries>
+                            <Premain-Class>com.anbai.sec.agent.JavaSecHelloWorldAgent</Premain-Class>
+                            <Agent-Class>com.anbai.sec.agent.JavaSecHelloWorldAgent</Agent-Class>
+                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
+                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                        </manifestEntries>
                     </archive>
                 </configuration>
                 <executions>

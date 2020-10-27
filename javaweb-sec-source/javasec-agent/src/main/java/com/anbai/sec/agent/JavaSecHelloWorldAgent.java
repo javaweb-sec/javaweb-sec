@@ -5,10 +5,15 @@
  */
 package com.anbai.sec.agent;
 
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.NotFoundException;
+
+import java.io.ByteArrayInputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
-import java.util.Arrays;
 
 /**
  * Creator: yz
@@ -16,87 +21,70 @@ import java.util.Arrays;
  */
 public class JavaSecHelloWorldAgent {
 
-	/**
-	 * 替换HelloWorld的输出字符串为"Hello Agent..."，将二进制转换成字符串数组，替换字符串数组并生成新的二进制
-	 *
-	 * @param className   类名
-	 * @param classBuffer 类字节码
-	 * @return 替换后的类字节码
-	 */
-	private static byte[] replaceBytes(String className, byte[] classBuffer) {
-		// 将类字节码转换成byte字符串
-		String bufferStr = Arrays.toString(classBuffer);
-		System.out.println(className + "类替换前的字节码:" + bufferStr);
+    /**
+     * Java Agent模式入口
+     *
+     * @param args 命令参数
+     * @param inst Agent Instrumentation 实例
+     */
+    public static void premain(String args, final Instrumentation inst) {
+        // 添加自定义的Transformer
+        inst.addTransformer(new ClassFileTransformer() {
 
-		bufferStr = bufferStr.replace("[", "").replace("]", "");
+            /**
+             * 类文件转换方法，重写transform方法可获取到待加载的类相关信息
+             *
+             * @param loader              定义要转换的类加载器；如果是引导加载器，则为 null
+             * @param className           类名,如:java/lang/Runtime
+             * @param classBeingRedefined 如果是被重定义或重转换触发，则为重定义或重转换的类；如果是类加载，则为 null
+             * @param protectionDomain    要定义或重定义的类的保护域
+             * @param classfileBuffer     类文件格式的输入字节缓冲区（不得修改）
+             * @return 返回一个通过ASM修改后添加了防御代码的字节码byte数组。
+             */
+            @Override
+            public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                    ProtectionDomain protectionDomain, byte[] classfileBuffer) {
 
-		// 查找需要替换的Java二进制内容
-		byte[] findBytes = "Hello World...".getBytes();
+                // 将目录路径替换成Java类名
+                className = className.replace("/", ".");
 
-		// 把搜索的字符串byte转换成byte字符串
-		String findStr = Arrays.toString(findBytes).replace("[", "").replace("]", "");
+                // 只处理com.anbai.sec.agent.HelloWorld类的字节码
+                if (className.equals("com.anbai.sec.agent.HelloWorld")) {
+                    try {
+                        ClassPool classPool = ClassPool.getDefault();
 
-		// 二进制替换后的byte值，注意这个值需要和替换的字符串长度一致，不然会破坏常量池
-		byte[] replaceBytes = "Hello Agent...".getBytes();
+                        // 使用javassist将类二进制解析成CtClass对象
+                        CtClass ctClass = classPool.makeClass(new ByteArrayInputStream(classfileBuffer));
 
-		// 把替换的字符串byte转换成byte字符串
-		String replaceStr = Arrays.toString(replaceBytes).replace("[", "").replace("]", "");
+                        // 使用CtClass对象获取main方法，类似于Java反射机制的clazz.getDeclaredMethod(xxx)
+                        CtMethod ctMethod = ctClass.getDeclaredMethod(
+                                "main", new CtClass[]{classPool.getCtClass("java.lang.String[]")}
+                        );
 
-		bufferStr = bufferStr.replace(findStr, replaceStr);
+                        // 直接修改main方法的字节码
+                        ctMethod.setBody("System.out.println(\"Hello Java Agent!\");");
 
-		// 切割替换后的byte字符串
-		String[] byteArray = bufferStr.split("\\s*,\\s*");
+                        // 将使用javassist修改后的类字节码给JVM加载
+                        return ctClass.toBytecode();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
 
-		// 创建新的byte数组，存储替换后的二进制
-		byte[] bytes = new byte[byteArray.length];
+                return classfileBuffer;
+            }
+        }, true);
+        // 第二个参数true表示是否允许Agent Retransform，需配合MANIFEST.MF中的Can-Retransform-Classes: true配置
+    }
 
-		// 将byte字符串转换成byte
-		for (int i = 0; i < byteArray.length; i++) {
-			bytes[i] = Byte.parseByte(byteArray[i]);
-		}
+    public static void main(String[] args) {
+        ClassPool classPool = ClassPool.getDefault();
 
-		System.out.println(className + "类替换后的字节码:" + Arrays.toString(bytes));
-
-		// 返回修改后的二进制
-		return bytes;
-	}
-
-	/**
-	 * Java Agent模式入口
-	 *
-	 * @param args 命令参数
-	 * @param inst Agent Instrumentation 实例
-	 */
-	public static void premain(String args, final Instrumentation inst) {
-		// 添加自定义的Transformer
-		inst.addTransformer(new ClassFileTransformer() {
-
-			/**
-			 * 类文件转换方法，重写transform方法可获取到待加载的类相关信息
-			 *
-			 * @param loader              定义要转换的类加载器；如果是引导加载器，则为 null
-			 * @param className           类名,如:java/lang/Runtime
-			 * @param classBeingRedefined 如果是被重定义或重转换触发，则为重定义或重转换的类；如果是类加载，则为 null
-			 * @param protectionDomain    要定义或重定义的类的保护域
-			 * @param classfileBuffer     类文件格式的输入字节缓冲区（不得修改）
-			 * @return 返回一个通过ASM修改后添加了防御代码的字节码byte数组。
-			 */
-			@Override
-			public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-			                        ProtectionDomain protectionDomain, byte[] classfileBuffer) {
-
-				// 将目录路径替换成Java类名
-				className = className.replace("/", ".");
-
-				// 只处理com.anbai.sec.agent.HelloWorld类的字节码
-				if (className.equals("com.anbai.sec.agent.HelloWorld")) {
-					// 替换HelloWorld的输出字符串
-					return replaceBytes(className, classfileBuffer);
-				}
-
-				return classfileBuffer;
-			}
-		}, true);// 第二个参数true表示是否允许Agent Retransform，需配合MANIFEST.MF中的Can-Retransform-Classes: true配置
-	}
+        try {
+            System.out.println(classPool.getCtClass("java.lang.String[]"));
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
