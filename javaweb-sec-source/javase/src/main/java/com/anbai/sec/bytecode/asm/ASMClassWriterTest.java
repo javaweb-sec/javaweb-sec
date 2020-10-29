@@ -54,7 +54,7 @@ public class ASMClassWriterTest {
 			// 修改后的类字节码
 			byte[] classBytes = cw.toByteArray();
 
-			// 写入修改后的字节码到新的类文件
+			// 写入修改后的字节码到class文件
 			FileUtils.writeByteArrayToFile(classFilePath, classBytes);
 		} catch (IOException e) {
 			e.printStackTrace();

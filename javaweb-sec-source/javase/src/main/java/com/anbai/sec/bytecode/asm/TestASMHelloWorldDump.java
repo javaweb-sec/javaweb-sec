@@ -93,7 +93,7 @@ public class TestASMHelloWorldDump implements Opcodes {
 
 		File classFilePath = new File(new File(System.getProperty("user.dir"), "javaweb-sec-source/javase/src/main/java/com/anbai/sec/bytecode/asm/"), "TestASMHelloWorld.class");
 
-		// 写入修改后的字节码到新的类文件
+		// 写入修改后的字节码到class文件
 		FileUtils.writeByteArrayToFile(classFilePath, classBytes);
 	}
 
