@@ -1,5 +1,7 @@
 Manifest-Version: 1.0
 Premain-Class: com.anbai.sec.agent.JavaSecHelloWorldAgent
+Agent-Class: com.anbai.sec.agent.JavaSecHelloWorldAgent
+Main-Class: com.anbai.sec.agent.JavaSecHelloWorldAgent
 Can-Retransform-Classes: true
 Can-Redefine-Classes: true
 Can-Set-Native-Method-Prefix: true

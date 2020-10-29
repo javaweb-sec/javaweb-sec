@@ -16,15 +16,13 @@
     <properties>
         <asm.version>9.0</asm.version>
         <java.version>1.7</java.version>
+        <package.name>com.anbai.sec.agent</package.name>
+        <manifest-file.name>MANIFEST.MF</manifest-file.name>
+        <maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
+        <maven-shade-plugin.version>3.2.2</maven-shade-plugin.version>
     </properties>
 
     <dependencies>
-
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-commons</artifactId>
-            <version>${asm.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>org.javassist</groupId>
@@ -36,6 +34,14 @@
             <groupId>org.javaweb</groupId>
             <artifactId>javaweb-utils</artifactId>
             <version>${javaweb.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun</groupId>
+            <artifactId>tools</artifactId>
+            <version>${java.version}</version>
+            <scope>system</scope>
+            <systemPath>${java.home}/../lib/tools.jar</systemPath>
         </dependency>
 
     </dependencies>
@@ -55,30 +61,64 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+
                 <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
                     <archive>
-                        <manifest>
-                            <mainClass>com.anbai.sec.agent.JavaSecHelloWorldAgent</mainClass>
-                        </manifest>
-                        <manifestEntries>
-                            <Premain-Class>com.anbai.sec.agent.JavaSecHelloWorldAgent</Premain-Class>
-                            <Agent-Class>com.anbai.sec.agent.JavaSecHelloWorldAgent</Agent-Class>
-                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
-                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
-                        </manifestEntries>
+                        <manifestFile>src/main/resources/${manifest-file.name}</manifestFile>
                     </archive>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven-shade-plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>MANIFEST.MF</exclude>
+                                        <exclude>META-INF/maven/</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+
+                            <artifactSet>
+                                <includes>
+                                    <include>org.javassist:javassist:jar:*</include>
+                                    <include>org.javaweb:javaweb-utils:jar:*</include>
+                                </includes>
+                            </artifactSet>
+
+                            <!-- 修改第三方依赖包名称 -->
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.anbai.sec.agent</pattern>
+                                    <shadedPattern>${package.name}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache</pattern>
+                                    <shadedPattern>${package.name}.deps.org.apache</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.javaweb</pattern>
+                                    <shadedPattern>${package.name}.deps.org.javaweb</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>javassist</pattern>
+                                    <shadedPattern>${package.name}.deps.javassist</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
