@@ -10,10 +10,10 @@ import com.sun.tools.attach.VirtualMachineDescriptor;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
-import org.javaweb.utils.FileUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
@@ -155,15 +155,14 @@ public class CrackLicenseAgent {
                         ctMethod.insertAfter("return false;");
 
                         // 修改后的类字节码
-                        byte[] classBytes = ctClass.toBytecode();
-
-                        File classFilePath = new File(new File(System.getProperty("user.dir"), "javaweb-sec-source/javasec-agent/src/main/java/com/anbai/sec/agent/"), "CrackLicenseTest.class");
+                        classfileBuffer = ctClass.toBytecode();
+                        File classFilePath = new File(new File(System.getProperty("user.dir"), "/src/test/java/com/anbai/sec/agent/"), "CrackLicenseTest.class");
 
                         // 写入修改后的字节码到class文件
-                        FileUtils.writeByteArrayToFile(classFilePath, classBytes);
-
-                        // 将使用javassist修改后的类字节码给JVM加载
-                        return classBytes;
+                        FileOutputStream fos = new FileOutputStream(classFilePath);
+                        fos.write(classfileBuffer);
+                        fos.flush();
+                        fos.close();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

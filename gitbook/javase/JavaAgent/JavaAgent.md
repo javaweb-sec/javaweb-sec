@@ -122,6 +122,7 @@ import javassist.CtMethod;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
@@ -262,8 +263,15 @@ public class CrackLicenseAgent {
                         // 修改checkExpiry方法的返回值，将授权过期改为未过期
                         ctMethod.insertAfter("return false;");
 
-                        // 将使用javassist修改后的类字节码给JVM加载
-                        return ctClass.toBytecode();
+                        // 修改后的类字节码
+                        classfileBuffer = ctClass.toBytecode();
+                        File classFilePath = new File(new File(System.getProperty("user.dir"), "javaweb-sec-source/javasec-agent/src/main/java/com/anbai/sec/agent/"), "CrackLicenseTest.class");
+
+                        // 写入修改后的字节码到class文件
+                        FileOutputStream fos = new FileOutputStream(classFilePath);
+                        fos.write(classfileBuffer);
+                        fos.flush();
+                        fos.close();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -277,7 +285,7 @@ public class CrackLicenseAgent {
 }
 ```
 
-添加pom.xml：
+然后再添加pom.xml：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -421,23 +429,80 @@ mvn clean install
 
 ![image-20201029205623321](../../images/image-20201029205623321.png)
 
-我们需要在运行`CrackLicenseTest`的时候添加`-javaagent:jar路径`参数，例如：
+
+
+## Agent模式
+
+如果以Agent模式运行破解程序，需要我们在启动`CrackLicenseTest`的时候添加JVM参数：`-javaagent:jar路径`，例如：
 
 ```bash
 cd ~/IdeaProjects/javaweb-sec/javaweb-sec-source/javasec-agent
-java -javaagent:/Users/yz/IdeaProjects/javaweb-sec/javaweb-sec-source/javasec-agent/target/javasec-agent.jar -cp target/test-classes/ com.anbai.sec.agent.CrackLicenseTest
+java -javaagent:target/javasec-agent.jar -classpath target/test-classes/ com.anbai.sec.agent.CrackLicenseTest
 ```
 
 程序执行结果：
 
-```java
-License到期时间：2020-10-01 23:59:01
-[2020-10-30 01:20:15] 您的授权正常，截止时间为：2020-10-01 23:59:01
-License到期时间：2020-10-01 23:59:01
-[2020-10-30 01:20:20] 您的授权正常，截止时间为：2020-10-01 23:59:01
-License到期时间：2020-10-01 23:59:01
-[2020-10-30 01:20:25] 您的授权正常，截止时间为：2020-10-01 23:59:01
-```
+<img src="../../images/image-20201101010058593.png" alt="image-20201101010058593" style="zoom:50%;" />
 
 由上示例可以看到`CrackLicenseTest`类的`checkExpiry`方法已经被我们使用Java Agent机制动态编辑类字节码的方式修改成功了。
+
+## Attach模式
+
+如果我们希望在`CrackLicenseTest`运行时不重启该Java程序的情况下运行我们的破解程序就需要以Attach模式运行了。Attach模式需要知道我们运行的Java程序进程ID，通过Java虚拟机的进程注入方式实现可以将我们的Agent程序动态的注入到一个已在运行中的Java程序中。
+
+我们可以使用JDK自带的`jps`命令获取本机运行的所有的Java进程，如：
+
+```java
+[robert@192:~]$ jps -l
+14608 org.jetbrains.jps.cmdline.Launcher
+14931 org.jd.gui.OsxApp
+1075 
+6809 org.jetbrains.idea.maven.server.RemoteMavenServer36
+15820 com.anbai.sec.agent.CrackLicenseTest
+15823 sun.tools.jps.Jps
+```
+
+通过进程的名字`com.anbai.sec.agent.CrackLicenseTest`就可以找到我们需要注入的进程ID为`15823`。如果我们想要直接借助Java程序来获取所有的JVM进程也是可以的，使用`com.sun.tools.attach.VirtualMachine`的`list`方法即可获取本机所有运行的Java进程，如：
+
+```java
+List<VirtualMachineDescriptor> list = VirtualMachine.list();
+
+for (VirtualMachineDescriptor desc : list) {
+    System.out.println("进程ID：" + desc.id() + "，进程名称：" + desc.displayName());
+}
+```
+
+有了进程ID我们就可以使用Attach API注入Agent了，Attach Java进程注入示例代码如下：
+
+```java
+// Java进程ID
+String pid = args[0];
+
+// 设置Agent文件的绝对路径
+String agentPath = "/xxx/agent.jar";
+
+// 注入到JVM虚拟机进程
+VirtualMachine vm = VirtualMachine.attach(pid);
+
+// 注入Agent到目标JVM
+vm.loadAgent(agentPath);
+vm.detach();
+```
+
+使用Attach模式启动Agent程序时需要使用到JDK目录下的`lib/tools.jar`，如果没有配置`CLASS_PATH`环境变量的话需要在运行Agent程序时添加`-classpath $JAVA_HOME/lib/tools.jar`参数，否则我们无法使用Attach API，如下：
+
+```bash
+cd ~/IdeaProjects/javaweb-sec/javaweb-sec-source/javasec-agent
+java -classpath $JAVA_HOME/lib/tools.jar:target/javasec-agent.jar com.anbai.sec.agent.CrackLicenseAgent
+```
+
+程序执行结果如下：
+
+![image-20201101013153908](../../images/image-20201101013153908.png)
+
+当Attach成功后我们可以看到原来的进程输出结果也已经不在输出授权过期提示信息了，如下图：
+
+<img src="../../images/image-20201101013416799.png" alt="image-20201101013416799" style="zoom:50%;" />
+
+使用Attach模式需要特别的需要注意和Agent模式的区别，因为Attach是运行在Java程序启动后，所以我们需要修改的Java类很有可能已经被JVM加载了，而已加载的Java类是不会再被Agent处理的，这时候我们需要在Attach到目标进程后`retransformClasses`，让JVM重新该Java类，这样我们就可以使用Agent机制修改该类的字节码了。
 
