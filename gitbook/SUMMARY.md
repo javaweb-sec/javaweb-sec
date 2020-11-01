@@ -36,8 +36,6 @@
         * [Java class反编译](javase/JavaByteCode/Decompile.md)
     * [Java Agent机制](javase/JavaAgent/README.md)
         * [Java Agent](javase/JavaAgent/JavaAgent.md)
-        * [Instrumentation](javase/JavaAgent/Instrumentation.md)
-        * [ClassFileTransformer](javase/JavaAgent/ClassFileTransformer.md)
     * [Java XXE漏洞](javase/XXE/README.md)
     * [Java 并发安全问题](javase/JavaConcurrency/README.md)
     * [Java 编码/加密](javase/JavaEncrypt/README.md)
