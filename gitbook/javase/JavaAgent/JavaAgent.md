@@ -163,6 +163,8 @@ public class CrackLicenseTest {
 
 在不重新编译某个类的情况下(甚至有可能是不重启Java应用服务的情况下)动态的改变类方法的执行逻辑是非常困难的，但如果使用`Agent`的`Instrumentation API`就可以非常容易的实现了。
 
+破解示例中的`CrackLicenseTest`的授权检测方法只需要修改`checkExpiry`的返回值为`false`就行了或者修改`expireDate`参数值为一个100年以后的时间。
+
 **破解CrackLicenseTest的授权检测示例代码：**
 
 ```java
@@ -503,7 +505,11 @@ java -javaagent:target/javasec-agent.jar -classpath target/test-classes/ com.anb
 
 <img src="../../images/image-20201101010058593.png" alt="image-20201101010058593" style="zoom:50%;" />
 
-由上示例可以看到`CrackLicenseTest`类的`checkExpiry`方法已经被我们使用Java Agent机制动态编辑类字节码的方式修改成功了。
+生成的`CrackLicenseTest.class`如下：
+
+<img src="../../images/image-20201103103324443.png" alt="image-20201103103324443" style="zoom:50%;" />
+
+由上示例可以看到`CrackLicenseTest`类的`checkExpiry`方法字节码已经被我们修改成功了 。
 
 ## Attach模式
 
