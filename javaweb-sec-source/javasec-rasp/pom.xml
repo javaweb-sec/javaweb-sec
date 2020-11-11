@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <parent>
+        <artifactId>javaweb-sec-source</artifactId>
+        <groupId>com.anbai</groupId>
+        <version>1.0.0</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>javasec-rasp</artifactId>
+
+    <properties>
+        <java.version>1.6</java.version>
+        <package.name>com.anbai.sec.rasp</package.name>
+        <manifest-file.name>MANIFEST.MF</manifest-file.name>
+        <maven-jar-plugin.version>2.3.2</maven-jar-plugin.version>
+        <maven-shade-plugin.version>3.2.2</maven-shade-plugin.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>${javassist.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>${commons-lang.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${commons-codec.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.javaweb</groupId>
+            <artifactId>javaweb-utils</artifactId>
+            <version>${javaweb.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>javasec-rasp</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+
+                <configuration>
+                    <archive>
+                        <manifestFile>src/main/resources/${manifest-file.name}</manifestFile>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven-shade-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>MANIFEST.MF</exclude>
+                                        <exclude>META-INF/maven/</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+
+                            <artifactSet>
+                                <includes>
+                                    <include>commons-io:commons-io:jar:*</include>
+                                    <include>org.javassist:javassist:jar:*</include>
+                                    <include>org.javaweb:javaweb-utils:jar:*</include>
+                                    <include>commons-lang:commons-lang:jar:*</include>
+                                    <include>commons-codec:commons-codec:jar:*</include>
+                                </includes>
+                            </artifactSet>
+
+                            <!-- 修改第三方依赖包名称 -->
+                            <!-- 为了方便调试，不重打包第三方依赖 -->
+<!--                            <relocations>-->
+<!--                                <relocation>-->
+<!--                                    <pattern>com.anbai.sec.rasp</pattern>-->
+<!--                                    <shadedPattern>${package.name}</shadedPattern>-->
+<!--                                </relocation>-->
+<!--                                <relocation>-->
+<!--                                    <pattern>org.apache</pattern>-->
+<!--                                    <shadedPattern>${package.name}.deps.org.apache</shadedPattern>-->
+<!--                                </relocation>-->
+<!--                                <relocation>-->
+<!--                                    <pattern>org.javaweb</pattern>-->
+<!--                                    <shadedPattern>${package.name}.deps.org.javaweb</shadedPattern>-->
+<!--                                </relocation>-->
+<!--                                <relocation>-->
+<!--                                    <pattern>javassist</pattern>-->
+<!--                                    <shadedPattern>${package.name}.deps.javassist</shadedPattern>-->
+<!--                                </relocation>-->
+<!--                            </relocations>-->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

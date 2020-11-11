@@ -20,6 +20,7 @@
         <module>javasec-osgi</module>
         <module>javasec-bincat</module>
         <module>javasec-test</module>
+        <module>javasec-rasp</module>
     </modules>
 
 </project>

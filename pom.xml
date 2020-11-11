@@ -28,6 +28,7 @@
         <fastjson.version>1.2.47</fastjson.version>
         <commons-io.version>2.6</commons-io.version>
         <freemarker.version>2.3.23</freemarker.version>
+        <commons-lang.version>2.6</commons-lang.version>
         <javassist.version>3.27.0-GA</javassist.version>
         <servlet-api.version>3.1.0</servlet-api.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
