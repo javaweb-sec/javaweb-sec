@@ -1,6 +1,19 @@
 # 恶意文件访问类漏洞
 
-## 1. 读文件
+本章节将讲解与Java文件或目录访问安全性问题，常见的Java文件操作相关的漏洞大致有如下类型：
+
+1. 任意目录遍历
+2. 任意文件、目录复制
+3. 任意文件读取/下载
+4. 任意文件、目录修改/重命名
+5. 任意文件、目录删除
+6. ......
+
+我们通常把这类漏洞归为一个类型，因为产生漏洞的原因都是因为程序对文件或目录访问控制不严、程序内部逻辑错误导致的任意文件或目录恶意访问漏洞。
+
+## 1. 任意文件读取
+
+任意文件读写漏洞即因为没有验证请求的资源文件是否合法导致的，此类漏洞在Java中有着较高的几率出现，任意文件读取漏洞原理很简单，但是在这个问题上翻车的有不乏一些知名的中间件:`Weblogic`、`Tomcat`、`Resin`又或者是主流MVC框架:`Spring MVC`、`Struts2`。
 
 示例-存在恶意文件读取漏洞代码：
 
@@ -74,7 +87,7 @@
 
 
 
-### 2.1 跨目录写入文件测试
+### 跨目录写入文件测试
 
 攻击者可能期望跨目录写入文件，如写入 SSH KEY、写入计划任务等等方式进行进一步的攻击。
 
@@ -206,6 +219,8 @@
 
 ## 6. 文件目录遍历
 
+任意目录遍历漏洞顾名思义攻击者可以通过漏洞遍历出服务器操作系统中的任意目录文件名，从而导致服务器敏感信息泄漏，某些场景下(如遍历出网站日志、备份文件、管理后台等)甚至可能会导致服务器被非法入侵。
+
 示例-存在任意目录遍历代码：
 
 ```jsp
@@ -223,7 +238,7 @@
 </pre>
 ```
 
-
+这个漏洞可能由Web应用本身的开发不规范导致，也有可能是因为`MVC框架`、`项目依赖的第三方库`、`Web服务器自身`导致的。如果是由于自身开发不规范导致的那么需要程序严格控制用户传入目录参数是否合法！
 
 ### 6.1 相对目录遍历测试
 
@@ -268,3 +283,143 @@
 
 <img src="../../images/image-20200920231108351.png" alt="image-20200920231108351" style="zoom:50%;" />
 
+
+
+## 8. 任意文件/目录访问漏洞修复
+
+### 8.1 限制读取目录或文件
+
+在读取文件或者目录的时候我们需要考虑到文件读取安全问题，严格控制用户传入参数，禁止或限制用户传入文件路径。
+
+**检测用户参数合法性代码示例(请根据具体业务需求调整判定逻辑):**
+
+```jsp
+<%@ page import="java.io.File" %><%--
+  Created by IntelliJ IDEA.
+  User: yz
+  Date: 2019/12/4
+  Time: 6:08 下午
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%!
+    // 定义限制用户遍历的文件目录常量
+    private static final String IMAGE_DIR = "/data/images/";
+%>
+<%
+    // 定义需要遍历的目录
+    String dirStr = request.getParameter("dir");
+
+    if (dirStr != null) {
+        File dir = new File(dirStr);
+
+        // 获取文件绝对路径，转换成标准的文件路径
+        String fileDir = (dir.getAbsoluteFile().getCanonicalFile() + "/").replace("\\\\", "").replaceAll("/+", "/");
+        out.println("<h3>" + fileDir + "</h3>");
+
+        // 检查当前用户传入的目录是否包含在系统限定的目录下
+        if (fileDir.startsWith(IMAGE_DIR)) {
+            File[] dirs = dir.listFiles();
+
+            out.println("<pre>");
+
+            for (File file : dirs) {
+                out.println(file.getName());
+            }
+
+            out.println("</pre>");
+        } else {
+            out.println("目录不合法!");
+        }
+    }
+
+%>
+```
+
+请求遍历非系统限制的目录示例：
+
+<img src="../../images/image-20191204185103785.png" alt="image-20200920230047497" style="zoom:50%;" />
+
+### 8.2 RASP防御恶意文件访问攻击
+
+RASP可以使用Agent机制实现Hook任意的Java类API，因此可以轻易的捕获到Java程序读取的任意文件路径。RASP可以将Hook到的文件路径和Http请求的参数进行关联分析，检测Java读取的文件路径是否会受到Http请求参数的控制，如果发现请求参数最终拼接到了文件路径中应当立即阻断文件访问行为，并记录攻击日志。
+
+**RASP防御思路：**
+
+<img src="../../images/image-20201112225033039.png" alt="image-20201112225033039" style="zoom:50%;" />
+
+为了提升RASP的防御能力，应当将Java SE中的所有与文件读写相关的最为底层的Java API类找出来，然后添加监视点。
+
+**Java底层操作IO的类API表（<=JDK14）**
+
+| 类名                                 | 类型       | 重要方法                                                     |
+| ------------------------------------ | ---------- | ------------------------------------------------------------ |
+| `java.io.FileSystem`                 | `java.io`  | `delete/list/createDirectory/rename/setLastModifiedTime/listRoots` |
+| `java.io.FileInputStream`            | `java.io`  | `open/read`                                                  |
+| `java.io.FileOutputStream`           | `java.io`  | `open/write`                                                 |
+| `java.io.RandomAccessFile`           | `java.io`  | `read/write/write`                                           |
+| `java.nio.channels.FileChannel`      | `java.nio` | `open/read/map/map`                                          |
+| `sun.nio.ch.FileDispatcher`          | `sun.nio`  | `read/pread/readv/write/pwrite/writev/seek`                  |
+| `sun.nio.ch.SocketDispatcher`        | `sun.nio`  | `read/readv/write/writev`                                    |
+| `sun.nio.ch.DatagramDispatcher`      | `sun.nio`  | `read/readv/write/writev`                                    |
+| `sun.nio.fs.UnixNativeDispatcher`    | `sun.nio`  | `fopen/read/write/getcwd/link/unlink/rename/mkdir/chown`     |
+| `sun.nio.fs.WindowsNativeDispatcher` | `sun.nio`  | `fopen/read/write/getcwd/link/unlink/rename/mkdir/chown`     |
+| `sun.nio.fs.UnixCopyFile`            | `sun.nio`  | `copy/copyDirectory/copyFile/move/copyLink/copySpecial/transfer` |
+| `sun.nio.ch.IOUtil`                  | `sun.nio`  | `read/write/randomBytes`                                     |
+
+#### 8.2.1 禁止文件名空字节访问
+
+在低版本的JDK中允许文件名中包含`空字节`（俗称%00截断），为了防止该问题，RASP应当在任何文件被访问的时候检测文件名是否包含了空字节，如果有应当立即终止文件的访问。
+
+**检测文件名空字节示例代码：**
+
+```java
+/**
+ * 检查文件名中是否包含了空字节，禁止出现%00字符截断
+ *
+ * @param file 访问文件
+ * @return 是否包含空字节
+ */
+private static boolean nullByteValid(File file) {
+   return file.getName().indexOf('\u0000') < 1;
+}
+```
+
+
+
+#### 8.2.2 禁止写入动态脚本文件
+
+为了避免Web应用被写入恶意的WebShell后门文件，RASP应当在Web应用启动后禁止任何动态脚本的写入操作。在任何与写入文件相关的Java底层方法执行前都应当检测写入的文件后缀是否合法。
+
+禁止写入如下类型的动态脚本文件：
+
+`jsp,jspx,jspa,jspf,asp,asa,cer,aspx,php`
+
+文件写入检测应当处理各类文件写入事件，如：`写文件、重命名文件、移动文件、移动目录`；RASP设置Hook点时也应当严格处理上述IO操作的类文件（一个都不能漏掉，漏掉一个几乎等于全功尽弃），如果新版本的JDK新增或修改了底层IO操作类应当做同步支持。
+
+
+
+#### 8.2.3 文件名和请求参数关联分析
+
+RASP应当分析Hook到的文件路径和请求参数的关联性，分析每一个参数是否对最终Hook到的文件路径有必然的关联关系。
+
+如传入的某个参数最终和Hook到的文件路径完全一致，那么应当立即禁止文件访问请求，因为即便用户请求的不是恶意文件也肯定是一个存在任意文件读取漏洞的业务功能，攻击者可以修改传入的参数实现读取服务器中的任意文件。
+
+
+
+## 9. Java 恶意文件访问审计建议
+
+在审计文件读取功能的时候要非常仔细，或许很容易就会有意想不到的收获！快速发现这类漏洞得方式其实也是非常简单的，在IDEA中的项目中重点搜下如下文件读取的类。
+
+1. **JDK原始的`java.io.FileInputStream`、`java.io.FileOutputStream`类**
+2. **JDK原始的`java.io.RandomAccessFile`类**
+3. **Apache Commons IO提供的`org.apache.commons.io.FileUtils`类**
+4. JDK1.7新增的基于NIO非阻塞异步读取文件的`java.nio.channels.AsynchronousFileChannel`类。
+5. JDK1.7新增的基于NIO读取文件的`java.nio.file.Files`类。常用方法如:`Files.readAllBytes`、`Files.readAllLines`
+6. `java.io.File`类的`list`、`listFiles`、`listRoots`、`delete`方法。
+
+如果仍没有什么发现可以搜索一下`FileUtil`很有可能用户会封装文件操作的工具类。
+
+## 10. Java 恶意文件访问总结
+
+首先，在Java中任意文件或目录恶意访问漏洞是一种非常常见的高危漏洞！多是因为程序内部逻辑错误或者过于信任用户传入的参数导致的。其次此类漏洞原理简单在渗透测试或代码审计时非常容易发现且漏洞影响重大，因为攻击者可以直接操纵服务器中的文件或目录，所以在程序开发过程中我们应该高度重视编码规范、程序逻辑严谨性防止该漏洞发生。

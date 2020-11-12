@@ -10,7 +10,6 @@
     * [Java 文件系统安全](javase/FileSystem/README.md)
         * [Java IO/NIO.2文件系统](javase/FileSystem/FileSystem.md)
         * [Java IO/NIO多种读写文件方式](javase/FileSystem/JavaReadAndWriteFile.md)
-        * [Java 文件或目录恶意访问漏洞](javase/FileSystem/JavaFileAccess.md)
         * [Java 文件名空字节截断漏洞](javase/FileSystem/JavaNullByteFileName.md)
     * [本地命令执行](javase/CommandExecution/README.md)
     * [JDBC](javase/JDBC/README.md)
