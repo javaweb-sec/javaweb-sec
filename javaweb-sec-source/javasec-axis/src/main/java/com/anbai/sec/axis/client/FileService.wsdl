@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions targetNamespace="http://localhost:8080/services/FileService"
+                  xmlns:impl="http://localhost:8080/services/FileService"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <!--WSDL created by Apache Axis version: 1.4
+    Built on Apr 22, 2006 (06:55:48 PDT)-->
+
+    <wsdl:message name="writeFileResponse">
+        <wsdl:part name="writeFileReturn" type="xsd:string"/>
+    </wsdl:message>
+
+    <wsdl:message name="writeFileRequest">
+        <wsdl:part name="path" type="xsd:string"/>
+        <wsdl:part name="content" type="xsd:string"/>
+    </wsdl:message>
+
+    <wsdl:message name="readFileRequest">
+        <wsdl:part name="path" type="xsd:string"/>
+    </wsdl:message>
+
+    <wsdl:message name="readFileResponse">
+        <wsdl:part name="readFileReturn" type="xsd:string"/>
+    </wsdl:message>
+
+    <wsdl:portType name="FileService">
+        <wsdl:operation name="readFile" parameterOrder="path">
+            <wsdl:input message="impl:readFileRequest" name="readFileRequest"/>
+            <wsdl:output message="impl:readFileResponse" name="readFileResponse"/>
+        </wsdl:operation>
+
+        <wsdl:operation name="writeFile" parameterOrder="path content">
+            <wsdl:input message="impl:writeFileRequest" name="writeFileRequest"/>
+            <wsdl:output message="impl:writeFileResponse" name="writeFileResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+
+    <wsdl:binding name="FileServiceSoapBinding" type="impl:FileService">
+        <wsdlsoap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+        <wsdl:operation name="readFile">
+            <wsdlsoap:operation soapAction=""/>
+            <wsdl:input name="readFileRequest">
+                <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+                               namespace="http://axis.codereview.javaweb.org" use="encoded"/>
+            </wsdl:input>
+            <wsdl:output name="readFileResponse">
+                <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+                               namespace="http://localhost:8080/services/FileService" use="encoded"/>
+            </wsdl:output>
+        </wsdl:operation>
+
+        <wsdl:operation name="writeFile">
+            <wsdlsoap:operation soapAction=""/>
+            <wsdl:input name="writeFileRequest">
+                <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+                               namespace="http://axis.codereview.javaweb.org" use="encoded"/>
+            </wsdl:input>
+            <wsdl:output name="writeFileResponse">
+                <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+                               namespace="http://localhost:8080/services/FileService" use="encoded"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <wsdl:service name="FileServiceService">
+        <wsdl:port binding="impl:FileServiceSoapBinding" name="FileService">
+            <wsdlsoap:address location="http://localhost:8080/services/FileService"/>
+        </wsdl:port>
+    </wsdl:service>
+
+</wsdl:definitions>
