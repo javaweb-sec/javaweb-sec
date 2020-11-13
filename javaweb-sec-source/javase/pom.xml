@@ -90,6 +90,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.anbai</groupId>
+            <artifactId>javasec-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
             <version>${druid.version}</version>

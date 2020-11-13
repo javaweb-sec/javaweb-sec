@@ -25,7 +25,7 @@
 </pre>
 ```
 
-攻击者通过向 `cmd` 参数传入恶意的代码即可在服务器上执行任意系统命令，请求：http://localhost:8000/modules/cmd/cmd.jsp?cmd=ls，如下图：
+攻击者通过向 `cmd` 参数传入恶意的代码即可在服务器上执行任意系统命令，请求：[http://localhost:8000/modules/cmd/cmd.jsp?cmd=ls](http://localhost:8000/modules/cmd/cmd.jsp?cmd=ls)，如下图：
 
 <img src="../../images/image-20200920232032191.png" alt="image-20200920232032191" style="zoom:50%;" />
 
@@ -129,10 +129,10 @@
 
 这部分对于 linux 和 windows 系统的攻击代码有所差异，但原理上一致。
 
-Linux系统，请求：http://localhost:8000/modules/cmd/linux-cmd.jsp?cmd=ls，如下图：
+Linux系统，请求：[http://localhost:8000/modules/cmd/linux-cmd.jsp?cmd=ls](http://localhost:8000/modules/cmd/linux-cmd.jsp?cmd=ls)，如下图：
 
 <img src="../../images/image-20200920232507347.png" alt="image-20200920232507347" style="zoom:50%;" />
 
-Windows系统，请求：http://localhost:8000/windows-cmd.jsp?cmd=cmd%20/c%20dir%20，如下图：
+Windows系统，请求：[http://localhost:8000/windows-cmd.jsp?cmd=cmd%20/c%20dir%20](http://localhost:8000/windows-cmd.jsp?cmd=cmd%20/c%20dir%20)，如下图：
 
 <img src="../../images/image-20200920233748774.png" alt="image-20200920233748774" style="zoom:50%;" />

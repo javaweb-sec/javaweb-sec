@@ -13,7 +13,7 @@
 
 ## 1. 任意文件读取
 
-任意文件读写漏洞即因为没有验证请求的资源文件是否合法导致的，此类漏洞在Java中有着较高的几率出现，任意文件读取漏洞原理很简单，但是在这个问题上翻车的有不乏一些知名的中间件:`Weblogic`、`Tomcat`、`Resin`又或者是主流MVC框架:`Spring MVC`、`Struts2`。
+任意文件读写漏洞即因为没有验证请求的资源文件是否合法导致的，此类漏洞在Java中有着较高的几率出现，任意文件读取漏洞原理很简单，但一些知名的中间件：`Weblogic`、`Tomcat`、`Resin`又或者是主流MVC框架:`Spring MVC`、`Struts2`都存在此类漏洞。
 
 示例-存在恶意文件读取漏洞代码：
 
@@ -41,7 +41,7 @@
 
 ### 1.1 同级目录任意文件读取漏洞测试
 
-攻击者通过传入恶意的`name`参数可以读取服务器中的任意文件:http://localhost:8000/modules/filesystem/FileInputStream.jsp?name=./index.jsp，如下图：
+攻击者通过传入恶意的`name`参数可以读取服务器中的任意文件:[http://localhost:8000/modules/filesystem/FileInputStream.jsp?name=./index.jsp](http://localhost:8000/modules/filesystem/FileInputStream.jsp?name=./index.jsp)，如下图：
 
 <img src="../../images/image-20200920222742568.png" alt="image-20200920222742568" style="zoom:50%;" />
 
@@ -49,9 +49,9 @@
 
 ### 1.2 读取WEB-INF/web.xml测试
 
-当攻击者通过传入恶意的`name`参数值为`WEB-INF/web.xml`时可以读取Web应用的配置信息，请求：http://localhost:8000/modules/filesystem/FileInputStream.jsp?name=WEB-INF/web.xml，如下图：
+当攻击者通过传入恶意的`name`参数值为`WEB-INF/web.xml`时可以读取Web应用的配置信息，请求：[http://localhost:8000/modules/filesystem/FileInputStream.jsp?name=WEB-INF/web.xml](http://localhost:8000/modules/filesystem/FileInputStream.jsp?name=WEB-INF/web.xml)，如下图：
 
-![image-20200920223143227](../../images/image-20200920223143227.png)
+<img src="../../images/image-20200920223143227.png" alt="image-20200920223143227" style="zoom:50%;" />
 
 
 
@@ -59,9 +59,9 @@
 
 开发人员通常使用文件名、文件后缀、文件目录进行拼接的方式来获取待操作文件的绝对路径并进行相关操作，在这种情况下，攻击者如果想要查看服务器中的其他目录，则会使用 `../` 进行目录的跨越，常使用的操作是跨越目录到服务根目录，再向下寻找文件。例如`../../../../../../../../etc/passwd`。
 
-请求：http://localhost:8000/modules/filesystem/FileInputStream.jsp?name=../../../../../../../../../../../../etc/passwd，如下图：
+请求：[http://localhost:8000/modules/filesystem/FileInputStream.jsp?name=../../../../../../../../../../../../etc/passwd](http://localhost:8000/modules/filesystem/FileInputStream.jsp?name=../../../../../../../../../../../../etc/passwd)，如下图：
 
-![image-20200920223741823](../../images/image-20200920223741823.png)
+<img src="../../images/image-20200920223741823.png" alt="image-20200920223741823" style="zoom:50%;" />
 
 
 
@@ -91,7 +91,7 @@
 
 攻击者可能期望跨目录写入文件，如写入 SSH KEY、写入计划任务等等方式进行进一步的攻击。
 
-请求：http://localhost:8000/modules/filesystem/file-w.jsp?f=../../a.rar&c=aaa，如下图：
+请求：[http://localhost:8000/modules/filesystem/file-w.jsp?f=../../a.rar&c=aaa](http://localhost:8000/modules/filesystem/file-w.jsp?f=../../a.rar&c=aaa)，如下图：
 
 <img src="../../images/image-20200920224145502.png" alt="image-20200920224145502" style="zoom:50%;" />
 
@@ -99,7 +99,7 @@
 
 ### 2.2 绝对路径写入文件测试
 
-攻击者通过传入恶意的参数`f`和`c`参数可以使用绝对路径在服务器上写入恶意的`WebShell`后门或其他文件，请求：http://localhost:8000/modules/filesystem/file-w.jsp?f=/tmp/2.txt&c=webshell，如下图：
+攻击者通过传入恶意的参数`f`和`c`参数可以使用绝对路径在服务器上写入恶意的`WebShell`后门或其他文件，请求：[http://localhost:8000/modules/filesystem/file-w.jsp?f=/tmp/2.txt&c=webshell](http://localhost:8000/modules/filesystem/file-w.jsp?f=/tmp/2.txt&c=webshell)，如下图：
 
 <img src="../../images/image-20200920224445145.png" alt="image-20200920224445145" style="zoom:50%;" />
 
@@ -183,7 +183,7 @@
 
 <img src="../../images/image-20200920225531504.png" alt="image-20200920225531504" style="zoom:50%;" />
 
-在实际环境中，应用系统可能根据需求在配置文件如`web.xml`中或代码层面如`filter`设置某些目录（如上传目录、资源目录等）禁止对 `.jsp` 脚本文件等可执行文件进行解析，因此，攻击者需要将恶意文件移动或复制到其他能够执行的目录进行解析。请求：http://localhost:8000/modules/filesystem/files-copy.jsp?source=/tmp/1.jsp&dest=/Users/yz/Desktop/apache-tomcat-8.5.31/webapps/ROOT/1.jsp，如下图：
+在实际环境中，应用系统可能根据需求在配置文件如`web.xml`中或代码层面如`filter`设置某些目录（如上传目录、资源目录等）禁止对 `.jsp` 脚本文件等可执行文件进行解析，因此，攻击者需要将恶意文件移动或复制到其他能够执行的目录进行解析。请求：[http://localhost:8000/modules/filesystem/files-copy.jsp?source=/tmp/1.jsp&dest=/Users/yz/Desktop/apache-tomcat-8.5.31/webapps/ROOT/1.jsp](http://localhost:8000/modules/filesystem/files-copy.jsp?source=/tmp/1.jsp&dest=/Users/yz/Desktop/apache-tomcat-8.5.31/webapps/ROOT/1.jsp)，如下图：
 
 ![image-20200920225852244](../../images/image-20200920225852244.png)
 
@@ -209,7 +209,7 @@
 %>
 ```
 
-攻击者传入恶意的`s`和`d`参数即可将文件名为`1.txt`的文本文件重命名为`1.jsp`可执行脚本文件，请求：http://localhost:8000/modules/filesystem/file-rename.jsp?s=/tmp/1.txt&d=/tmp/1.jsp，如下图：
+攻击者传入恶意的`s`和`d`参数即可将文件名为`1.txt`的文本文件重命名为`1.jsp`可执行脚本文件，请求：[http://localhost:8000/modules/filesystem/file-rename.jsp?s=/tmp/1.txt&d=/tmp/1.jsp](http://localhost:8000/modules/filesystem/file-rename.jsp?s=/tmp/1.txt&d=/tmp/1.jsp)，如下图：
 
 <img src="../../images/image-20200920230047497.png" alt="image-20200920230047497" style="zoom:50%;" />
 
@@ -242,7 +242,7 @@
 
 ### 6.1 相对目录遍历测试
 
-攻击者传入`dir`参数即可遍历出对应目录的所有文件，http://localhost:8000/modules/filesystem/file-list.jsp?dir=../，如下图：
+攻击者传入`dir`参数即可遍历出对应目录的所有文件，[http://localhost:8000/modules/filesystem/file-list.jsp?dir=../](http://localhost:8000/modules/filesystem/file-list.jsp?dir=../)，如下图：
 
 <img src="../../images/image-20200920230351094.png" alt="image-20200920230351094" style="zoom:60%;" />
 
@@ -252,7 +252,7 @@
 
 ### 6.2 绝对目录遍历测试
 
-当攻击者可以传入绝对路径进行攻击时，路径中将不会存在`../`等穿越目录特征，很多WAF将无法攻击阻拦，请求：http://localhost:8000/modules/filesystem/file-list.jsp?dir=/etc，如下图：
+当攻击者可以传入绝对路径进行攻击时，路径中将不会存在`../`等穿越目录特征，很多WAF将无法攻击阻拦，请求：[http://localhost:8000/modules/filesystem/file-list.jsp?dir=/etc](http://localhost:8000/modules/filesystem/file-list.jsp?dir=/etc)，如下图：
 
 <img src="../../images/image-20200920230839578.png" alt="image-20200920230839578" style="zoom:50%;" />
 
@@ -344,28 +344,39 @@
 
 RASP可以使用Agent机制实现Hook任意的Java类API，因此可以轻易的捕获到Java程序读取的任意文件路径。RASP可以将Hook到的文件路径和Http请求的参数进行关联分析，检测Java读取的文件路径是否会受到Http请求参数的控制，如果发现请求参数最终拼接到了文件路径中应当立即阻断文件访问行为，并记录攻击日志。
 
-**RASP防御思路：**
-
-<img src="../../images/image-20201112225033039.png" alt="image-20201112225033039" style="zoom:50%;" />
-
 为了提升RASP的防御能力，应当将Java SE中的所有与文件读写相关的最为底层的Java API类找出来，然后添加监视点。
 
 **Java底层操作IO的类API表（<=JDK14）**
 
-| 类名                                 | 类型       | 重要方法                                                     |
-| ------------------------------------ | ---------- | ------------------------------------------------------------ |
-| `java.io.FileSystem`                 | `java.io`  | `delete/list/createDirectory/rename/setLastModifiedTime/listRoots` |
-| `java.io.FileInputStream`            | `java.io`  | `open/read`                                                  |
-| `java.io.FileOutputStream`           | `java.io`  | `open/write`                                                 |
-| `java.io.RandomAccessFile`           | `java.io`  | `read/write/write`                                           |
-| `java.nio.channels.FileChannel`      | `java.nio` | `open/read/map/map`                                          |
-| `sun.nio.ch.FileDispatcher`          | `sun.nio`  | `read/pread/readv/write/pwrite/writev/seek`                  |
-| `sun.nio.ch.SocketDispatcher`        | `sun.nio`  | `read/readv/write/writev`                                    |
-| `sun.nio.ch.DatagramDispatcher`      | `sun.nio`  | `read/readv/write/writev`                                    |
-| `sun.nio.fs.UnixNativeDispatcher`    | `sun.nio`  | `fopen/read/write/getcwd/link/unlink/rename/mkdir/chown`     |
-| `sun.nio.fs.WindowsNativeDispatcher` | `sun.nio`  | `fopen/read/write/getcwd/link/unlink/rename/mkdir/chown`     |
-| `sun.nio.fs.UnixCopyFile`            | `sun.nio`  | `copy/copyDirectory/copyFile/move/copyLink/copySpecial/transfer` |
-| `sun.nio.ch.IOUtil`                  | `sun.nio`  | `read/write/randomBytes`                                     |
+| 类名                                 | 类型      | 重要方法                                                     |
+| ------------------------------------ | --------- | ------------------------------------------------------------ |
+| `java.io.WinNTFileSystem`            | `java.io` | `delete/list/createDirectory/rename/setLastModifiedTime/listRoots` |
+| `java.io.UnixFileSystem`             | `java.io` | `delete/list/createDirectory/rename/setLastModifiedTime/listRoots` |
+| `java.io.FileInputStream`            | `java.io` | `open/read`                                                  |
+| `java.io.FileOutputStream`           | `java.io` | `open/write`                                                 |
+| `java.io.RandomAccessFile`           | `java.io` | `read/write/seek`                                            |
+| `sun.nio.ch.FileChannelImpl`         | `sun.nio` | `open/read/map/transferTo0`                                  |
+| `sun.nio.ch.FileDispatcher`          | `sun.nio` | `read/pread/readv/write/pwrite/writev/seek`                  |
+| `sun.nio.ch.SocketDispatcher`        | `sun.nio` | `read/readv/write/writev`                                    |
+| `sun.nio.ch.DatagramDispatcher`      | `sun.nio` | `read/readv/write/writev`                                    |
+| `sun.nio.fs.UnixNativeDispatcher`    | `sun.nio` | `fopen/read/write/getcwd/link/unlink/rename/mkdir/chown`     |
+| `sun.nio.fs.WindowsNativeDispatcher` | `sun.nio` | `fopen/read/write/getcwd/link/unlink/rename/mkdir/chown`     |
+| `sun.nio.fs.UnixCopyFile`            | `sun.nio` | `copy/copyDirectory/copyFile/move/copyLink/copySpecial/transfer` |
+| `sun.nio.ch.IOUtil`                  | `sun.nio` | `read/write/randomBytes`                                     |
+
+**Java IO 底层API关系图**
+
+<img src="../../images/image-20201113121413510.png" alt="image-20201113121413510" style="zoom:50%;" />
+
+**RASP防御思路：**
+
+<img src="../../images/image-20201112225033039.png" alt="image-20201112225033039" style="zoom:50%;" />
+
+当RASP检测到恶意的文件访问后会立即阻断文件读取：
+
+<img src="../../images/image-20201113223619874.png" alt="image-20201113223619874" style="zoom:50%;" />
+
+
 
 #### 8.2.1 禁止文件名空字节访问
 
@@ -407,18 +418,24 @@ RASP应当分析Hook到的文件路径和请求参数的关联性，分析每一
 
 
 
+#### 8.2.4 文件名检测规则和黑名单
+
+攻击者在验证文件读取类漏洞时通常会使用一些常用的技巧和路径，如：`WEB-INF/web.xml`、`/etc/passwd`、`../../../../../../../etc/passwd`等。RASP应该有一些内置的黑名单和检测规则来防止黑客攻击。
+
+
+
 ## 9. Java 恶意文件访问审计建议
 
 在审计文件读取功能的时候要非常仔细，或许很容易就会有意想不到的收获！快速发现这类漏洞得方式其实也是非常简单的，在IDEA中的项目中重点搜下如下文件读取的类。
 
-1. **JDK原始的`java.io.FileInputStream`、`java.io.FileOutputStream`类**
-2. **JDK原始的`java.io.RandomAccessFile`类**
-3. **Apache Commons IO提供的`org.apache.commons.io.FileUtils`类**
-4. JDK1.7新增的基于NIO非阻塞异步读取文件的`java.nio.channels.AsynchronousFileChannel`类。
-5. JDK1.7新增的基于NIO读取文件的`java.nio.file.Files`类。常用方法如:`Files.readAllBytes`、`Files.readAllLines`
-6. `java.io.File`类的`list`、`listFiles`、`listRoots`、`delete`方法。
+1. **JDK原始的`java.io.FileInputStream`、`java.io.FileOutputStream`类**；
+2. **JDK原始的`java.io.RandomAccessFile`类**；
+3. **Apache Commons IO提供的`org.apache.commons.io.FileUtils`类**；
+4. JDK1.7新增的基于NIO非阻塞异步读取文件的`java.nio.channels.AsynchronousFileChannel`类；
+5. JDK1.7新增的基于NIO读取文件的`java.nio.file.Files`类。常用方法如:`Files.readAllBytes`、`Files.readAllLines`；
+6. `java.io.File`类的`list`、`listFiles`、`listRoots`、`delete`方法；
 
-如果仍没有什么发现可以搜索一下`FileUtil`很有可能用户会封装文件操作的工具类。
+除此之外，还可以搜索一下`FileUtil/FileUtils`很有可能用户会封装文件操作的工具类。
 
 ## 10. Java 恶意文件访问总结
 
