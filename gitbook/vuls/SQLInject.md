@@ -1,4 +1,4 @@
-# SQL注入防御漏洞
+# SQL注入漏洞
 
 SQL注入是网络攻击中最为常见的攻击方式，通过向服务器端发送恶意的SQL语句或SQL语句片段注入到服务器端的数据库查询逻辑中，改变原有的查询逻辑，从而实现类恶意读取服务器数据库数据，攻击者甚至可以利用数据库内部函数或缺陷`提升权限`，从而获取服务器权限。
 
@@ -239,6 +239,8 @@ SQL注入是网络攻击中最为常见的攻击方式，通过向服务器端�
 
 <img src="../images/image-20200920235726634.png" alt="image-20200920235726634" style="zoom:50%;" />
 
+
+
 ### 2.1 union select类型的SQL注入攻击测试
 
 攻击者在ID处构造并传入恶意的SQL注入语句后，可以轻松的读取出数据库信息，如将请求中的`id`参数值改为`100001 and 1=2 union select 1,2,user(),version(),database(),6`,服务器端将会返回数据库名称、请求：[http://localhost:8000/modules/jdbc/article.jsp?id=100001%20and%201=2%20union%20select%201,2,user(),version(),database(),6,7](http://localhost:8000/modules/jdbc/article.jsp?id=100001%20and%201=2%20union%20select%201,2,user(),version(),database(),6,7)，如下图：
@@ -246,6 +248,8 @@ SQL注入是网络攻击中最为常见的攻击方式，通过向服务器端�
 ![image-20200921000001434](../images/image-20200921000001434.png)
 
 由于攻击的Payload中包含了`union、select、user()、version()、database()`敏感关键字，大部分的`WAF`都能够识别此类SQL注入。
+
+
 
 ### 2.2 算数运算结果探测型攻击测试
 
@@ -273,7 +277,7 @@ SQL注入是网络攻击中最为常见的攻击方式，通过向服务器端�
 
 
 
-## 3. SQL注入-JSON传参测试
+## 3. SQL注入 - JSON传参测试
 
 **示例 - 存在SQL注入漏洞的代码示例(JSON传参方式)：**
 
@@ -366,7 +370,7 @@ SQL注入是网络攻击中最为常见的攻击方式，通过向服务器端�
 
 
 
-## 5. SQL注入 - Multipart
+## 4. SQL注入 - Multipart传参测试
 
 **示例 - 存在SQL注入漏洞的代码示例(Multipart传参方式)：**
 

@@ -53,7 +53,7 @@
 * [Java Web常见漏洞](vuls/README.md)
     * [恶意文件访问类漏洞](vuls/FileSystem.md)
     * [本地命令执行漏洞](vuls/CMD.md)
-    * [SQL注入防御漏洞](vuls/SQLInject.md)
+    * [SQL注入漏洞](vuls/SQLInject.md)
     * [任意文件上传漏洞](vuls/FileUpload.md)
     * [JNI攻击](vuls/JNI.md)
     * [Java反序列化漏洞](vuls/Deserialization.md)
