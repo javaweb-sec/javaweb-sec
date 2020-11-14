@@ -114,7 +114,7 @@ public class RMIClientTest {
 
 程序运行结果：`Hello RMI~`
 
-<img src="../../images/image-20201113194547079.png" alt="image-20201113194547079" style="zoom:50%;" />
+<img src="../images/image-20201113194547079.png" alt="image-20201113194547079" style="zoom:50%;" />
 
 上述示例演示了一个业务逻辑绝对的简单且安全RMI服务的正常业务流程，但是漏洞并不是出现在业务本身，而是Java的RMI服务和反序列化机制。
 
@@ -124,11 +124,11 @@ public class RMIClientTest {
 
 攻击者可以借助RMI协议，发送带有`Apache Commons Collections`反序列化攻击`Payload`的请求到RMI服务端，服务端一旦反序列化RMI客户端的请求就会触发攻击链，最终实现在远程的RMI服务器上执行任意系统命令。
 
-<img src="../../images/image-20201113204528201.png" alt="image-20201113204528201" style="zoom:50%;" />
+<img src="../images/image-20201113204528201.png" alt="image-20201113204528201" style="zoom:50%;" />
 
 发送在远程服务器上执行`open -a Calculator.app`（打开计算器）命令的攻击Payload：
 
-<img src="../../images/image-20201113205630930.png" alt="image-20201113205630930" style="zoom:50%;" />
+<img src="../images/image-20201113205630930.png" alt="image-20201113205630930" style="zoom:50%;" />
 
 请求成功后在RMI服务端成功的弹出了计算器，攻击成功。
 
@@ -142,17 +142,17 @@ public class RMIClientTest {
 
 ### 3.1 升级JDK版本
 
-从`JDK6u141`、`JDK7u131`、`JDK 8u121`开始引入了JEP 290，[JEP 290: Filter Incoming Serialization Data](http://openjdk.java.net/jeps/290)限制了RMI类反序列化，添加了安全过滤机制，在一定程度上组织了反序列化攻击。
+从`JDK6u141`、`JDK7u131`、`JDK 8u121`开始引入了JEP 290，[JEP 290: Filter Incoming Serialization Data](http://openjdk.java.net/jeps/290)限制了RMI类反序列化，添加了安全过滤机制，在一定程度上阻止了反序列化攻击。
 
-<img src="../../images/image-20201113211316664.png" alt="image-20201113211316664" style="zoom:50%;" />
+<img src="../images/image-20201113211316664.png" alt="image-20201113211316664" style="zoom:50%;" />
 
 `ObjectInputStream`在序列化对象时是会调用`java.io.ObjectInputStream#filterCheck`->`sun.rmi.registry.RegistryImpl#registryFilter`，检测合法性：
 
-<img src="../../images/image-20201113203150382.png" alt="image-20201113203150382" style="zoom:50%;" />
+<img src="../images/image-20201113203150382.png" alt="image-20201113203150382" style="zoom:50%;" />
 
 当攻击者向一个实现了`JEP 290`的服务端JDK发送反序列化对象时会攻击失败并抛出：`java.io.InvalidClassException: filter status: REJECTED`异常。
 
-<img src="../../images/image-20201113201005557.png" alt="image-20201113201005557" style="zoom:50%;" />
+<img src="../images/image-20201113201005557.png" alt="image-20201113201005557" style="zoom:50%;" />
 
 JDK9中`ObjectInputStream`可以设置`ObjectInputFilter`，可实现自定义对象过滤器，如下：
 
@@ -300,7 +300,7 @@ ois.readObject();
 
 反序列化包含恶意Payload的输入流时会抛出异常：
 
-<img src="../../images/image-20201113222313150.png" alt="image-20201113222313150" style="zoom:50%;" />
+<img src="../images/image-20201113222313150.png" alt="image-20201113222313150" style="zoom:50%;" />
 
 重写ObjectInputStream类方法虽然灵活，但是必须修改每一个需要反序列化输入流的实现类，比较繁琐。
 
@@ -330,7 +330,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
 
 **RASP防御反序列化攻击流程图：**
 
-<img src="../../images/image-20201113211451873.png" alt="image-20201113211451873" style="zoom:50%;" />
+<img src="../images/image-20201113211451873.png" alt="image-20201113211451873" style="zoom:50%;" />
 
 使用RASP检测反序列化攻击，可以不用受制于请求协议、服务、框架等，检测规则可实时更新，从而程度上实现反序列化攻击防御。
 
@@ -351,9 +351,9 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
 
 在使用RASP防御的情况下请求示例程序后Java会执行`Runtime.getRuntime().exec("whoami");`，如下图：
 
-<img src="../../images/image-20201113225456270.png" alt="image-20201113225456270" style="zoom:50%;" />
+<img src="../images/image-20201113225456270.png" alt="image-20201113225456270" style="zoom:50%;" />
 
 当启动RASP后再次请求示例程序后会发现示例程序已无法正常访问，因为当RASP发现正在反序列化的类存在恶意攻击时候会立即阻断反序列化行为，如下图：
 
-<img src="../../images/image-20201113223111183.png" alt="image-20201113223111183" style="zoom:50%;" />
+<img src="../images/image-20201113223111183.png" alt="image-20201113223111183" style="zoom:50%;" />
 

@@ -6,7 +6,7 @@ Web应用通常都会包含文件上传功能，用户可以将其本地的文�
 
 `Apache commons-fileupload`是一个非常常用的文件上传解析库，`Spring MVC`、`Struts2`、`Tomcat`等底层处理文件上传请求都是使用的这个库，所以`RASP`必须能够支持使用`Apache commons-fileupload`库解析的文件上传请求。
 
-示例-`Apache commons-fileupload`：
+**示例 - 文件上传：**
 
 ```jsp
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -92,15 +92,15 @@ Web应用通常都会包含文件上传功能，用户可以将其本地的文�
 </pre>
 ```
 
-因为Web应用未检测用户上传的文件合法性导致了任意文件上传漏洞，访问：http://localhost:8000/modules/servlet/fileupload/file-upload.jsp，并选择一个恶意的jsp后门(示例上传的是一个本地命令执行的后门):
+因为Web应用未检测用户上传的文件合法性导致了任意文件上传漏洞，访问：[http://localhost:8000/modules/servlet/fileupload/file-upload.jsp](http://localhost:8000/modules/servlet/fileupload/file-upload.jsp)，并选择一个恶意的jsp后门(示例上传的是一个本地命令执行的后门):
 
-<img src="../../images/image-20200921003740246.png" alt="image-20200921003740246" style="zoom:50%;" />
+<img src="../images/image-20200921003740246.png" alt="image-20200921003740246" style="zoom:50%;" />
 
 后门成功的写入到了网站目录：
 
-![image-20200921003719254](../../images/image-20200921003719254.png)
+![image-20200921003719254](../images/image-20200921003719254.png)
 
-访问命令执行后门测试：http://localhost:8000/uploads/cmd.jsp?cmd=ls，如下图：
+访问命令执行后门测试：[http://localhost:8000/uploads/cmd.jsp?cmd=ls](http://localhost:8000/uploads/cmd.jsp?cmd=ls)，如下图：
 
-<img src="../../images/image-20200921003841786.png" alt="image-20200921003841786" style="zoom:50%;" />
+<img src="../images/image-20200921003841786.png" alt="image-20200921003841786" style="zoom:50%;" />
 

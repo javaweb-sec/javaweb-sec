@@ -27,7 +27,7 @@
 
 攻击者通过向 `cmd` 参数传入恶意的代码即可在服务器上执行任意系统命令，请求：[http://localhost:8000/modules/cmd/cmd.jsp?cmd=ls](http://localhost:8000/modules/cmd/cmd.jsp?cmd=ls)，如下图：
 
-<img src="../../images/image-20200920232032191.png" alt="image-20200920232032191" style="zoom:50%;" />
+<img src="../images/image-20200920232032191.png" alt="image-20200920232032191" style="zoom:50%;" />
 
 由于传入的`cmd`参数仅仅是一个两位的英文字母，传统的WAF基本都不具备对该类型的攻击检测，所以如果没有RASP的本地命令执行防御会导致攻击者可以在服务器中执行恶意的命令从而控制服务器。
 
@@ -131,8 +131,8 @@
 
 Linux系统，请求：[http://localhost:8000/modules/cmd/linux-cmd.jsp?cmd=ls](http://localhost:8000/modules/cmd/linux-cmd.jsp?cmd=ls)，如下图：
 
-<img src="../../images/image-20200920232507347.png" alt="image-20200920232507347" style="zoom:50%;" />
+<img src="../images/image-20200920232507347.png" alt="image-20200920232507347" style="zoom:50%;" />
 
 Windows系统，请求：[http://localhost:8000/windows-cmd.jsp?cmd=cmd%20/c%20dir%20](http://localhost:8000/windows-cmd.jsp?cmd=cmd%20/c%20dir%20)，如下图：
 
-<img src="../../images/image-20200920233748774.png" alt="image-20200920233748774" style="zoom:50%;" />
+<img src="../images/image-20200920233748774.png" alt="image-20200920233748774" style="zoom:50%;" />

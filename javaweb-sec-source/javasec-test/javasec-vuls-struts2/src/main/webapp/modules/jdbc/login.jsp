@@ -54,7 +54,7 @@
             Class.forName("com.mysql.jdbc.Driver");
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/javaweb-bbs", "root", "root");
 
-            String sql = "select id,username,password from sys_user where username = '" + username + "' and password = '" + password + "'";
+            String sql = "select id,username,password from sys_user where username = '' and password = ''";
             System.out.println(sql);
 
             rs = connection.prepareStatement(sql).executeQuery();

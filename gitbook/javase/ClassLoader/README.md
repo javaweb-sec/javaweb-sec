@@ -34,7 +34,7 @@ public class TestHelloWorld {
 
 我们可以通过JDK自带的`javap`命令反汇编`TestHelloWorld.class`文件对应的`com.anbai.sec.classloader.TestHelloWorld`类，以及使用Linux自带的`hexdump`命令查看`TestHelloWorld.class`文件二进制内容：
 
-<img src="../../images/image-20191217171821663.png" alt="image-20191217171821663" style="zoom:50%;" />
+![image-20191217171821663](../../images/image-20191217171821663.png)
 
 JVM在执行`TestHelloWorld`之前会先解析class二进制内容，JVM执行的其实就是如上`javap`命令生成的字节码(`ByteCode`)。
 

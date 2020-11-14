@@ -88,7 +88,16 @@ javah生成的头文件中的函数命名方式是有非常强制性的约束的
 
 参考如下类型对照表:
 
-![img](../../images/jni-type.png)
+| Java类型 | JNI类型  | C/C++类型      | 大小       |
+| :------- | :------- | :------------- | :--------- |
+| Boolean  | Jblloean | unsigned char  | 无符号8位  |
+| Byte     | Jbyte    | char           | 有符号8位  |
+| Char     | Jchar    | unsigned short | 无符号16位 |
+| Short    | Jshort   | short          | 有符号16位 |
+| Int      | Jint     | int            | 有符号32位 |
+| Long     | Jlong    | long long      | 有符号64位 |
+| Float    | Jfloat   | float          | 32位       |
+| Double   | Jdouble  | double         | 64位       |
 
 jstring转char*：`env->GetStringUTFChars(str, &jsCopy)`
 
@@ -97,6 +106,8 @@ char*转jstring: `env->NewStringUTF("Hello...")`
 字符串资源释放: `env->ReleaseStringUTFChars(javaString, p);`
 
 其他知识点参考：[jni中java与原生代码通信规则](https://blog.csdn.net/qq_25722767/article/details/52557235)
+
+
 
 ## JNI-编写C/C++本地命令执行实现
 
