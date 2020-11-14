@@ -660,13 +660,13 @@ public class SQLInjectionController {
 
 
 
-## 4. SQL注入修复
+## 5. SQL注入修复
 
 为了避免SQL注入攻击的产生，需要严格检查请求参数的合法性或使用预编译，请参考JDBC章节中的JDBC SQL注入防御方案。
 
 
 
-### 4.1 RASP SQL注入防御
+### 5.1 RASP SQL注入防御
 
 在Java中，所有的数据库读写操作都需要使用JDBC驱动来实现，JDBC规范中定义了数据库查询的接口，不同的数据库厂商通过实现JDBC定义的接口来实现数据库的连接、查询等操作。
 
@@ -674,7 +674,7 @@ RASP是基于行为的方式来实现SQL注入检测的，如果请求的参数�
 
 
 
-#### 4.1.1 java.sql.Connection/Statement接口Hook
+#### 5.1.1 java.sql.Connection/Statement接口Hook
 
 虽然每种数据库的驱动包的类名都不一样，但是它们都必须实现JDBC接口，所以我们可以利用这一特点，使用RASP Hook JDBC数据库查询的接口类：`java.sql.Connection`、`java.sql.Statement`。
 
@@ -791,7 +791,7 @@ public class ConnectionImpl extends ConnectionPropertiesImpl implements MySQLCon
 
 
 
-#### 4.1.2 RASP SQL注入防御原理
+#### 5.1.2 RASP SQL注入防御原理
 
 RASP和WAF防御SQL注入能力有着本质上的区别，不管WAF如何的吹捧人工智能、机器学习它们都无法精确的识别SQL注入攻击，因为在WAF层面根本就无法判定传入的参数最终会不会拼接到SQL语句中，甚至连后端有没有用数据库都不知道，所以WAF的识别误报率高也就是不可避免的了。
 
@@ -809,7 +809,7 @@ RASP通过词法解析可以得出SQL语句中使用的数据库函数、表名�
 
 
 
-#### 4.1.3 基于SQL词法解析实现防御测试
+#### 5.1.3 基于SQL词法解析实现防御测试
 
 灵蜥使用了SQL词法解析来检测SQL注入漏洞或攻击，对于SQL注入的检测能力精确而有效，比如可以轻松的识别出函数和算数运算类的SQL注入攻击，如图：
 
@@ -817,7 +817,7 @@ RASP通过词法解析可以得出SQL语句中使用的数据库函数、表名�
 
 RASP可以识别出参数id中的`100001-1`会在数据库中做算术运算，因为会被RASP拦截，通常攻击者非常喜欢使用这种方式来探测是否存在SQL注入，传统的WAF因为根本识别这个参数的具体业务含义，从而无法识别此类SQL注入攻击。
 
-#### 4.1.4 RASP对JSON、Multipart请求的支持
+#### 5.1.4 RASP对JSON、Multipart请求的支持
 
 处理传统的GET/POST参数传递以外，`json`、`multipart`和`web service`是目前后端开发最为常用的参数传递方式，标准的Web容器默认是不会解析这几类请求参数的，而主流的MVC框架（如：`Spring MVC`）具备了解析这几类请求参数的能力。
 
