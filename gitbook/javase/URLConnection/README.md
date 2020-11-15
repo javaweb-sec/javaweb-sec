@@ -1,6 +1,6 @@
 # URLConnection
 
-@Auth: [iiusky](https://www.03sec.com)
+@Author: [iiusky](https://www.03sec.com)
 
 在java中，Java抽象出来了一个`URLConnection`类，它用来表示应用程序以及与URL建立通信连接的所有类的超类，通过`URL`类中的`openConnection`方法获取到`URLConnection`的类对象。
 
@@ -62,7 +62,8 @@ public class URLConnectionDemo {
 这是一个基本的请求到响应的过程。
 
 ## SSRF
->SSRF(Server-side Request Forge, 服务端请求伪造)。
+
+> SSRF(Server-side Request Forge, 服务端请求伪造)。
 由攻击者构造的攻击链接传给服务端执行造成的漏洞，一般用来在外网探测或攻击内网服务。
 
 SSRF漏洞形成的原因大部分是因为服务端提供了可以从其他服务器获取资源的功能，然而并没有对用户的输入以及发起请求的url进行过滤&限制，从而导致了ssrf的漏洞。
@@ -77,6 +78,7 @@ SSRF漏洞形成的原因大部分是因为服务端提供了可以从其他服�
 
 
 黑客在使用ssrf漏洞的时候，大部分是用来读取文件内容或者对内网服务端口探测，或者在域环境情况下且是win主机下进行ntlmrelay攻击。
+
 ```
 URL url = new URL(url);
 URLConnection connection = url.openConnection();
@@ -93,6 +95,7 @@ while ((line = in.readLine()) != null) {
 
 System.out.print(response.toString());
 ```
+
 比如上面代码中的`url`可控，那么将url参数传入为`file:///etc/passwd`
 
 ```
@@ -101,15 +104,19 @@ URLConnection connection = url.openConnection();
 connection.connect();
 ...
 ```
+
 以上代码运行以后则会读取本地`/etc/passwd`文件的内容。
 
 <img src="../../images/file_read_passwd.jpg" alt="file_read_passwd.jpg" style="zoom:50%;" />
 
 但是如果上述代码中将`url.openConnection()`返回的对象强转为`HttpURLConnection`，则会抛出如下异常
+
 ```
 Exception in thread "main" java.lang.ClassCastException: sun.net.www.protocol.file.FileURLConnection cannot be cast to java.net.HttpURLConnection
 ```
+
 由此看来，ssrf漏洞也对使用不同类发起的url请求也是有所区别的，如果是`URLConnection|URL`发起的请求，那么对于上文中所提到的所有`protocol`都支持，但是如果经过二次包装或者其他的一些类发出的请求，比如
+
 ```
 HttpURLConnection
 HttpClient
@@ -117,6 +124,7 @@ Request
 okhttp
 ……
 ```
+
 那么只支持发起`http|https`协议，否则会抛出异常。
 
 如果传入的是`http://192.168.xx.xx:80`，且`192.168.xx.xx`的`80`端口存在的，则会将其网页源码输出出来
@@ -126,6 +134,7 @@ okhttp
 但如果是非web端口的服务，则会爆出`Invalid Http response` 或`Connection reset`异常。如果能将此异常抛出来，那么就可以对内网所有服务端口进行探测。
 
 java中默认对(http|https)做了一些事情，比如:
+
 - 默认启用了透明NTLM认证
 - 默认跟随跳转
 
