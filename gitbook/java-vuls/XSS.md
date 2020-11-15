@@ -20,7 +20,7 @@
 <script>alert('xss');</script>
 ```
 
-浏览器请求：[http://localhost:8000/modules/servlet/xss.jsp?input=%3Cscript%3Ealert(%27xss%27);%3C/script%3E](http://localhost:8000/modules/servlet/xss.jsp?input=%3Cscript%3Ealert(%27xss%27);%3C/script%3E)
+浏览器请求：[http://localhost:8000/modules/servlet/xss.jsp?input=%3Cscript%3Ealert(%27xss%27)%3B%3C/script%3E](http://localhost:8000/modules/servlet/xss.jsp?input=%3Cscript%3Ealert(%27xss%27);%3C/script%3E)
 
 <img src="../images/image-20201115123227812.png" alt="image-20201115123227812" style="zoom:50%;" />
 
