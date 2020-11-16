@@ -6,7 +6,7 @@
 
 ## 1. Java本地命令执行测试
 
-示例-存在本地命令执行代码(`java.lang.Runtime`)：
+**示例 - 存在本地命令执行代码(`java.lang.Runtime`)：**
 
 ```jsp
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -37,7 +37,7 @@
 
 ## 2. 深层调用命令执行测试
 
-示例-存在本地命令执行代码(`java.lang.UNIXProcess`)：
+**示例 - 存在本地命令执行代码(`java.lang.UNIXProcess`)：**
 
 ```jsp
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -99,7 +99,7 @@
 </pre>
 ```
 
-示例-存在本地命令执行代码(`java.lang.ProcessImpl`)：
+**示例 - 存在本地命令执行代码(`java.lang.ProcessImpl`)：**
 
 ```jsp
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>

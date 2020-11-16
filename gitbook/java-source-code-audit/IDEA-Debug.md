@@ -49,7 +49,7 @@ java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 Test
 
 假设我们有需要调试的应用程序代码，我们可以直接在Java类上设置断点即可调试。
 
-示例-Test.java：
+**示例 - Test.java：**
 
 ```java
 /**
@@ -103,11 +103,11 @@ drwxr-xr-x  5 yz  staff  160 May 19 16:57 ..
 
 添加`jar`到`IDEA`的`classpath`，可以直接选择jar目录或者jar文件然后右键`Add as Library`，也可以选择项目以外的目录或者jar文件。
 
-示例-直接选择项目中的jar：
+**示例 - 直接选择项目中的jar：**
 
 <img src="../images/image-20200519172506843.png" alt="image-20200519172506843" style="zoom:50%;" />
 
-示例-选择项目以外的jar：
+**示例 - 选择项目以外的jar：**
 
 ![image-20200519173445416](../images/image-20200519173445416.png)
 

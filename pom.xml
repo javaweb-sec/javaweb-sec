@@ -27,6 +27,7 @@
         <mvel2.version>2.4.0.Final</mvel2.version>
         <fastjson.version>1.2.47</fastjson.version>
         <commons-io.version>2.6</commons-io.version>
+        <javax.mail.version>1.4.7</javax.mail.version>
         <freemarker.version>2.3.23</freemarker.version>
         <commons-lang.version>2.6</commons-lang.version>
         <javassist.version>3.27.0-GA</javassist.version>

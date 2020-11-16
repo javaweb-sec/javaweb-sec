@@ -10,7 +10,7 @@
         ServletFileUpload fileUpload       = new ServletFileUpload();
         FileItemIterator  fileItemIterator = fileUpload.getItemIterator(request);
 
-        String dir       = request.getServletContext().getRealPath("/uploads/");
+        String dir       = request.getSession().getServletContext().getRealPath("/uploads/");
         File   uploadDir = new File(dir);
 
         if (!uploadDir.exists()) {

@@ -19,6 +19,7 @@
         <mysql.version>5.1.48</mysql.version>
         <jsoup.version>1.12.1</jsoup.version>
         <javaweb.version>2.0.2</javaweb.version>
+        <javax.mail.version>1.4.7</javax.mail.version>
         <commons-codec.version>1.15</commons-codec.version>
         <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
         <commons-collections.version>3.2.2</commons-collections.version>
@@ -87,6 +88,12 @@
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
             <version>${commons-collections.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>${javax.mail.version}</version>
         </dependency>
 
     </dependencies>

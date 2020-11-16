@@ -15,7 +15,7 @@
 
 任意文件读写漏洞即因为没有验证请求的资源文件是否合法导致的，此类漏洞在Java中有着较高的几率出现，任意文件读取漏洞原理很简单，但一些知名的中间件：`Weblogic`、`Tomcat`、`Resin`又或者是主流MVC框架:`Spring MVC`、`Struts2`都存在此类漏洞。
 
-示例-存在恶意文件读取漏洞代码：
+**示例 - 存在恶意文件读取漏洞代码：**
 
 ```jsp
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -67,7 +67,7 @@
 
 ## 2. 写文件
 
-示例-存在恶意文件写入漏洞的代码：
+示例 - 存在恶意文件写入漏洞的代码：
 
 ```jsp
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -87,7 +87,7 @@
 
 
 
-### 跨目录写入文件测试
+### 2.1 跨目录写入文件测试
 
 攻击者可能期望跨目录写入文件，如写入 SSH KEY、写入计划任务等等方式进行进一步的攻击。
 
@@ -109,7 +109,7 @@
 
 ### 3.1 任意文件删除测试
 
-示例-存在任意文件删除漏洞代码：
+**示例 - 存在任意文件删除漏洞代码：**
 
 ```jsp
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -128,7 +128,7 @@
 
 ### 3.2 FileSystem任意文件删除测试
 
-示例-存在任意文件删除漏洞代码：
+**示例 - 存在任意文件删除漏洞代码：**
 
 ```jsp
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -158,7 +158,7 @@
 
 ## 4. 文件/目录复制、移动
 
-示例-存在任意文件复制漏洞代码：
+**示例 - 存在任意文件复制漏洞代码：**
 
 ```jsp
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -191,7 +191,7 @@
 
 ## 5. 重命名文件
 
-示例-存在文件名重命名漏洞代码：
+**示例 - 存在文件名重命名漏洞代码：**
 
 ```jsp
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -221,7 +221,7 @@
 
 任意目录遍历漏洞顾名思义攻击者可以通过漏洞遍历出服务器操作系统中的任意目录文件名，从而导致服务器敏感信息泄漏，某些场景下(如遍历出网站日志、备份文件、管理后台等)甚至可能会导致服务器被非法入侵。
 
-示例-存在任意目录遍历代码：
+**示例 - 存在任意目录遍历代码：**
 
 ```jsp
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -260,7 +260,7 @@
 
 ### 7.1 使用NIO任意文件读取漏洞测试
 
-示例-存在任意文件读取的NIO.2代码：
+**示例 - 存在任意文件读取的NIO.2代码：**
 
 ```jsp
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -406,7 +406,7 @@ private static boolean nullByteValid(File file) {
 
 `jsp,jspx,jspa,jspf,asp,asa,cer,aspx,php`
 
-文件写入检测应当处理各类文件写入事件，如：`写文件、重命名文件、移动文件、移动目录`；RASP设置Hook点时也应当严格处理上述IO操作的类文件（一个都不能漏掉，漏掉一个几乎等于全功尽弃），如果新版本的JDK新增或修改了底层IO操作类应当做同步支持。
+文件写入检测应当处理各类文件写入事件，如：`写文件、重命名文件、复制/移动文件、移动目录`；RASP设置Hook点时也应当严格处理上述IO操作的类文件（一个都不能漏掉，漏掉一个几乎等于全功尽弃），如果新版本的JDK新增或修改了底层IO操作类应当做同步支持。
 
 
 

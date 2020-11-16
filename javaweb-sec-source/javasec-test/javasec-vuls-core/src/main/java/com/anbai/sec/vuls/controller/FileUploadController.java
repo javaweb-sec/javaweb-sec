@@ -1,16 +1,15 @@
-package com.anbai.sec.blog.controller;
+package com.anbai.sec.vuls.controller;
 
-import com.anbai.sec.blog.commons.SearchCondition;
-import com.anbai.sec.blog.service.BlogService;
 import org.javaweb.utils.FileUtils;
+import org.javaweb.utils.HttpServletResponseUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -19,25 +18,27 @@ import java.util.Map;
 import static org.javaweb.utils.HttpServletRequestUtils.getDocumentRoot;
 
 @Controller
-public class BlogController {
+@RequestMapping("/FileUpload/")
+public class FileUploadController {
 
-	@Resource
-	private BlogService blogService;
-
-	@RequestMapping("/")
-	public String index(Integer p, Integer cat, Integer pid, SearchCondition condition, HttpServletRequest request) {
-		request.setAttribute("categories", blogService.getSysPostsCategoryByParentId(0));
-		request.setAttribute("sub_categories", blogService.getSysPostsCategoryByParentIdNotEqual(0));
-		request.setAttribute("sys_config", blogService.getSysConfig());
-
-		if (p == null) {
-			request.setAttribute("links", blogService.getAllSysLinks());
-			request.setAttribute("pages", blogService.searchSysPost(cat, pid, condition));
-			return "/index.html";
-		} else {
-			request.setAttribute("post", blogService.getSysPostsById(p));
-			return "/article.html";
-		}
+	@RequestMapping("/upload.php")
+	public void uploadPage(HttpServletResponse response) {
+		HttpServletResponseUtils.responseHTML(response, "<!DOCTYPE html>\n" +
+				"<html lang=\"en\">\n" +
+				"<head>\n" +
+				"    <meta charset=\"UTF-8\">\n" +
+				"    <title>File upload</title>\n" +
+				"</head>\n" +
+				"<body>\n" +
+				"<form action=\"/FileUpload/upload.do\" enctype=\"multipart/form-data\" method=\"post\">\n" +
+				"    <p>\n" +
+				"        用户名: <input name=\"username\" type=\"text\"/>\n" +
+				"        文件: <input id=\"file\" name=\"file\" type=\"file\"/>\n" +
+				"    </p>\n" +
+				"    <input name=\"submit\" type=\"submit\" value=\"Submit\"/>\n" +
+				"</form>\n" +
+				"</body>\n" +
+				"</html>");
 	}
 
 	@ResponseBody
@@ -47,20 +48,11 @@ public class BlogController {
 		String filePath   = "uploads/" + username + "/" + file.getOriginalFilename();
 		File   uploadFile = new File(getDocumentRoot(request), filePath);
 
-		// 上传文件对象
-		Map<String, Object> jsonMap = new LinkedHashMap<String, Object>();
-
 		// 上传目录
 		File uploadDir = uploadFile.getParentFile();
 
-		// 获取文件后缀
-		String suffix = FileUtils.getFileSuffix(uploadFile.getName());
-
-		if (suffix.contains("jsp")) {
-			jsonMap.put("info", "非法的文件格式！");
-
-			return jsonMap;
-		}
+		// 上传文件对象
+		Map<String, Object> jsonMap = new LinkedHashMap<String, Object>();
 
 		if (!uploadDir.exists()) {
 			uploadDir.mkdirs();
@@ -77,6 +69,5 @@ public class BlogController {
 
 		return jsonMap;
 	}
-
 
 }
