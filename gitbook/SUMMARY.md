@@ -52,11 +52,11 @@
 -----
 * [Java Web常见漏洞](java-vuls/README.md)
     * [文件访问类漏洞](java-vuls/FileSystem.md)
+    * [任意文件上传漏洞](java-vuls/FileUpload.md)
     * [SQL注入漏洞](java-vuls/SQLInject.md)
     * [XSS漏洞](java-vuls/XSS.md)
     * [Java反序列化漏洞](java-vuls/Deserialization.md)
     * [本地命令执行漏洞](java-vuls/CMD.md)
-    * [任意文件上传漏洞](java-vuls/FileUpload.md)
     * [JNI攻击](java-vuls/JNI.md)
 
 -----

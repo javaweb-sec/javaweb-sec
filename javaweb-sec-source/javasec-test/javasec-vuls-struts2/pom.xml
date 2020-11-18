@@ -17,8 +17,8 @@
         <java.version>1.7</java.version>
         <struts.version>2.1.8</struts.version>
         <tomcat.version>6.0.36</tomcat.version>
-        <jsp-api.version>2.3.1</jsp-api.version>
-        <servlet-api.version>2.4</servlet-api.version>
+        <jsp-api.version>2.3.3</jsp-api.version>
+        <servlet-api.version>3.0.1</servlet-api.version>
     </properties>
 
     <dependencies>
@@ -84,9 +84,16 @@
             </exclusions>
         </dependency>
 
+<!--        <dependency>-->
+<!--            <groupId>javax.servlet</groupId>-->
+<!--            <artifactId>servlet-api</artifactId>-->
+<!--            <version>${servlet-api.version}</version>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
+
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <artifactId>javax.servlet-api</artifactId>
             <version>${servlet-api.version}</version>
             <scope>provided</scope>
         </dependency>

@@ -519,10 +519,6 @@ SQL注入是网络攻击中最为常见的攻击方式，通过向服务器端�
 
 <img src="../images/image-20201114210148830.png" alt="image-20201114210148830" style="zoom:50%;" />
 
-在2013年左右，测试过非常多的WAF都不支持Multipart解析，当时经常使用Multipart请求方式来绕过WAF。Multipart所以使用请求与普通的GET/POST参数传输有非常大的区别，因为Multipart请求需要后端Web应用解析该请求包，Web容器也不会解析Multipart请求。WAF可能会解析Multipart但是很多时候可以直接绕过，比如很多WAF无法处理一个数据量较大的Multipart请求或者解析Multipart时不标准导致绕过。
-
-在PHP中默认会解析Multipart请求，也就是说我们除了可以以GET/POST方式传参，还可以使用发送Multipart请求，后端一样可以接受到Multipart中的参数。在Java的MVC框架中Spring MVC、Struts2等实现了和PHP类似的功能，当框架发现请求方式是Multipart时就会主动的解析并将解析结果封装到`HttpServletRequest`中。
-
 **Spring MVC Multipart请求解析示例**
 
 ```java

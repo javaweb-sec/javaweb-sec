@@ -9,6 +9,8 @@ import com.anbai.sec.vuls.entity.SysUser;
 import org.javaweb.utils.FileUtils;
 import org.javaweb.utils.HttpServletResponseUtils;
 import org.javaweb.utils.StringUtils;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,6 +42,9 @@ public class IndexController {
 
 	@Resource
 	private SysArticleDAO sysArticleDAO;
+
+	@Resource
+	private JdbcTemplate jdbcTemplate;
 
 	@RequestMapping("/")
 	public String indexPage() {
@@ -161,6 +166,15 @@ public class IndexController {
 		request.setAttribute("article", article);
 
 		return "/html/jie/detail.html";
+	}
+
+	@ResponseBody
+	@RequestMapping("/getArticleById.php")
+	public SysArticle getArticleByID(String id) {
+		return jdbcTemplate.queryForObject(
+				"select * from sys_article where id = " + id,
+				BeanPropertyRowMapper.newInstance(SysArticle.class)
+		);
 	}
 
 	@ResponseBody
