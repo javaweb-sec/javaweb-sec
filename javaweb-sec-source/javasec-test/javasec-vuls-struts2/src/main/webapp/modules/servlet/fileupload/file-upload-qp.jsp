@@ -2,8 +2,8 @@
 <%@ page import="javax.mail.internet.MimeUtility" %>
 <%
     String qp = request.getParameter("qp");
-    String encode = MimeUtility.encodeText(qp);
-    String decode = MimeUtility.decodeText(encode);
+    String encode = MimeUtility.encodeWord(qp);
+    String decode = MimeUtility.decodeWord(encode);
 
     out.println("<pre>\nQP-Encoding: " + encode + "\nQP-Decode: " + decode);
 %>

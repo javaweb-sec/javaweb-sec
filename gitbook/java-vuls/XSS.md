@@ -151,7 +151,7 @@ XSS攻击测试：[http://localhost:8000/modules/servlet/dom.jsp?date=%3Cimg%20s
 
 
 
-## 4. XXS防御
+## 4. XSS防御
 
 XSS最为常见的处理方式是转义特殊字符，后端程序在接受任何用户输入的参数时都应当优先考虑是否会存在XSS攻击。
 

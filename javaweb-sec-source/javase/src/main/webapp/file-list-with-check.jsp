@@ -18,7 +18,7 @@
         File dir = new File(dirStr);
 
         // 获取文件绝对路径，转换成标准的文件路径
-        String fileDir = (dir.getAbsoluteFile().getCanonicalFile() + "/").replace("\\\\", "").replaceAll("/+", "/");
+        String fileDir = (dir.getAbsoluteFile().getCanonicalFile() + "/").replace("\\\\", "/").replaceAll("/+", "/");
         out.println("<h3>" + fileDir + "</h3>");
 
         // 检查当前用户传入的目录是否包含在系统限定的目录下

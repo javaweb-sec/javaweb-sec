@@ -401,8 +401,8 @@ public class FileUploadController {
 <%@ page import="javax.mail.internet.MimeUtility" %>
 <%
     String qp = request.getParameter("qp");
-    String encode = MimeUtility.encodeText(qp);
-    String decode = MimeUtility.decodeText(encode);
+    String encode = MimeUtility.encodeWord(qp);
+    String decode = MimeUtility.decodeWord(encode);
 
     out.println("<pre>\nQP-Encoding: " + encode + "\nQP-Decode: " + decode);
 %>
@@ -410,7 +410,7 @@ public class FileUploadController {
 
 字符串：`测试.jsp`编码后的结果如下：
 
-<img src="../images/image-20201116180124678.png" alt="image-20201116180124678" style="zoom:50%;" />
+<img src="../images/image-20201119110638971.png" alt="image-20201119110638971" style="zoom:50%;" />
 
 QP编码本与文件上传没有什么关系，但是由于在Java中最常用的[Apache commons fileupload](http://commons.apache.org/proper/commons-fileupload/)库从1.3开始支持了[RFC 2047](https://www.ietf.org/rfc/rfc2047.txt) Header值编码，从而支持解析使用QP编码后的文件名。
 
