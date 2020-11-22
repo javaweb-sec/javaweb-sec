@@ -43,7 +43,7 @@ java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 Test
 
 这个时候程序会处于等待状态（光标会一致闪烁，等待远程连接）：
 
-![image-20200519171103826](../images/image-20200519171103826.png)
+<img src="../images/image-20200519171103826.png" alt="image-20200519171103826" style="zoom:50%;" />
 
 ### 4.1 有源码调试
 

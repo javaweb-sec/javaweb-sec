@@ -21,6 +21,7 @@
         <module>javasec-bincat</module>
         <module>javasec-test</module>
         <module>javasec-rasp</module>
+        <module>javasec-axis</module>
     </modules>
 
 </project>
