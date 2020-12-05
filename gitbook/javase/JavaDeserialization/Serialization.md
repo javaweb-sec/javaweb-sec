@@ -1,13 +1,13 @@
 # Java 序列化/反序列化
 
-在Java中实现对象反序列化非常简单，实现`java.io.Serializable(内部序列化)`或`java.io.Externalizable(外部序列化)`接口即可被序列化(`Externalizable`接口只是实现了`java.io.Serializable`接口)。
+在Java中实现对象反序列化非常简单，实现`java.io.Serializable(内部序列化)`或`java.io.Externalizable(外部序列化)`接口即可被序列化，其中`java.io.Externalizable`接口只是实现了`java.io.Serializable`接口。
 
 反序列化类对象时有如下限制：
 
 1. 被反序列化的类必须存在。
 2. `serialVersionUID`值必须一致。
 
-除此之外，**反序列化类对象是不会调用该类构造方法**的，因为在反序列化创建类实例时使用了`sun.reflect.ReflectionFactory.newConstructorForSerialization`创建了一个反序列化专用的`Constructor(反射构造方法对象)`，使用这个特殊的`Constructor`可以绕过构造方法创建类实例(前面章节讲` sun.misc.Unsafe` 的时候我们提到了使用`allocateInstance`方法也可以实现绕过构造方法创建类实例)。
+除此之外，**反序列化类对象是不会调用该类构造方法**的，因为在反序列化创建类实例时使用了`sun.reflect.ReflectionFactory.newConstructorForSerialization`创建了一个反序列化专用的`Constructor(反射构造方法对象)`，使用这个特殊的`Constructor`可以绕过构造方法创建类实例(前面章节讲`sun.misc.Unsafe` 的时候我们提到了使用`allocateInstance`方法也可以实现绕过构造方法创建类实例)。
 
 **使用反序列化方式创建类实例代码片段：**
 
@@ -224,7 +224,7 @@ ExternalizableTest类反序列化后的字符串:��sr+com.anbai.sec.seriali
 
 ### 自定义序列化(writeObject)和反序列化(readObject)
 
-实现了`java.io.Serializable`接口的类还可以定义如下方法(`反序列化魔术方法`)将会在类序列化和反序列化过程中调用：
+实现了`java.io.Serializable`接口的类，还可以定义如下方法(`反序列化魔术方法`)，这些方法将会在类序列化或反序列化过程中调用：
 
 1. **`private void writeObject(ObjectOutputStream oos)`,自定义序列化。**
 2. **`private void readObject(ObjectInputStream ois)`，自定义反序列化。**
@@ -232,7 +232,7 @@ ExternalizableTest类反序列化后的字符串:��sr+com.anbai.sec.seriali
 4. `protected Object writeReplace()`，写入时替换对象。
 5. `protected Object readResolve()`。
 
-具体的方法名定义在`java.io.ObjectStreamClass#ObjectStreamClass(java.lang.Class<?>)`方法有详细的声明。
+具体的方法名定义在`java.io.ObjectStreamClass#ObjectStreamClass(java.lang.Class<?>)`，其中方法有详细的声明。
 
 **序列化时可自定义的方法示例代码：**
 
@@ -292,4 +292,4 @@ public class DeserializationTest implements Serializable {
 }
 ```
 
-当我们序列化`DeserializationTest`类时，会自动调用(反射)该类的`writeObject(ObjectOutputStream oos)`方法,反序列化时候也会自动调用`readObject(ObjectInputStream)`方法，也就是说我们可以通过在需要序列化/反序列化的类中定义`readObject`和`writeObject`方法从而实现自定义的序列化和反序列化操作，和当然前提是被序列化的类必须有此方法且方法的修饰符必须是`private`。
+当我们对`DeserializationTest`类进行序列化操作时，会自动调用(反射调用)该类的`writeObject(ObjectOutputStream oos)`方法,对其进行反序列化操作时也会自动调用该类的`readObject(ObjectInputStream)`方法，也就是说我们可以通过在待**序列化或反序列化的类中定义`readObject`和`writeObject`方法，来实现自定义的序列化和反序列化操作**，当然前提是，被序列化的类必须有此方法，并且方法的修饰符必须是`private`。
