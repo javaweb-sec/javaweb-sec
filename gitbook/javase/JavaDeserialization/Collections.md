@@ -2,9 +2,46 @@
 
 `Apache Commons`是`Apache`开源的Java通用类项目在Java中项目中被广泛的使用，`Apache Commons`当中有一个组件叫做`Apache Commons Collections`，主要封装了Java的`Collection(集合)`相关类对象。本节将逐步详解`Collections`反序列化攻击链(仅以`TransformedMap`调用链为示例)最终实现反序列化`RCE`。
 
+
+通过接口实现查询，能获取到 ConstantTransformer、invokerTransformer、ChainedTransformer、TransformedMap 这些类均实现了 Transformer接口
+
+## ConstantTransformer
+
+`ConstantTransformer`类是`Transformer`接口的实现类，其中`ConstantTransformer`类重写了接口类的`transformer`方法
+
+```java
+public class ClosureTransformer implements Transformer, Serializable {
+    private static final long serialVersionUID = 478466901448617286L;
+    private final Closure iClosure;
+
+    public static Transformer getInstance(Closure closure) {
+        if (closure == null) {
+            throw new IllegalArgumentException("Closure must not be null");
+        } else {
+            return new ClosureTransformer(closure);
+        }
+    }
+
+    public ClosureTransformer(Closure closure) {
+        this.iClosure = closure;
+    }
+
+    public Object transform(Object input) {
+        this.iClosure.execute(input);
+        return input;
+    }
+
+    public Closure getClosure() {
+        return this.iClosure;
+    }
+}
+```
+
+通过`ConstantTransformer`类的`transform`方法获取一个对象类型，如`transform`参数是`Runtime.class`时，调用`ConstantTransformer`类的`transform`方法，执行后返回`java.lang.Runtime`类
+
 ## InvokerTransformer
 
-在`Collections`中提供了一个非常重要的类: `org.apache.commons.collections.functors.InvokerTransformer`，这个类实现了:`java.io.Serializable`接口。2015年有研究者发现利用`InvokerTransformer`类的`transform`方法可以实现Java反序列化`RCE`，并提供了利用方法:[CommonsCollections1.java](https://github.com/frohoff/ysoserial/blob/master/src/main/java/ysoserial/payloads/CommonsCollections1.java)。
+在`Collections`组件中提供了一个非常重要的类: `org.apache.commons.collections.functors.InvokerTransformer`，这个类实现了:`java.io.Serializable`接口。2015年有研究者发现利用`InvokerTransformer`类的`transform`方法可以实现Java反序列化`RCE`，并提供了利用方法:[CommonsCollections1.java](https://github.com/frohoff/ysoserial/blob/master/src/main/java/ysoserial/payloads/CommonsCollections1.java)。
 
 `InvokerTransformer`类实现了`org.apache.commons.collections.Transformer`接口,`Transformer`提供了一个对象转换方法：`transform`，主要用于将输入对象转换为输出对象。`InvokerTransformer`类的主要作用就是利用Java反射机制来创建类实例。
 
@@ -106,6 +143,7 @@ public static void main(String[] args) {
   	transformedChain.transform(null);
 }
 ```
+
 
 通过构建`ChainedTransformer`调用链我们最终会使用`InvokerTransformer`来完成反射调用`Runtime.getRuntime().exec(cmd)`的逻辑。
 
