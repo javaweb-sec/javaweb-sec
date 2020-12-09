@@ -1,6 +1,6 @@
 # Java Agent
 
-Java Agent和普通的Java类并没有任何区别，普通的Java程序中规定了`main`方法为程序入口，而Java Agent则将`premain`（Agent模式）和`agentmain`（Attach模式）作为了Agent程序的入口，两则所接受的参数是完全一致的，如下：
+Java Agent和普通的Java类并没有任何区别，普通的Java程序中规定了`main`方法为程序入口，而Java Agent则将`premain`（Agent模式）和`agentmain`（Attach模式）作为了Agent程序的入口，两者所接受的参数是完全一致的，如下：
 
 ```java
 public static void premain(String args, Instrumentation inst) {}
