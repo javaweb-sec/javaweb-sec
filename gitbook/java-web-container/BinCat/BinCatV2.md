@@ -1,4 +1,4 @@
-# BinCat V2-简单解析请求参数
+# BinCat V2 - 简单解析请求参数
 
 V2版本我们需要支持请求参数解析以及简单的HTML页面渲染功能。
 
@@ -236,8 +236,8 @@ public class BinCatServerV2 {
 
 访问Web服务测试[http://localhost:8080](http://localhost:8080):
 
-![image-20200909214652771](../../images/image-20200909214652771.png)
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200909214652771.png" alt="image-20200909214652771" style="zoom:50%;" />
 
 提交登陆表单测试：
 
-![image-20200909214804184](../../images/image-20200909214804184.png)
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200909214804184.png" alt="image-20200909214804184" style="zoom:50%;" />

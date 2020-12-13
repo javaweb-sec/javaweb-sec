@@ -1,6 +1,6 @@
 # Apache Tomcat
 
-![tomcat](../../images/tomcat-1541484.png)
+![tomcat](https://javasec.oss-cn-hongkong.aliyuncs.com/images/tomcat-1541484.png)
 
 Apache Tomcat软件是` Java Servlet`、`JavaServer Pages`、`Java Expression Language` 和` Java WebSocket` 技术的开源实现。Tomcat由于其自身简单、稳定、开源等特征，在中小型系统和并发量小的场景下被普遍使用，有极大的用户使用量。
 

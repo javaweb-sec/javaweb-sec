@@ -16,7 +16,7 @@
 
 **javax.servlet.http.HttpServlet类:**
 
-<img src="../../images/14.png" alt="img" style="zoom:50%;" />
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/14.png" alt="img" style="zoom:50%;" />
 
 ### **TestServlet示例代码:**
 
@@ -55,7 +55,7 @@ public class TestServlet extends HttpServlet {
 
 **请求`TestServlet`示例:**
 
-<img src="../../images/image-20191214150238924.png" alt="image-20191214150238924" style="zoom:50%;" />
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191214150238924.png" alt="image-20191214150238924" style="zoom:50%;" />
 
 ### Servlet Web.xml配置
 
@@ -63,7 +63,7 @@ public class TestServlet extends HttpServlet {
 
 **基于配置实现的Servlet：**
 
-<img src="../../images/image-20191214142745856.png" alt="image-20191214142745856" style="zoom: 40%;" />
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191214142745856.png" alt="image-20191214142745856" style="zoom: 40%;" />
 
 
 
@@ -75,7 +75,7 @@ public class TestServlet extends HttpServlet {
 
 基于注解的方式配置Servlet实质上是对基于`web.xml`方式配置的简化，极大的简化了Servlet的配置方式，但是也提升了对Servlet配置管理的难度，因为我们不得不去查找所有包含了`@WebServlet`注解的类来寻找Servlet的定义，而不再只是查看`web.xml`中的`servlet`标签配置。
 
-<img src="../../images/15.png" alt="15" style="zoom:50%;" />
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/15.png" alt="15" style="zoom:50%;" />
 
 ## Servlet 3.0 特性
 

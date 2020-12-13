@@ -220,27 +220,27 @@ public class FileService {
 
 使用IDEA创建`Web Service`项目默认会创建管理`Web Service`的API:`/servlet/AxisServlet`、`/services`、`SOAPMonitor`、`/servlet/AdminServlet`，`*.jws`以及用监控`Web Service`的端口`5001`或`5101`。
 
-<img src="../../images/image-20201112113542471.png" alt="image-20201112113542471" style="zoom:50%;" />
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201112113542471.png" alt="image-20201112113542471" style="zoom:50%;" />
 
 访问`Web Service`的`FileService`服务加上`?wsdl`参数可以看到`FileService`提供的服务方法和具体的参数信息。
 
-<img src="../../images/image-20201112113717152.png" alt="image-20201112113717152" style="zoom:50%;" />
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201112113717152.png" alt="image-20201112113717152" style="zoom:50%;" />
 
 使用SOAP-UI调用`Web Service`接口示例：
 
-![24](../../images/24.png)
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/24.png" alt="24" style="zoom:50%;" />
 
 需要注意的是`Web Service`也是可以设置授权认证的,如实现了`WS-Security`的`WSS4J`。
 
-![29](../../images/29.png)
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/29.png" alt="29" style="zoom:50%;" />
 
 使用IDEA根据wsdl生成`Web Service`客户端代码：
 
-<img src="../../images/image-20201112114841669.png" alt="image-20201112114841669" style="zoom:50%;" />
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201112114841669.png" alt="image-20201112114841669" style="zoom:50%;" />
 
 设置wsdl地址、包名:
 
-<img src="../../images/image-20201112114951164.png" alt="image-20201112114951164" style="zoom:50%;" />
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201112114951164.png" alt="image-20201112114951164" style="zoom:50%;" />
 
 新建`FileServiceTest`类测试接口调用:
 
@@ -278,4 +278,3 @@ public class FileServiceTest {
 1. [axis2 利用小工具cat.aar](http://javaweb.org/?p=1548)
 2. [Axis1.4框架 实现webservice服务器和客户端](https://www.cnblogs.com/dls-java/p/5038128.html)
 3. [使用IDEA根据wsdl生成WebServices客户端代码-Java](https://blog.csdn.net/vfsdfdsf/article/details/80426276)
-

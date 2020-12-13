@@ -6,7 +6,7 @@
 
 Java中URLConnection支持的协议可以在`sun.net.www.protocol`看到。
 
-<img src="../../images/protocol.jpg" alt="protocol.jpg" style="zoom:50%;" />
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/protocol.jpg" alt="protocol.jpg" style="zoom:50%;" />
 
 由上图可以看到，支持的协议有以下几个(当前jdk版本:1.7.0_80):
 
@@ -107,7 +107,7 @@ connection.connect();
 
 以上代码运行以后则会读取本地`/etc/passwd`文件的内容。
 
-<img src="../../images/file_read_passwd.jpg" alt="file_read_passwd.jpg" style="zoom:50%;" />
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/file_read_passwd.jpg" alt="file_read_passwd.jpg" style="zoom:50%;" />
 
 但是如果上述代码中将`url.openConnection()`返回的对象强转为`HttpURLConnection`，则会抛出如下异常
 
@@ -129,7 +129,7 @@ okhttp
 
 如果传入的是`http://192.168.xx.xx:80`，且`192.168.xx.xx`的`80`端口存在的，则会将其网页源码输出出来
 
-<img src="../../images/url_connection_get_web_port.jpg" alt="url_connection_get_web_port.jpg" style="zoom:50%;" />
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/url_connection_get_web_port.jpg" alt="url_connection_get_web_port.jpg" style="zoom:50%;" />
 
 但如果是非web端口的服务，则会爆出`Invalid Http response` 或`Connection reset`异常。如果能将此异常抛出来，那么就可以对内网所有服务端口进行探测。
 
@@ -141,7 +141,7 @@ java中默认对(http|https)做了一些事情，比如:
 关于NTLM认证的过程这边不在复述，大家可以看该文章[《Ghidra 从 XXE 到 RCE》](https://xlab.tencent.com/cn/2019/03/18/ghidra-from-xxe-to-rce/)
 默认跟随跳转这其中有一个坑点，就是
 
-<img src="../../images/follow_redirect.jpg" alt="follow_redirect.jpg" style="zoom:50%;" />
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/follow_redirect.jpg" alt="follow_redirect.jpg" style="zoom:50%;" />
 
 它会对跟随跳转的url进行协议判断，所以Java的SSRF漏洞利用方式整体比较有限。
 
