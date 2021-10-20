@@ -1,6 +1,6 @@
-# ClassLoader(类加载机制)
+# ClassLoader（类加载机制）
 
-Java是一个依赖于`JVM`(Java虚拟机)实现的跨平台的开发语言。Java程序在运行前需要先编译成`class文件`，Java类初始化的时候会调用`java.lang.ClassLoader`加载类字节码，`ClassLoader`会调用JVM的native方法(`defineClass0/1/2`)来定义一个`java.lang.Class`实例。
+Java是一个依赖于`JVM`（Java虚拟机）实现的跨平台的开发语言。Java程序在运行前需要先编译成`class文件`，Java类初始化的时候会调用`java.lang.ClassLoader`加载类字节码，`ClassLoader`会调用JVM的native方法（`defineClass0/1/2`）来定义一个`java.lang.Class`实例。
 
 **JVM架构图：**
 
@@ -36,21 +36,25 @@ public class TestHelloWorld {
 
 <img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191217171821663.png" alt="image-20191217171821663" style="zoom:50%;" />
 
-JVM在执行`TestHelloWorld`之前会先解析class二进制内容，JVM执行的其实就是如上`javap`命令生成的字节码(`ByteCode`)。
+JVM在执行`TestHelloWorld`之前会先解析class二进制内容，JVM执行的其实就是如上`javap`命令生成的字节码。
+
+
 
 ## ClassLoader
 
-一切的Java类都必须经过JVM加载后才能运行，而`ClassLoader`的主要作用就是Java类文件的加载。在JVM类加载器中最顶层的是`Bootstrap ClassLoader(引导类加载器)`、`Extension ClassLoader(扩展类加载器)`、`App ClassLoader(系统类加载器)`，`AppClassLoader`是默认的类加载器，如果类加载时我们不指定类加载器的情况下，默认会使用`AppClassLoader`加载类，`ClassLoader.getSystemClassLoader()`返回的系统类加载器也是`AppClassLoader`。
+一切的Java类都必须经过JVM加载后才能运行，而`ClassLoader`的主要作用就是Java类文件的加载。在JVM类加载器中最顶层的是`Bootstrap ClassLoader（引导类加载器）`、`Extension ClassLoader（扩展类加载器）`、`App ClassLoader（系统类加载器）`，`AppClassLoader`是默认的类加载器，如果类加载时我们不指定类加载器的情况下，默认会使用`AppClassLoader`加载类，`ClassLoader.getSystemClassLoader()`返回的系统类加载器也是`AppClassLoader`。
 
-值得注意的是某些时候我们获取一个类的类加载器时候可能会返回一个`null`值，如:`java.io.File.class.getClassLoader()`将返回一个`null`对象，因为`java.io.File`类在JVM初始化的时候会被`Bootstrap ClassLoader(引导类加载器)`加载(该类加载器实现于JVM层，采用C++编写)，我们在尝试获取被`Bootstrap ClassLoader`类加载器所加载的类的`ClassLoader`时候都会返回`null`。
+值得注意的是某些时候我们获取一个类的类加载器时候可能会返回一个`null`值，如:`java.io.File.class.getClassLoader()`将返回一个`null`对象，因为`java.io.File`类在JVM初始化的时候会被`Bootstrap ClassLoader（引导类加载器）`加载（该类加载器实现于JVM层，采用C++编写），我们在尝试获取被`Bootstrap ClassLoader`类加载器所加载的类的`ClassLoader`时候都会返回`null`。
 
 `ClassLoader`类有如下核心方法：
 
-1. `loadClass`(加载指定的Java类)
-2. `findClass`(查找指定的Java类)
-3. `findLoadedClass`(查找JVM已经加载过的类)
-4. `defineClass`(定义一个Java类)
-5. `resolveClass`(链接指定的Java类)
+1. `loadClass`（加载指定的Java类）
+2. `findClass`（查找指定的Java类）
+3. `findLoadedClass`（查找JVM已经加载过的类）
+4. `defineClass`（定义一个Java类）
+5. `resolveClass`（链接指定的Java类）
+
+
 
 ## Java类动态加载方式
 
@@ -68,6 +72,8 @@ this.getClass().getClassLoader().loadClass("com.anbai.sec.classloader.TestHelloW
 
 `Class.forName("类名")`默认会初始化被加载类的静态属性和方法，如果不希望初始化类可以使用`Class.forName("类名", 是否初始化类, 类加载器)`，而`ClassLoader.loadClass`默认不会初始化类方法。
 
+
+
 ## ClassLoader类加载流程
 
 理解Java类加载机制并非易事，这里我们以一个Java的HelloWorld来学习`ClassLoader`。
@@ -76,17 +82,19 @@ this.getClass().getClassLoader().loadClass("com.anbai.sec.classloader.TestHelloW
 
 1. `ClassLoader`会调用`public Class<?> loadClass(String name)`方法加载`com.anbai.sec.classloader.TestHelloWorld`类。
 2. 调用`findLoadedClass`方法检查`TestHelloWorld`类是否已经初始化，如果JVM已初始化过该类则直接返回类对象。
-3. 如果创建当前`ClassLoader`时传入了父类加载器(`new ClassLoader(父类加载器)`)就使用父类加载器加载`TestHelloWorld`类，否则使用JVM的`Bootstrap ClassLoader`加载。
+3. 如果创建当前`ClassLoader`时传入了父类加载器（`new ClassLoader(父类加载器)`）就使用父类加载器加载`TestHelloWorld`类，否则使用JVM的`Bootstrap ClassLoader`加载。
 4. 如果上一步无法加载`TestHelloWorld`类，那么调用自身的`findClass`方法尝试加载`TestHelloWorld`类。
 5. 如果当前的`ClassLoader`没有重写了`findClass`方法，那么直接返回类加载失败异常。如果当前类重写了`findClass`方法并通过传入的`com.anbai.sec.classloader.TestHelloWorld`类名找到了对应的类字节码，那么应该调用`defineClass`方法去JVM中注册该类。
-6. 如果调用loadClass的时候传入的`resolve`参数为true，那么还需要调用`resolveClass`方法链接类,默认为false。
+6. 如果调用loadClass的时候传入的`resolve`参数为true，那么还需要调用`resolveClass`方法链接类，默认为false。
 7. 返回一个被JVM加载后的`java.lang.Class`类对象。
+
+
 
 ## 自定义ClassLoader
 
 `java.lang.ClassLoader`是所有的类加载器的父类，`java.lang.ClassLoader`有非常多的子类加载器，比如我们用于加载jar包的`java.net.URLClassLoader`其本身通过继承`java.lang.ClassLoader`类，重写了`findClass`方法从而实现了加载目录class文件甚至是远程资源文件。
 
-既然已知ClassLoader具备了加载类的能力，那么我们不妨尝试下写一个自己的类加载器来实现加载自定义的字节码(这里以加载`TestHelloWorld`类为例)并调用`hello`方法。
+既然已知ClassLoader具备了加载类的能力，那么我们不妨尝试下写一个自己的类加载器来实现加载自定义的字节码（这里以加载`TestHelloWorld`类为例）并调用`hello`方法。
 
 如果`com.anbai.sec.classloader.TestHelloWorld`类存在的情况下，我们可以使用如下代码即可实现调用`hello`方法并输出：
 
@@ -170,7 +178,9 @@ public class TestClassLoader extends ClassLoader {
 }
 ```
 
-利用自定义类加载器我们可以在webshell中实现加载并调用自己编译的类对象，比如本地命令执行漏洞调用自定义类字节码的native方法绕过RASP检测，也可以用于加密重要的Java类字节码(只能算弱加密了)。
+利用自定义类加载器我们可以在webshell中实现加载并调用自己编译的类对象，比如本地命令执行漏洞调用自定义类字节码的native方法绕过RASP检测，也可以用于加密重要的Java类字节码（只能算弱加密了）。
+
+
 
 ## URLClassLoader
 
@@ -179,6 +189,8 @@ public class TestClassLoader extends ClassLoader {
 **TestURLClassLoader.java示例：**
 
 ```java
+package com.anbai.sec.classloader;
+
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
@@ -193,7 +205,7 @@ public class TestURLClassLoader {
 	public static void main(String[] args) {
 		try {
 			// 定义远程加载的jar路径
-			URL url = new URL("https://javaweb.org/tools/cmd.jar");
+			URL url = new URL("https://anbai.io/tools/cmd.jar");
 
 			// 创建URLClassLoader对象，并加载远程jar包
 			URLClassLoader ucl = new URLClassLoader(new URL[]{url});
@@ -256,6 +268,25 @@ javaweb-sec.iml
 jni
 pom.xml
 ```
+
+
+
+## BCEL ClassLoader
+
+[BCEL](https://commons.apache.org/proper/commons-bcel/)（`Apache Commons BCEL™`）是一个用于分析、创建和操纵Java类文件的工具库。BCEL的类加载器在解析类名时会对ClassName中有`$$BCEL$$`标识的类做特殊处理，该特性经常被用于编写各类Payload。
+
+**BCEL编码：**
+
+```java
+private static final byte[] CLASS_BYTES = new byte[]{类字节码byte数组}];
+
+// BCEL编码类字节码
+String className = "$$BCEL$$" + com.sun.org.apache.bcel.internal.classfile.Utility.encode(CLASS_BYTES, true);
+```
+
+编码后的类名：`$$BCEL$$$l$8b$I$A$A$A$A$A$A$A$85S$dbn$d......`，BCEL会对类字节码进行编码，
+
+
 
 ## ClassLoader总结
 

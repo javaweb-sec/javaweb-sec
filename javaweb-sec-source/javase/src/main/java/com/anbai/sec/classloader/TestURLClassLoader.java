@@ -14,7 +14,7 @@ public class TestURLClassLoader {
 	public static void main(String[] args) {
 		try {
 			// 定义远程加载的jar路径
-			URL url = new URL("https://javaweb.org/tools/cmd.jar");
+			URL url = new URL("https://anbai.io/tools/cmd.jar");
 
 			// 创建URLClassLoader对象，并加载远程jar包
 			URLClassLoader ucl = new URLClassLoader(new URL[]{url});

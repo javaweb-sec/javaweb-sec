@@ -1,17 +1,23 @@
-# 一、简介
-fastjson 是阿里巴巴的开源 JSON 解析库，它可以解析 JSON 格式的字符串，支持将 Java Bean 序列化为 JSON 字符串，也可以从 JSON 字符串反序列化到 JavaBean。
-由于其特点是快，以性能为优势快速占领了大量用户，并且其 API 十分简洁，用户量十分庞大，这也就导致了这样的组件一旦爆出漏洞，危害也将会是巨大的，因此，fastjson 从第一次报告安全漏洞至今，进行了若干次的安全更新，也与安全研究人员进行了来来回回多次的安全补丁-绕过的流程。本文随是一篇漏洞学习水文，但胜在记录详细，并将会持续进行更新。
+## 一、Fastjson简介
 
-# 二、fastjson 使用
-使用 fastjson 无非是将类转为 json 字符串或解析 json 转为 JavaBean。
+Fastjson 是阿里巴巴的开源 JSON 解析库，它可以解析 JSON 格式的字符串，支持将 Java Bean 序列化为 JSON 字符串，也可以从 JSON 字符串反序列化到 JavaBean，Fastjson不但性能好而且API非常简单易用，所以用户基数巨大，一旦爆出漏洞其影响对于使用了Fastjson的Web应用来说是毁灭性的。
 
-## 1. 将类转为 json
+
+
+## 二、Fastjson 使用
+使用 Fastjson 无非是将类转为 json 字符串或解析 json 转为 JavaBean。
+
+
+
+### 1. 将类转为 json
 在这里我们最常用的方法就是 `JSON.toJSONString()` ，该方法有若干重载方法，带有不同的参数，其中常用的包括以下几个：
 - 序列化特性：`com.alibaba.fastjson.serializer.SerializerFeature`，可以通过设置多个特性到 `FastjsonConfig` 中全局使用，也可以在使用具体方法中指定特性。
 - 序列化过滤器：`com.alibaba.fastjson.serializer.SerializeFilter`，这是一个接口，通过配置它的子接口或者实现类就可以以扩展编程的方式实现定制序列化。
 - 序列化时的配置：`com.alibaba.fastjson.serializer.SerializeConfig` ，可以添加特点类型自定义的序列化配置。
 
-## 2. 将 json 反序列化为类
+
+
+### 2. 将 json 反序列化为类
 将 json 数据反序列化时常使用的方法为`parse()`、`parseObject()`、`parseArray()`，这三个方法也均包含若干重载方法，带有不同参数：
 - 反序列化特性：`com.alibaba.fastjson.parser.Feature`，
 - 类的类型：`java.lang.reflect.Type`，用来执行反序列化类的类型。
@@ -30,9 +36,11 @@ fastjson 是阿里巴巴的开源 JSON 解析库，它可以解析 JSON 格式�
 - fastjson 在为类属性寻找 get/set 方法时，调用函数 `com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer#smartMatch()` 方法，会忽略 `_|-` 字符串，也就是说哪怕你的字段名叫 `_a_g_e_`，getter 方法为 `getAge()`，fastjson 也可以找得到，在 1.2.36 版本及后续版本还可以支持同时使用 `_` 和 `-` 进行组合混淆。
 - fastjson 在反序列化时，如果 Field 类型为 `byte[]`，将会调用`com.alibaba.fastjson.parser.JSONScanner#bytesValue` 进行 base64 解码，对应的，在序列化时也会进行 base64 编码。
 
-# 三、漏洞分析
 
-## 1. fastjson-1.2.24
+
+## 三、漏洞分析
+
+### 1. fastjson-1.2.24
 
 在2017年3月15日，fastjson官方主动爆出在 1.2.24 及之前版本存在远程代码执行高危安全漏洞。
 > 影响版本：`fastjson <= 1.2.24`
@@ -109,7 +117,7 @@ JdbcRowSetImpl 类位于 `com.sun.rowset.JdbcRowSetImpl` ，这条漏洞利用�
 }
 ```
 
-## 2. fastjson-1.2.25
+### 2. fastjson-1.2.25
 
 在版本 1.2.25 中，官方对之前的反序列化漏洞进行了修复，引入了 checkAutoType 安全机制，默认情况下 autoTypeSupport 关闭，不能直接反序列化任意类，而打开 AutoType 之后，是基于内置黑名单来实现安全的，fastjson 也提供了添加黑名单的接口。
 
@@ -175,7 +183,7 @@ org.springframework
 }
 ```
 
-## 3. fastjson-1.2.42
+### 3. fastjson-1.2.42
 
 在版本 1.2.42 中，fastjson 继续延续了黑白名单的检测模式，但是将黑名单类从白名单修改为使用 HASH 的方式进行对比，这是为了防止安全研究人员根据黑名单中的类进行反向研究，用来对未更新的历史版本进行攻击。同时，作者对之前版本一直存在的使用类描述符绕过黑名单校验的问题尝试进行了修复。
 
@@ -198,7 +206,7 @@ org.springframework
 }
 ```
 
-## 4. fastjson-1.2.43
+### 4. fastjson-1.2.43
 
 这个版本主要是修复上一个版本中双写绕过的问题。
 
@@ -221,7 +229,7 @@ org.springframework
 }
 ```
 
-## 5. fastjson-1.2.44
+### 5. fastjson-1.2.44
 
 这个版本主要是修复上一个版本中使用 `[` 绕过黑名单防护的问题。
 
@@ -233,7 +241,7 @@ org.springframework
 ![](../images/1616475393707.png)
 
 
-## 6. fastjson-1.2.45
+### 6. fastjson-1.2.45
 
 在此版本爆出了一个黑名单绕过，实际上，黑名单是无穷无尽的，随着 fastjson 的版本更新，一定会有更多的黑名单爆出来，因为隔壁 jackson 都是明文黑名单的，只要隔壁一更新，大家都看到了，就会拿来看 fastjson。
 
@@ -249,7 +257,7 @@ org.springframework
 }
 ```
 
-## 7. fastjson-1.2.47
+### 7. fastjson-1.2.47
 
 在 fastjson 不断迭代到 1.2.47 时，爆出了最为严重的漏洞，可以在不开启 AutoTypeSupport 的情况下进行反序列化的利用。
 
@@ -546,7 +554,7 @@ public static Class<?> loadClass(String className, ClassLoader classLoader, bool
 }
 ```
 
-## 8. fastjson-1.2.68
+### 8. fastjson-1.2.68
 
 在 1.2.47 版本漏洞爆发之后，官方在 1.2.48 对漏洞进行了修复，在 `MiscCodec` 处理 Class 类的地方，设置了cache 为 false ，并且 `loadClass` 重载方法的默认的调用改为不缓存，这就避免了使用了 Class 提前将恶意类名缓存进去。
 
@@ -582,7 +590,7 @@ public static Class<?> loadClass(String className, ClassLoader classLoader, bool
 与 `Throwable` 类似地，还有 `AutoCloseable` ，之所以使用 `AutoCloseable` 以及其子类可以绕过 `checkAutoType()` ，是因为 `AutoCloseable` 是属于 fastjson 内置的白名单中，其余的调用链一致，流程不再赘述。
 
 
-# 四、payload
+## 四、payload
 
 以下为部分在各个途径搜集的 payload，版本自测：
 
@@ -912,6 +920,6 @@ JNDIConfiguration
 }
 ```
 
-# 五、总结
+## 五、总结
 
 通过全篇对 fastjson 诸多版本漏洞的学习和研究，可以发现作者不愿舍弃很多特性，而不停的在对程序的安全检查部分进行“打补丁”一样的漏洞修复手段，这就导致了很多漏洞反反复复的修补和绕过，不仅仅是新的 gadget 被挖掘出来需要 fastjson 不断的更新黑名单，更有很多特性点还是隐藏在程序中等待发现，其实从本文来讲，很多触发点我们只研究了其中的一种，如果肯花时间寻找调用方式，肯定还会有新的发现。

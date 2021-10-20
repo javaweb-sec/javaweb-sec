@@ -523,7 +523,7 @@ public class SimpleClassByteCodeParser {
 	}
 
 	public static void main(String[] args) throws IOException {
-		File classFile = new File("/Users/yz/IdeaProjects/anbai-lingxe-cloud/target/classes/com/tongtech/asdp/cloud/config/RedisConfig.class");
+		File classFile = new File("/Users/yz/Bytes.class");
 
 		SimpleClassByteCodeParser codeParser  = new SimpleClassByteCodeParser();
 		Map<String, Object>       byteCodeMap = codeParser.parseByteCode(new FileInputStream(classFile));
