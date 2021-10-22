@@ -14,6 +14,7 @@
         <java.version>1.8</java.version>
         <jstl.version>1.2</jstl.version>
         <bcel.version>5.2</bcel.version>
+        <xalan.version>2.7.2</xalan.version>
         <dom4j.version>1.6.1</dom4j.version>
         <druid.version>1.1.24</druid.version>
         <jsoup.version>1.12.2</jsoup.version>
@@ -23,20 +24,19 @@
         <okhttp3.version>4.4.1</okhttp3.version>
         <jackson.version>2.8.0</jackson.version>
         <javaweb.version>2.0.3</javaweb.version>
-        <jackson.version>2.10.1</jackson.version>
         <mvel2.version>2.4.0.Final</mvel2.version>
         <fastjson.version>1.2.47</fastjson.version>
         <commons-io.version>2.6</commons-io.version>
         <javax.mail.version>1.4.7</javax.mail.version>
         <freemarker.version>2.3.23</freemarker.version>
         <commons-lang.version>2.6</commons-lang.version>
-        <javassist.version>3.27.0-GA</javassist.version>
         <servlet-api.version>3.1.0</servlet-api.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
         <commons-codec.version>1.11</commons-codec.version>
         <hibernate.version>5.4.21.Final</hibernate.version>
         <aspectjweaver.version>1.9.6</aspectjweaver.version>
         <commons-fileupload.version>1.4</commons-fileupload.version>
+        <javaweb-javassist.version>3.28.01</javaweb-javassist.version>
         <springframework.version>5.2.8.RELEASE</springframework.version>
         <commons-collections.version>3.2.1</commons-collections.version>
         <spring-data-jpa.version>2.3.4.RELEASE</spring-data-jpa.version>

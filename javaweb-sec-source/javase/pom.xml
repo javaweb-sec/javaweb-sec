@@ -149,6 +149,12 @@
             <version>${bcel.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>${xalan.version}</version>
+        </dependency>
+
         <!--        <dependency>-->
 <!--            <groupId>org.javassist</groupId>-->
 <!--            <artifactId>javassist</artifactId>-->
@@ -158,7 +164,7 @@
         <dependency>
             <groupId>org.javaweb</groupId>
             <artifactId>javaweb-javassist</artifactId>
-            <version>3.28.0-GA</version>
+            <version>${javaweb-javassist.version}</version>
         </dependency>
 
         <dependency>

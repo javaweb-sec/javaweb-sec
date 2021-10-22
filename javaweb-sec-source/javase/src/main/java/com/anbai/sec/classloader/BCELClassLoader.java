@@ -19,20 +19,21 @@ public class BCELClassLoader {
 	 *
 	 * 		if (osName.startsWith("Windows")) {
 	 * 			command = "calc 12345678901234567";
-	 *                } else if (osName.startsWith("Linux")) {
+	 *      } else if (osName.startsWith("Linux")) {
 	 * 			command = "curl localhost:9999/";
-	 *        }
+	 *       }
 	 *
 	 * 		try {
 	 * 			Runtime.getRuntime().exec(command);
-	 *        } catch (IOException e) {
+	 *      } catch (IOException e) {
 	 * 			e.printStackTrace();
-	 *        }* 	}
+	 *      }
+	 *   }
 	 * }
 	 * </pre>
 	 */
 	private static final byte[] CLASS_BYTES = new byte[]{
-			-54, -2, -70, -66, 0, 0, 0, 52, 0, 56, 10, 0, 15, 0, 26, 8, 0, 27, 8, 0, 28, 10, 0, 29, 0, 30, 8, 0, 31,
+			-54, -2, -70, -66, 0, 0, 0, 50, 0, 56, 10, 0, 15, 0, 26, 8, 0, 27, 8, 0, 28, 10, 0, 29, 0, 30, 8, 0, 31,
 			10, 0, 32, 0, 33, 8, 0, 34, 8, 0, 35, 8, 0, 36, 10, 0, 37, 0, 38, 10, 0, 37, 0, 39, 7, 0, 40, 10, 0, 12,
 			0, 41, 7, 0, 42, 7, 0, 43, 1, 0, 6, 60, 105, 110, 105, 116, 62, 1, 0, 3, 40, 41, 86, 1, 0, 4, 67, 111,
 			100, 101, 1, 0, 15, 76, 105, 110, 101, 78, 117, 109, 98, 101, 114, 84, 97, 98, 108, 101, 1, 0, 8, 60, 99,
@@ -60,19 +61,23 @@ public class BCELClassLoader {
 			111, 99, 101, 115, 115, 59, 1, 0, 15, 112, 114, 105, 110, 116, 83, 116, 97, 99, 107, 84, 114, 97, 99, 101,
 			0, 33, 0, 14, 0, 15, 0, 0, 0, 0, 0, 2, 0, 1, 0, 16, 0, 17, 0, 1, 0, 18, 0, 0, 0, 29, 0, 1, 0, 1, 0, 0, 0,
 			5, 42, -73, 0, 1, -79, 0, 0, 0, 1, 0, 19, 0, 0, 0, 6, 0, 1, 0, 0, 0, 5, 0, 8, 0, 20, 0, 17, 0, 1, 0, 18,
-			0, 0, 0, -106, 0, 2, 0, 3, 0, 0, 0, 53, 18, 2, 75, 18, 3, -72, 0, 4, 76, 43, 18, 5, -74, 0, 6, -103, 0, 9,
-			18, 7, 75, -89, 0, 15, 43, 18, 8, -74, 0, 6, -103, 0, 6, 18, 9, 75, -72, 0, 10, 42, -74, 0, 11, 87, -89,
-			0, 8, 77, 44, -74, 0, 13, -79, 0, 1, 0, 36, 0, 44, 0, 47, 0, 12, 0, 2, 0, 19, 0, 0, 0, 46, 0, 11, 0, 0, 0,
-			8, 0, 3, 0, 9, 0, 9, 0, 11, 0, 18, 0, 12, 0, 24, 0, 13, 0, 33, 0, 14, 0, 36, 0, 18, 0, 44, 0, 21, 0, 47, 0,
-			19, 0, 48, 0, 20, 0, 52, 0, 22, 0, 21, 0, 0, 0, 19, 0, 4, -3, 0, 24, 7, 0, 22, 7, 0, 22, 11, 74, 7, 0, 23,
-			-7, 0, 4, 0, 1, 0, 24, 0, 0, 0, 2, 0, 25
+			0, 0, 0, -106, 0, 2, 0, 3, 0, 0, 0, 53, 18, 2, 75, 18, 3, -72, 0, 4, 76, 43, 18, 5, -74, 0, 6, -103, 0,
+			9, 18, 7, 75, -89, 0, 15, 43, 18, 8, -74, 0, 6, -103, 0, 6, 18, 9, 75, -72, 0, 10, 42, -74, 0, 11, 87,
+			-89, 0, 8, 77, 44, -74, 0, 13, -79, 0, 1, 0, 36, 0, 44, 0, 47, 0, 12, 0, 2, 0, 19, 0, 0, 0, 46, 0, 11,
+			0, 0, 0, 8, 0, 3, 0, 9, 0, 9, 0, 11, 0, 18, 0, 12, 0, 24, 0, 13, 0, 33, 0, 14, 0, 36, 0, 18, 0, 44, 0,
+			21, 0, 47, 0, 19, 0, 48, 0, 20, 0, 52, 0, 22, 0, 21, 0, 0, 0, 19, 0, 4, -3, 0, 24, 7, 0, 22, 7, 0, 22,
+			11, 74, 7, 0, 23, -7, 0, 4, 0, 1, 0, 24, 0, 0, 0, 2, 0, 25
 	};
 
 	public static void main(String[] args) {
 		try {
+			// 使用反射是为了防止高版本JDK不存在com.sun.org.apache.bcel.internal.util.ClassLoader类
+			Class<?> bcelClass = Class.forName("com.sun.org.apache.bcel.internal.util.ClassLoader");
+
 			// 创建BCEL类加载器
-			ClassLoader classLoader = new com.sun.org.apache.bcel.internal.util.ClassLoader();
-//			ClassLoader classLoader = new org.apache.bcel.util.ClassLoader();
+//			ClassLoader classLoader = (ClassLoader) bcelClass.newInstance();
+//			ClassLoader classLoader = new com.sun.org.apache.bcel.internal.util.ClassLoader();
+			ClassLoader classLoader = new org.apache.bcel.util.ClassLoader();
 
 			// BCEL编码类字节码
 			String className = "$$BCEL$$" + Utility.encode(CLASS_BYTES, true);

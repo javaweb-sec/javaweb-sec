@@ -22,9 +22,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-            <version>${javassist.version}</version>
+            <groupId>org.javaweb</groupId>
+            <artifactId>javaweb-javassist</artifactId>
+            <version>${javaweb-javassist.version}</version>
         </dependency>
 
         <dependency>
