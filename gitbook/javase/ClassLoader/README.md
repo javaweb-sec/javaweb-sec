@@ -275,7 +275,7 @@ pom.xml
 
 创建类加载器的时候可以指定该类加载的父类加载器，ClassLoader是有隔离机制的，不同的ClassLoader可以加载相同的Class（两则必须是非继承关系），同级ClassLoader跨类加载器调用方法时必须使用反射。
 
-<img src="../../images/image-20211025171150475.png" alt="image-20211025171150475" style="zoom:50%;" />
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/202110251829223.png" alt="image-20211025171150475" style="zoom:50%;" />
 
 
 
@@ -409,6 +409,10 @@ public java.lang.String com.anbai.sec.classloader.TestHelloWorld.hello()
 %>
 ```
 
+**示例 - 冰蝎命令执行类反编译：**
+
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/202110251849324.png" alt="image-20211025184759248" style="zoom:50%;" />
+
 
 
 ## BCEL ClassLoader
@@ -423,7 +427,7 @@ public java.lang.String com.anbai.sec.classloader.TestHelloWorld.hello()
 
 **示例 - BCEL类名解码：**
 
-<img src="../../images/image-20211021104833683.png" alt="image-20211021104833683" style="zoom:50%;" />
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/202110251829177.png" alt="image-20211021104833683" style="zoom:50%;" />
 
 
 
@@ -527,11 +531,11 @@ public static String bcelEncode(File classFile) throws IOException {
 }
 ```
 
-从JSON反序列化实现来看，只是注入了类名和类加载器并不足以触发类加载，导致命令执行的关键问题就在于FastJson会自动调用getter方法，`org.apache.commons.dbcp.BasicDataSource`本没有`connection`成员变量，但有一个`getConnection()`方法，按理来讲应该不会调用`getConnection()`方法，但是FastJson会通过`getConnection()`这个方法名计算出一个名为`connection`的field，详情参见：[com.alibaba.fastjson.util.TypeUtils#computeGetters](https://github.com/alibaba/fastjson/blob/869746101f6dd73b70d8a9c2b6dc59de4352519e/src/main/java/com/alibaba/fastjson/util/TypeUtils.java#L1904)，因此FastJson最终还是调用了`getConnection()`方法。
+从JSON反序列化实现来看，只是注入了类名和类加载器并不足以触发类加载，导致命令执行的关键问题就在于FastJson会自动调用getter方法，`org.apache.commons.dbcp.BasicDataSource`本没有`connection`成员变量，但有一个`getConnection()`方法，按理来讲应该不会调用`getConnection()`方法，但是FastJson会通过`getConnection()`这个方法名计算出一个名为`connection`的field，详情参见：[com.alibaba.fastjson.util.TypeUtils#computeGetters](https://github.com/alibaba/fastjson/blob/master/src/main/java/com/alibaba/fastjson/util/TypeUtils.java#L1904)，因此FastJson最终还是调用了`getConnection()`方法。
 
 当`getConnection()`方法被调用时就会使用注入进来的`org.apache.bcel.util.ClassLoader`类加载器加载注入进来恶意类字节码，如下图：
 
-<img src="../../images/image-20211025163659065.png" alt="image-20211025163659065" style="zoom:50%;" />
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/202110251829173.png" alt="image-20211025163659065" style="zoom:50%;" />
 
 因为使用了反射的方式加载`com.anbai.sec.classloader.TestBCELClass`类，而且还特意指定了需要初始化类（`Class.forName(driverClassName, true, driverClassLoader);`），因此该类的静态语句块（`static{...}`）将会被执行，完整的攻击示例代码如下：
 
@@ -638,7 +642,7 @@ Xalan和BCEL一样都经常被用于编写反序列化Payload，Oracle JDK默认
 
 **TemplatesImpl类：**
 
-<img src="../../images/image-20211021195637540.png" alt="image-20211021195637540" style="zoom:50%;" />
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/202110251829988.png" alt="image-20211021195637540" style="zoom:50%;" />
 
 **Xalan攻击示例代码：**
 
@@ -818,11 +822,11 @@ Fastjson会创建`com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl`类
 
 Fastjson在解析类成员变量（`com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer#parseField`）的时候会将`private Properties _outputProperties;`属性与`getOutputProperties()`关联映射（FastJson的`smartMatch()`会忽略`_`、`-`、`is`（仅限boolean/Boolean类型），所以能够匹配到`getOutputProperties()`方法），因为`_outputProperties`是Map类型（Properties是Map的子类）所以不需要通过set方法映射值（`fieldInfo.getOnly`），因此在setValue的时候会直接调用`getOutputProperties()`方法，如下图：
 
-<img src="../../images/image-20211023201104486.png" alt="image-20211023201104486" style="zoom:50%;" />
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/202110251829689.png" alt="image-20211023201104486" style="zoom:50%;" />
 
 调用`getOutputProperties()`方法后会触发类创建和实例化，如下图：
 
-<img src="../../images/image-20211021200026024.png" alt="image-20211021200026024" style="zoom:50%;" />
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/202110251829680.png" alt="image-20211021200026024" style="zoom:50%;" />
 
 **defineClass TestAbstractTranslet调用链：**
 
@@ -840,7 +844,7 @@ com.anbai.sec.classloader.XalanTemplatesImpl.main(XalanTemplatesImpl.java:176)
 
 创建`TestAbstractTranslet`类实例，如下图：
 
-<img src="../../images/image-20211023203901358.png" alt="image-20211023203901358" style="zoom:50%;" />
+<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/202110251829828.png" alt="image-20211023203901358" style="zoom:50%;" />
 
 创建`TestAbstractTranslet`类实例时就会触发`TestAbstractTranslet`构造方法中的命令执行代码，调用链如下：
 
