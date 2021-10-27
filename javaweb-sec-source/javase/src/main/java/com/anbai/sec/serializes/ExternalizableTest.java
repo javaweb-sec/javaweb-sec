@@ -71,9 +71,7 @@ public class ExternalizableTest implements java.io.Externalizable {
 
 			// 关闭ObjectInputStream输入流
 			in.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
+		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}

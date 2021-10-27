@@ -17,7 +17,7 @@ public class ReflectionFactoryTest {
 			ReflectionFactory factory = ReflectionFactory.getReflectionFactory();
 
 			// 使用反序列化方式获取DeserializationTest类的构造方法
-			Constructor constructor = factory.newConstructorForSerialization(
+			Constructor<?> constructor = factory.newConstructorForSerialization(
 					DeserializationTest.class, Object.class.getConstructor()
 			);
 

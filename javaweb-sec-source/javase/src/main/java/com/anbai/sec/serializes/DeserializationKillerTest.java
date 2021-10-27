@@ -44,9 +44,9 @@ public class DeserializationKillerTest {
 		ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
 
 		// 包装原来的ObjectInputStream，校验反序列化类
-		ObjectInputStream ois = new ObjectInputStreamFilter(bis);
+//		ObjectInputStream ois = new ObjectInputStreamFilter(bis);
 
-//		ObjectInputStream ois = new ObjectInputStream(bis);
+		ObjectInputStream ois = new ObjectInputStream(bis);
 
 		// 反序列化
 		ois.readObject();
