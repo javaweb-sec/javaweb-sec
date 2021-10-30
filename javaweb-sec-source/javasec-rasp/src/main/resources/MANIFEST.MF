@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Premain-Class: com.anbai.sec.rasp.RASPAgent
-Agent-Class: com.anbai.sec.rasp.RASPAgent
-Main-Class: com.anbai.sec.rasp.RASPAgent
-Can-Retransform-Classes: true
-Can-Redefine-Classes: true
-Can-Set-Native-Method-Prefix: true
