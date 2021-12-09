@@ -20,7 +20,6 @@
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
@@ -156,10 +155,10 @@
         </dependency>
 
         <!--        <dependency>-->
-<!--            <groupId>org.javassist</groupId>-->
-<!--            <artifactId>javassist</artifactId>-->
-<!--            <version>${javassist.version}</version>-->
-<!--        </dependency>-->
+        <!--            <groupId>org.javassist</groupId>-->
+        <!--            <artifactId>javassist</artifactId>-->
+        <!--            <version>${javassist.version}</version>-->
+        <!--        </dependency>-->
 
         <dependency>
             <groupId>org.javaweb</groupId>
@@ -168,21 +167,21 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.bcel</groupId>
-            <artifactId>bcel</artifactId>
-            <version>${bcel.version}</version>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>${commons-beanutils.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.30</version>
+            <version>${slf4j-api.version}</version>
         </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
+            <version>${logback.version}</version>
         </dependency>
 
         <dependency>
@@ -191,7 +190,6 @@
             <version>${tomcat.version}</version>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -208,7 +206,6 @@
     </build>
 
     <repositories>
-
         <repository>
             <id>aliyun</id>
             <name>aliyun</name>
@@ -220,7 +217,6 @@
         <!--            <name>mulesoft</name>-->
         <!--            <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>-->
         <!--        </repository>-->
-
     </repositories>
 
 </project>
