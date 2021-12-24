@@ -93,7 +93,7 @@
 
                             <artifactSet>
                                 <includes>
-                                    <include>org.javassist:javassist:jar:*</include>
+                                    <include>org.javaweb:javaweb-javassist:jar:*</include>
                                     <include>org.javaweb:javaweb-utils:jar:*</include>
                                 </includes>
                             </artifactSet>
