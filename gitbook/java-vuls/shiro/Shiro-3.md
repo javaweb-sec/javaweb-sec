@@ -2,14 +2,14 @@
 
 ## 漏洞信息
 
-| 漏洞信息   | 详情 |
-| :---------------- | :------------------------- |
-| 漏洞编号   |  [CVE-2020-1957](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-1957) / [CNVD-2020-20984](https://www.cnvd.org.cn/flaw/show/CNVD-2020-20984) / [SHIRO-682](https://issues.apache.org/jira/browse/SHIRO-682)  |
-| 影响版本   |  shiro  < 1.5.2  |
-| 漏洞描述   |  Spring Boot 中使用 Apache Shiro 进行身份验证、权限控制时，可以精心构造恶意的URL<br>利用 Shiro 和 SpringBoot 对 URL 的处理的差异化，可以绕过 Shiro 对 SpringBoot 中的<br>Servlet 的权限控制，越权并实现未授权访问。  |
-| 漏洞关键字 |    SpringBoot \| 差异化处理 \| / \| 绕过  |
-| 漏洞补丁 |    [Commit-589f10d](https://github.com/apache/shiro/commit/589f10d40414a815dbcaf1f1500a51f41258ef70)  && [Commit-9762f97](https://github.com/apache/shiro/commit/9762f97926ba99ac0d958e088cae3be8b657948d) && [Commit-3708d79](https://github.com/apache/shiro/commit/3708d7907016bf2fa12691dff6ff0def1249b8ce)    |
-| 相关链接   |  [SHIRO-742](https://issues.apache.org/jira/browse/SHIRO-742)<br> [https://www.openwall.com/lists/oss-security/2020/03/23/2](https://www.openwall.com/lists/oss-security/2020/03/23/2)<br>[CVE-2020-2957](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-2957)   -> ? |
+| 漏洞信息  | 详情                                                                                                                                                                                                                                                                                                           |
+|:------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 漏洞编号  | [CVE-2020-1957](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-1957) / [CNVD-2020-20984](https://www.cnvd.org.cn/flaw/show/CNVD-2020-20984) / [SHIRO-682](https://issues.apache.org/jira/browse/SHIRO-682)                                                                                          |
+| 影响版本  | shiro  < 1.5.2                                                                                                                                                                                                                                                                                               |
+| 漏洞描述  | Spring Boot 中使用 Apache Shiro 进行身份验证、权限控制时，可以精心构造恶意的URL<br>利用 Shiro 和 SpringBoot 对 URL 的处理的差异化，可以绕过 Shiro 对 SpringBoot 中的<br>Servlet 的权限控制，越权并实现未授权访问。                                                                                                                                                        |
+| 漏洞关键字 | SpringBoot & 差异化处理 & / & 绕过                                                                                                                                                                                                                                                                                  |
+| 漏洞补丁  | [Commit-589f10d](https://github.com/apache/shiro/commit/589f10d40414a815dbcaf1f1500a51f41258ef70)  && [Commit-9762f97](https://github.com/apache/shiro/commit/9762f97926ba99ac0d958e088cae3be8b657948d) && [Commit-3708d79](https://github.com/apache/shiro/commit/3708d7907016bf2fa12691dff6ff0def1249b8ce) |
+| 相关链接  | [SHIRO-742](https://issues.apache.org/jira/browse/SHIRO-742) <br/> [https://www.openwall.com/lists/oss-security/2020/03/23/2](https://www.openwall.com/lists/oss-security/2020/03/23/2) <br/> [CVE-2020-2957](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-2957)   -> ?                           |
 
 
 ## 漏洞详解
@@ -128,14 +128,14 @@ http://127.0.0.1:8080/audit//;aaaa/;...///////;/;/;awdwadwa/list
 
 ## 漏洞信息
 
-| 漏洞信息   | 详情 |
-| :---------------- | :------------------------- |
-| 漏洞编号   |  [CVE-2020-11989](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11989) / [SHIRO-782](https://issues.apache.org/jira/browse/SHIRO-782)  |
-| 影响版本   |  shiro  < 1.5.3  |
-| 漏洞描述   |  由安全研究员 Ruilin 以及淚笑发现在 Apache Shiro 1.5.3 之前的版本，<br>将 Apache Shiro 与 Spring 动态控制器一起使用时，特制请求可能会导致身份验证绕过。  |
-| 漏洞关键字 |    Spring \| 双重编码 \| %25%32%66 \| 绕过 \| context-path \| /;/  |
-| 漏洞补丁 |    [Commit-01887f6](https://github.com/apache/shiro/commit/01887f645f92d276bbaf7dc644ad28ed4e82ef02)  |
-| 相关链接   |  [https://xlab.tencent.com/cn/2020/06/30/xlab-20-002/](https://xlab.tencent.com/cn/2020/06/30/xlab-20-002/)<br>[https://mp.weixin.qq.com/s/yb6Tb7zSTKKmBlcNVz0MBA](https://mp.weixin.qq.com/s/yb6Tb7zSTKKmBlcNVz0MBA) |
+| 漏洞信息   | 详情                                                                                                                                                                                                                      |
+| :---------------- |:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 漏洞编号   | [CVE-2020-11989](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11989) / [SHIRO-782](https://issues.apache.org/jira/browse/SHIRO-782)                                                                          |
+| 影响版本   | shiro  < 1.5.3                                                                                                                                                                                                          |
+| 漏洞描述   | 由安全研究员 Ruilin 以及淚笑发现在 Apache Shiro 1.5.3 之前的版本，<br>将 Apache Shiro 与 Spring 动态控制器一起使用时，特制请求可能会导致身份验证绕过。                                                                                                                  |
+| 漏洞关键字 | Spring & 双重编码 & %25%32%66 & 绕过 & context-path & /;/                                                                                                                                                                     |
+| 漏洞补丁 | [Commit-01887f6](https://github.com/apache/shiro/commit/01887f645f92d276bbaf7dc644ad28ed4e82ef02)                                                                                                                       |
+| 相关链接   | [https://xlab.tencent.com/cn/2020/06/30/xlab-20-002/](https://xlab.tencent.com/cn/2020/06/30/xlab-20-002/) <br/> [https://mp.weixin.qq.com/s/yb6Tb7zSTKKmBlcNVz0MBA](https://mp.weixin.qq.com/s/yb6Tb7zSTKKmBlcNVz0MBA) |
 
 
 ## 漏洞详解
@@ -257,14 +257,14 @@ Shiro 在 [Commit-01887f6](https://github.com/apache/shiro/commit/01887f645f92d2
 
 ## 漏洞信息
 
-| 漏洞信息   | 详情 |
-| :---------------- | :------------------------- |
-| 漏洞编号   |  [CVE-2020-13933](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-13933) / [CNVD-2020-46579](https://www.cnvd.org.cn/flaw/show/CNVD-2020-46579)  |
-| 影响版本   |  shiro  < 1.6.0  |
-| 漏洞描述   |  Apache Shiro 由于处理身份验证请求时存在权限绕过漏洞，远程攻击者可以发送特制的<br>HTTP请求，绕过身份验证过程并获得对应用程序的未授权访问。  |
-| 漏洞关键字 |    Spring \| 顺序 \| %3b \| 绕过 |
-| 漏洞补丁 |    [Commit-dc194fc](https://github.com/apache/shiro/commit/dc194fc977ab6cfbf3c1ecb085e2bac5db14af6d)  |
-| 相关链接   |  [https://xz.aliyun.com/t/8223](https://xz.aliyun.com/t/8223) |
+| 漏洞信息   | 详情                                                                                                                                                     |
+| :---------------- |:-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 漏洞编号   | [CVE-2020-13933](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-13933) / [CNVD-2020-46579](https://www.cnvd.org.cn/flaw/show/CNVD-2020-46579) |
+| 影响版本   | shiro  < 1.6.0                                                                                                                                         |
+| 漏洞描述   | Apache Shiro 由于处理身份验证请求时存在权限绕过漏洞，远程攻击者可以发送特制的<br>HTTP请求，绕过身份验证过程并获得对应用程序的未授权访问。                                                                        |
+| 漏洞关键字 | Spring & 顺序 & %3b & 绕过                                                                                                                                 |
+| 漏洞补丁 | [Commit-dc194fc](https://github.com/apache/shiro/commit/dc194fc977ab6cfbf3c1ecb085e2bac5db14af6d)                                                      |
+| 相关链接   | [https://xz.aliyun.com/t/8223](https://xz.aliyun.com/t/8223)                                                                                           |
 
 ## 漏洞详解
 
