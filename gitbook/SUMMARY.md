@@ -36,9 +36,6 @@
         * [Java class反编译](javase/JavaByteCode/Decompile.md)
     * [Java Agent机制](javase/JavaAgent/README.md)
         * [Java Agent](javase/JavaAgent/JavaAgent.md)
-    * [Java XXE漏洞](javase/XXE/README.md)
-    * [Java 并发安全问题](javase/JavaConcurrency/README.md)
-    * [Java 编码/加密](javase/JavaEncrypt/README.md)
 
 -----
 * [Java Web基础](javaweb/README.md)
@@ -71,12 +68,6 @@
         * [Shiro 漏洞调试学习-2](java-vuls/shiro/Shiro-2.md)
         * [Shiro 漏洞调试学习-3](java-vuls/shiro/Shiro-3.md)
         * [Shiro 漏洞调试学习-4](java-vuls/shiro/Shiro-4.md)
-
------
-* [Java语言的动态性](java-dynamic-feature/README.md)
-    * [JSON 序列化](java-dynamic-feature/Json/README.md)
-    * [XML 序列化](java-dynamic-feature/XML/README.md)
-   
 
 -----
 * [Java容器安全](java-web-container/README.md)
