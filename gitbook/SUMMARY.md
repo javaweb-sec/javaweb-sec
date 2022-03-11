@@ -101,3 +101,7 @@
     * [RASP动态防御案例](java-rasp/RASP-Protection-Demo.md)
     * [RASP Context](java-rasp/Context.md)
 
+-----
+* [Java IAST技术](java-rasp/README.md)
+    * [浅谈被动式IAST产品与技术实现-基础篇](java-iast/IAST-Base.md)
+    * [浅谈被动式IAST产品与技术实现-代码实现Demo篇](java-iast/IAST-Demo.md)
