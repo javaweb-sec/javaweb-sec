@@ -68,6 +68,7 @@
         * [Shiro 漏洞调试学习-2](java-vuls/shiro/Shiro-2.md)
         * [Shiro 漏洞调试学习-3](java-vuls/shiro/Shiro-3.md)
         * [Shiro 漏洞调试学习-4](java-vuls/shiro/Shiro-4.md)
+    * [Hessian 反序列化漏洞](java-vuls/Hessian.md)
 
 -----
 * [Java容器安全](java-web-container/README.md)
