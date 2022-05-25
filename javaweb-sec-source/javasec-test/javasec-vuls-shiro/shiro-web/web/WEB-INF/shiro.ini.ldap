@@ -1,0 +1,23 @@
+[main]
+# 登陆地址
+authc.loginUrl = /login
+
+# ldap
+ldapContextFactory = org.apache.shiro.realm.ldap.JndiLdapContextFactory
+ldapContextFactory.url = ldap://127.0.0.1:389/
+
+# realm
+;myRealm = org.su18.shiro.web.config.MyRealm
+;myRealm.contextFactory = $ldapContextFactory
+;myRealm.userDnTemplate = cn={0},dc=su18,dc=org
+
+adRealm = org.apache.shiro.realm.activedirectory.ActiveDirectoryRealm
+adRealm.ldapContextFactory = $ldapContextFactory
+adRealm.searchBase = "dc=su18,dc=org"
+
+
+[urls]
+/index = anon
+/login = anon
+/logout = logout
+/** = authc

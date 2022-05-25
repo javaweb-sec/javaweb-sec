@@ -8,7 +8,7 @@
 
 @Author [安百科技](http://www.anbai.com/)-[凌天实验室](http://www.absec.cn/)-[[园长](http://javaweb.org/) [iiusky](http://javaweb.org.cn/) [su18](https://su18.org/) [ver007](http://www.ver007.org/)]
 
-@Github [javaweb-sec](https://github.com/anbai-inc/javaweb-sec)
+@Github [javaweb-sec](https://github.com//javaweb-sec/javaweb-sec)
 
 @GitBook: [javasec.org](http://javasec.org/)
 
