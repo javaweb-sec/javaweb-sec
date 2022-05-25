@@ -32,7 +32,7 @@
   ],
   "pluginsConfig": {
     "github": {
-      "url": "https://github.com/anbai-inc/javaweb-sec"
+      "url": "https://github.com/javaweb-sec/javaweb-sec"
     },
     "github-buttons": {
       "buttons": [{
@@ -45,7 +45,7 @@
       ]
     },
     "donate": {
-      "alipay": "https://javaweb.org/images/wechat.jpg",
+      "alipay": "https://javasec.oss-cn-hongkong.aliyuncs.com/images/wechat.jpg",
       "title": "",
       "button": "微信群",
       "alipayText": "微信群"
