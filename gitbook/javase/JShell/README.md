@@ -91,7 +91,7 @@ new String(Runtime.getRuntime().exec("pwd").getInputStream().readAllBytes())
 
 `Java 9`的`java.io.InputStream`类正好提供了一个`readAllBytes`方法，我们从此以后再也不需要按字节读取了。
 
-浏览器请求：[http://localhost:8080/jshell.jsp?src=new%20String(Runtime.getRuntime().exec(%22pwd%22).getInputStream().readAllBytes())](http://localhost:8080/jshell.jsp?src=new String(Runtime.getRuntime().exec("pwd").getInputStream().readAllBytes()))
+浏览器请求：http://localhost:8080/jshell.jsp?src=new%20String(Runtime.getRuntime().exec(%34pwd%34).getInputStream().readAllBytes())
 
 程序执行结果：
 

@@ -4,11 +4,11 @@
 
 尽管我在写文章的时候已尽可能的避免出现错误或问题，但难免会有描述不清或者错误的地方，如果您在阅读文章的时候发现任何问题都可以通过微信或提`issue`与我们联系，也欢迎大家加入`javasec`微信群一起交流。
 
-[![img](../gitbook/images/wechat.png?stamp=0)](http://p2j.cn/images/wechat.jpg)
+[![微信](gitbook/images/wechat.png)](https://javasec.oss-cn-hongkong.aliyuncs.com/images/wechat.jpg)
 
-@Author [安百科技](http://www.anbai.com/)-[凌天实验室](http://www.absec.cn/)-[[园长](http://javaweb.org/) [iiusky](http://javaweb.org.cn/) [su18](https://su18.org/) [ver007](http://www.ver007.org/)]
+@Author [安百科技](http://www.anbai.com/)-  [su18](https://su18.org/) [[园长](http://javaweb.org/) [iiusky](http://javaweb.org.cn/)
 
-@Github [javaweb-sec](https://github.com//javaweb-sec/javaweb-sec)
+@Github [javaweb-sec](https://github.com/javaweb-sec/javaweb-sec)
 
 @GitBook: [javasec.org](http://javasec.org/)
 

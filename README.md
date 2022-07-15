@@ -6,9 +6,7 @@
 
 [![微信](gitbook/images/wechat.png)](https://javasec.oss-cn-hongkong.aliyuncs.com/images/wechat.jpg)
 
-**注：原javasec.org已迁移到：[知识盒子](https://zhishihezi.net/b/5d644b6f81cbc9e40460fe7eea3c7925)**
-
-@Author [安百科技](http://www.anbai.com/)-[[园长](http://javaweb.org/) [iiusky](http://javaweb.org.cn/) [su18](https://su18.org) [ver007](http://www.ver007.org/)]
+@Author [安百科技](http://www.anbai.com/)-  [su18](https://su18.org/) [[园长](http://javaweb.org/) [iiusky](http://javaweb.org.cn/)
 
 @Github [javaweb-sec](https://github.com/javaweb-sec/javaweb-sec)
 
