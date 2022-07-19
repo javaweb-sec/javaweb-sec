@@ -6,12 +6,10 @@
 
 [![微信](gitbook/images/wechat.png)](https://javasec.oss-cn-hongkong.aliyuncs.com/images/wechat.jpg)
 
-@Author [安百科技](http://www.anbai.com/)-  [su18](https://su18.org/) [[园长](http://javaweb.org/) [iiusky](http://javaweb.org.cn/)
+@Author [安百科技](http://www.anbai.com/) [su18](https://su18.org/) [园长](http://javaweb.org/) [iiusky](http://www.03sec.com/)
 
 @Github [javaweb-sec](https://github.com/javaweb-sec/javaweb-sec)
 
-@GitBook: [javasec.org](http://javasec.org/)
-
-@Community: [网安Java社区](https://www.wangan.com/java)
+@GitBook: [javasec.org](https://javasec.org/)
 
 @Date 2019-12-01
