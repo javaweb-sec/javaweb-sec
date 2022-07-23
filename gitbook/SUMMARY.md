@@ -25,7 +25,7 @@
     * [RMI](javase/RMI/README.md)
     * [JNDI](javase/JNDI/README.md)
     * [JShell](javase/JShell/README.md)
-    * [JWDP 攻击](javase/JWDP/JDWPAttack.md)
+    * [JDWP 攻击](javase/JDWP/JDWPAttack.md)
     * [Java 字节码](javase/JavaByteCode/README.md)
         * [Java class文件格式](javase/JavaByteCode/ClassFileFormat.md)
         * [Java class文件解析](javase/JavaByteCode/ClassFileParser.md)
