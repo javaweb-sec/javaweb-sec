@@ -183,13 +183,13 @@ ResultSet rs = pstt.executeQuery();
 
 http://localhost:8080/sql-injection.jsp?user=root
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191214232846579.png" alt="image-20191214232846579" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20191214232846579.png" alt="image-20191214232846579" style="zoom:50%;" />
 
 提交含有`'(单引号)`的注入语句测试：
 
 http://localhost:8080/sql-injection.jsp?user=root'
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191214233050147.png" alt="image-20191214233050147" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20191214233050147.png" alt="image-20191214233050147" style="zoom:50%;" />
 
 如果用户屏蔽了异常信息的显示我们就无法直接通过页面信息确认是否是注入，但是我们可以通过后端响应的状态码来确定是否是注入点，如果返回的状态码为`500`，那么我们就可以初步的判定`user`参数存在注入了。
 
@@ -197,7 +197,7 @@ http://localhost:8080/sql-injection.jsp?user=root'
 
 http://localhost:8080/sql-injection.jsp?user=root' and 1=2 union select user(),version() --%20
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191214234010523.png" alt="image-20191214234010523" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20191214234010523.png" alt="image-20191214234010523" style="zoom:50%;" />
 
 这里使用了`-- (--空格，空格可以使用%20代替)`来注释掉SQL语句后面的`'(单引号)`，当然我们同样也可以使用`#(井号，URL传参的时候必须传URL编码后的值：%23)`注释掉`'`。
 
@@ -347,7 +347,7 @@ pstt.setObject(1, user);
 
 使用`JDBC`的`PreparedStatement`查询数据包如下：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191215011503098.png" alt="image-20191215011503098" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20191215011503098.png" alt="image-20191215011503098" style="zoom:50%;" />
 
 #### 客户端预编译
 
@@ -367,11 +367,11 @@ pstt.setObject(1, user);
 
 使用`JDBC`的`PreparedStatement`查询数据包如下：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191215011935278.png" alt="image-20191215011935278" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20191215011935278.png" alt="image-20191215011935278" style="zoom:50%;" />
 
 对应的Mysql客户端驱动包预编译代码在`com.mysql.jdbc.PreparedStatement`类的`setString`方法，如下：
 
-![image-20191215012554164](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191215012554164.png)
+![image-20191215012554164](https://oss.javasec.org/images/image-20191215012554164.png)
 
 预编译前的值为`root'`,预编译后的值为`'root\''`，和我们通过`WireShark`抓包的结果一致。
 

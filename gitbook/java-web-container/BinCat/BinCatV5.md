@@ -8,7 +8,7 @@
 
 首先我们在`javaweb-sec`项目下创建一个`javasec-test`的模块(用于存储`javasec`文章所用到的测试项目)，然后我们在`javasec-test`模块中创建一个`javasec-blog`模块(一个标准的`SpringBoot`项目)，`javasec-blog`项目是一个用于演示的博客项目。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200917110907091.png" alt="image-20200917110907091" style="zoom:40%;" />
+<img src="https://oss.javasec.org/images/image-20200917110907091.png" alt="image-20200917110907091" style="zoom:40%;" />
 
 ### javasec-blog War项目构建
 
@@ -69,7 +69,7 @@
 
 项目构建成功后结构如下：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200917143151435.png" alt="image-20200917143151435" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200917143151435.png" alt="image-20200917143151435" style="zoom:50%;" />
 
 ## BinCat V5实现
 
@@ -577,7 +577,7 @@ Enumeration<URL> resources = classLoader.getResources(servletService);
 
 **读取SCI配置并加载SCI实现类示例：**
 
-![image-20200917162508462](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200917162508462.png)
+![image-20200917162508462](https://oss.javasec.org/images/image-20200917162508462.png)
 
 
 
@@ -587,7 +587,7 @@ Enumeration<URL> resources = classLoader.getResources(servletService);
 
 **SpringServletContainerInitializer示例：**
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200917164429015.png" alt="image-20200917164429015" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200917164429015.png" alt="image-20200917164429015" style="zoom:50%;" />
 
 创建`SCI`实现类示例和获取该示例的`HandlesTypes`配置方式如下：
 
@@ -718,27 +718,27 @@ initServlet(servletContext);
 
 完成以上所有逻辑后我们的`BinCat`也就算启动成功了，剩下的就是如何处理浏览器请求了。
 
-![image-20200917173402207](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200917173402207.png)
+![image-20200917173402207](https://oss.javasec.org/images/image-20200917173402207.png)
 
 ### Servlet请求处理
 
 `V5`依旧是根据浏览器请求的URL地址调用对应的`Servlet`的`service`方法处理`Servlet`请求，访问`javasec-blog`首页测试：[http://localhost:8080/](http://localhost:8080/)
 
-![image-20200917174239016](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200917174239016.png)
+![image-20200917174239016](https://oss.javasec.org/images/image-20200917174239016.png)
 
 请求的`/`最终会调用`SpringMVC`的`org.springframework.web.servlet.DispatcherServlet`类处理请求，如下：
 
-![image-20200917175431500](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200917175431500.png)
+![image-20200917175431500](https://oss.javasec.org/images/image-20200917175431500.png)
 
 `dynamic.getServlet().service(req, resp)`最终会调用`Spring`的`DispatcherServlet`类的父类`org.springframework.web.servlet.FrameworkServlet`的`service`方法，如下：
 
-![image-20200917180111632](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200917180111632.png)
+![image-20200917180111632](https://oss.javasec.org/images/image-20200917180111632.png)
 
 
 
 访问文章详情页测试：[http://localhost:8080/?p=12](http://localhost:8080/?p=12)
 
-![image-20200917173917790](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200917173917790.png)
+![image-20200917173917790](https://oss.javasec.org/images/image-20200917173917790.png)
 
 至此，耗时大约一周时间，我们的`BinCat`从支持解析简单的`HelloWorld`到如今已经实现了启动单`Web应用`的`SpringBoot`了，当然这里面充斥这各种各样的Bug和安全问题，我们的目标并不是实现一个`国产化Java中间件`，而是将`BinCat`变成一个存在各种各样漏洞的靶场。
 

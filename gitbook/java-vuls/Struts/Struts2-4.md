@@ -21,7 +21,7 @@ Struts2 处理重定向结果时，会从配置文件中取 namespace，如果�
 
 ServletActionRedirectResult 与 StrutsResultSupport 同为 StrutsResultSupport 的子类，用来处理重定向时的处理结果。它的 execute 方法会调用 conditionalParse 处理 actionName/namespace/method。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296441.png" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/1625284296441.png" style="zoom:50%;" />
 
 当配置 result 类型为 redirectAction 时，结果将会重定向到另一个 Action，此时将会由 ServletActionRedirectResult 来处理。例如如下配置：
 
@@ -40,11 +40,11 @@ ServletActionRedirectResult 与 StrutsResultSupport 同为 StrutsResultSupport �
 ```
 在访问 hello.action 后，结果将会根据我们的配置进行转发，浏览器会跳转页面：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296443.png" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/1625284296443.png" style="zoom:50%;" />
 
 流程就是这样的流程，但是如何触发漏洞呢？在 ServletActionRedirectResult 的 execute 中我们可以看到，程序从我们的配置中获取了 actionName、namespace、method 三个参数的值，通过 ActionMapper 的 getUriFromActionMapping 方法将配置信息处理成要跳转的路径。并使用 `setLocation` 方法设置到 StrutsResultSupport 的 location 属性中。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296445.png" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/1625284296445.png" style="zoom:50%;" />
 
 然后执行父类的 execute 方法，调用 conditionalParse 方法解析 location 中的内容。接下来的流程与 S2-012 一致。
 
@@ -52,7 +52,7 @@ ServletActionRedirectResult 与 StrutsResultSupport 同为 StrutsResultSupport �
 
 在正常情况下，处理这个 namespace 属性是由 ActionMapping 的子类 DefaultActionMapper 中的 parseNameAndNamespace 方法实现：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296447.png" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/1625284296447.png" style="zoom:50%;" />
 
 其中会判断 alwaysSelectFullNamespace，这个参数名为允许采用完整的命名空间，即设置命名空间是否必须进行精确匹配，true 必须，false 可以模糊匹配，默认是 false。进行精确匹配时要求请求 url 中的命名空间必须与配置文件中配置的某个命名空间必须相同，如果没有找到相同的则匹配失败。如果想要开启可以在 struts2.xml 中配置如下常量。
 
@@ -69,7 +69,7 @@ ServletActionRedirectResult 与 StrutsResultSupport 同为 StrutsResultSupport �
 
 ActionChainResult 用来处理 Action 的链式调用，虽然本质上也是 Redirect，但是跳转后的 action 可以获取上个 Action 的相关信息，并且这个跳转是由内部进行实现的，用户端是无感知的。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296449.png" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/1625284296449.png" style="zoom:50%;" />
 
 通过 ActionChainResult 的 execute 代码可以看到，获取 namespace 时是与 ServletActionRedirectResult 相同的逻辑，直接使用 `TextParseUtil.translateVariables` 解析触发漏洞。
 
@@ -91,7 +91,7 @@ PostbackResult 会将 Action 的处理结果作为请求参数进行 Action 转�
 
 PostbackResult 的处理逻辑与 ServletActionRedirectResult 几乎一致，以下图片用红框将关键点圈出来，不再用文字描述其中过程。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296452.png" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/1625284296452.png" style="zoom:50%;" />
 
 当 result 类型设置为 chain 时，重定向结果由 PostbackResult 处理。
 
@@ -108,7 +108,7 @@ PostbackResult 的处理逻辑与 ServletActionRedirectResult 几乎一致，以
 
 PortletActionRedirectResult 类位于插件 struts2-portlet-plugin 插件包中，处理逻辑与 ServletActionRedirectResult 基本一致，如下：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296455.png" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/1625284296455.png" style="zoom:50%;" />
 
 需要配置 portlet.xml ，并在 struts.xml 中配置 result 类型为 redirect-action
 
@@ -164,31 +164,31 @@ JSP 中我们随便写一个 url tag，里面的 value 和 action 都不配置�
 
 此时启动项目访问即可触发漏洞。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296458.png" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/1625284296458.png" style="zoom:50%;" />
 
 其实触发逻辑与前面 4 个一致，都是因为没有配置 namespace ，程序从当前 ActionMapping 中取，并拼接，拼接后被解析触发漏洞。
 
 ServletUrlRenderer 的 `renderUrl()` 方法存在判断：如果 Value 和 Action 都为空时，将从ActionInvocation 的 ActionProxy 中获取 namespace，并传入 determineActionURL 方法处理。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296461.png" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/1625284296461.png" style="zoom:50%;" />
 
 `UrlProvider.determineActionURL` 方法调用组件的 determineActionURL ，调用 determineNamespace 方法处理 namespace，而又调用 findString 方法。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296464.png" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/1625284296464.png" style="zoom:50%;" />
 
 findString 调用 findValue 方法，最终调用了 `TextParseUtil.translateVariables` 解析 namespace。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296466.png" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/1625284296466.png" style="zoom:50%;" />
 
 好了，到此为止我们已经分析完了 S2-057 所有的触发点，那该如何构造 payload 呢？
 
 在 Struts 2.5.11 版本后，在为 OgnlUtil 注入 excludedPackageNames、excludedClasses、excludedPackageNamePatterns 时，赋值前使用了 `Collections.unmodifiableSet()` 将这几个属性赋值成为了不可修改的 SET，用来防止在 S2-045 中我们清空 OgnlUtil 属性用来绕过黑名单的操作。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296469.png" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/1625284296469.png" style="zoom:50%;" />
 
 在 2.5.13 版本中，使用了 OGNL 3.1.15 版本，这个版本中，在 OgnlContext 中，无论是 get/put/remove 还是其他相关的方法，都移除了对 context 关键字的支持，也就是说，我们无法再使用 `#context` 直接获取 context 对象了。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296474.png" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/1625284296474.png" style="zoom:50%;" />
 
 那么根据 S2-045 的 payload，我们需要想办法绕过上面的限制：
 - 不使用 `#context` 关键字获取 context 对象。
@@ -244,21 +244,21 @@ S2-036 则描述 tag 内属性使用 `%{...}` 会导致 RCE。
 
 而 S2-059 也是同样的漏洞。描述受影响的标签为 `<s:a id="%{id}">S2-059</s:a>`。简单搭建一个测试环境试一下：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296478.png" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/1625284296478.png" style="zoom:50%;" />
 
 这个漏洞的实际触发还是在解析标签时由 ComponentTagSupport 的子类（也就是各个标签不同类型）在使用 start 方法解析时，调用了 `Component#findString` 方法导致了表达式的解析。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296486.png" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/1625284296486.png" style="zoom:50%;" />
 
 漏洞触发和调用过程之前都分析过，都是相似的，在这里就不重复了。我们同时关注一下这个漏洞影响的最高版本 Struts 2.5.20 版本中的安全更新。
 
 在 Struts 2.5.17 之后，官方更新了 excludedClasses 和 excludedPackageNames，在 excludedClasses 中移除了 ognl 包中的内容，但是在 excludedPackageNames 中加入了 `com.opensymphony.xwork2.ognl.` 。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296490.png" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/1625284296490.png" style="zoom:50%;" />
 
 OnglUtil 中各个属性的 set 方法由 public 改为了 protected。包括三个黑名单属性值，此时我们将不能直接调用 set 方法。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296495.png" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/1625284296495.png" style="zoom:50%;" />
 
 并且重写了这几个 set 方法中，不再单纯的生成新 set 并重新引用，而是将原始的 set 加上用户输入最终处理成 `Collections.unmodifiableSet()` 再进行赋值。此时我们将不能通过 `clear()` 或者 set 方法清空其中的值。
 
@@ -266,7 +266,7 @@ OnglUtil 中各个属性的 set 方法由 public 改为了 protected。包括三
 
 在更高版本的 ognl 中，调用方法的 invokeMethod 方法中进行了判断，禁止调用了一些经常使用的恶意黑名单方法。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296500.png" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/1625284296500.png" style="zoom:50%;" />
 
 
 经过上述的安全更新之后，我们在 S2-057 以及之前绕过 Struts2 的的所有想法的策略基本都被禁掉了。因此想要执行恶意 OGNL 变得越来越难。

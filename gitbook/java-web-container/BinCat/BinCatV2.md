@@ -236,8 +236,8 @@ public class BinCatServerV2 {
 
 访问Web服务测试[http://localhost:8080](http://localhost:8080):
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200909214652771.png" alt="image-20200909214652771" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200909214652771.png" alt="image-20200909214652771" style="zoom:50%;" />
 
 提交登陆表单测试：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200909214804184.png" alt="image-20200909214804184" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200909214804184.png" alt="image-20200909214804184" style="zoom:50%;" />

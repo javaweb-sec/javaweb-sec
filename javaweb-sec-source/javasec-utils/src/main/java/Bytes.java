@@ -11,10 +11,9 @@ import java.util.Arrays;
 public class Bytes {
 
 	public static void main(String[] args) throws IOException {
-
 		if (args.length > 0) {
-			String str   = args[0];
-			byte[] bytes = null;
+			byte[] bytes;
+			String str = args[0];
 
 			if (args.length == 2 && str.equals("-f")) {
 				File file = new File(args[1]);

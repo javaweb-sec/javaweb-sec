@@ -22,7 +22,7 @@
 
 浏览器请求：[http://localhost:8000/modules/servlet/xss.jsp?input=%3Cscript%3Ealert(%27xss%27)%3B%3C/script%3E](http://localhost:8000/modules/servlet/xss.jsp?input=%3Cscript%3Ealert(%27xss%27);%3C/script%3E)
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201115123227812.png" alt="image-20201115123227812" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201115123227812.png" alt="image-20201115123227812" style="zoom:50%;" />
 
 
 
@@ -119,11 +119,11 @@
 
 访问：[http://10.10.99.2:8000/modules/servlet/guestbook.jsp](http://10.10.99.2:8000/modules/servlet/guestbook.jsp)，并在留言内容出填入xss测试代码，如下：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201115123648353.png" alt="image-20201115123648353" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201115123648353.png" alt="image-20201115123648353" style="zoom:50%;" />
 
 提交留言后页面会刷新，并执行留言的xss代码：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201115123711964.png" alt="image-20201115123711964" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201115123711964.png" alt="image-20201115123711964" style="zoom:50%;" />
 
 ## 3. DOM XSS
 
@@ -141,13 +141,13 @@ Date: <span style="color: red;"></span>
 
 正常请求测试：[http://localhost:8000/modules/servlet/dom.jsp?date=2020-11-15%2015:57:22](http://localhost:8000/modules/servlet/dom.jsp?date=2020-11-15%2015:57:22)
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201115155811063.png" alt="image-20201115155811063" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201115155811063.png" alt="image-20201115155811063" style="zoom:50%;" />
 
 
 
 XSS攻击测试：[http://localhost:8000/modules/servlet/dom.jsp?date=%3Cimg%20src=1%20onerror=alert(/xss/)%20/%3E](http://localhost:8000/modules/servlet/dom.jsp?date=%3Cimg%20src=1%20onerror=alert(/xss/)%20/%3E)
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201115160351831.png" alt="image-20201115160351831" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201115160351831.png" alt="image-20201115160351831" style="zoom:50%;" />
 
 
 
@@ -278,7 +278,7 @@ web.xml添加XSSFilter过滤器：
 
 请求XSS示例程序：[http://localhost:8000/modules/servlet/xss.jsp?input=%3Cscript%3Ealert(%27xss%27);%3C/script%3E](http://localhost:8000/modules/servlet/xss.jsp?input=%3Cscript%3Ealert(%27xss%27);%3C/script%3E)
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201115164019678.png" alt="image-20201115164019678" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201115164019678.png" alt="image-20201115164019678" style="zoom:50%;" />
 
 经过全局过滤器转义后的参数就不会再带有XSS攻击能力了。
 
@@ -290,7 +290,7 @@ RASP可以实现类似于全局XSSFilter的请求参数过滤功能，比较稳�
 
 **示例 - RASP对getParameter返回值Hook示例：**
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201115172732140.png" alt="image-20201115172732140" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201115172732140.png" alt="image-20201115172732140" style="zoom:50%;" />
 
 反射型的XSS防御相对来说比较简单，直接禁止GET参数中出现`<>`标签，只要出现就理解拦截，如：
 
@@ -304,7 +304,7 @@ http://localhost:8000/modules/servlet/xss.jsp?input=<script>alert('xss');</scrip
 
 为了支持一些常用的HTML标签和HTML标签属性，RASP可以通过词法解析的方式，将传入的字符串参数值解析成HTML片段，然后分析其中的标签和属性是否合法即可。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201115180617209.png" alt="image-20201115180617209" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201115180617209.png" alt="image-20201115180617209" style="zoom:50%;" />
 
 
 
@@ -322,11 +322,11 @@ http://localhost:8000/modules/servlet/xss.jsp?input=<script>alert('xss');</scrip
 
 请求示例地址：[http://localhost:8000/modules/servlet/guestbook.jsp](http://localhost:8000/modules/servlet/guestbook.jsp)，并填写XSS攻击代码，如下图：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201115181311265.png" alt="image-20201115181311265" style="zoom:40%;" />
+<img src="https://oss.javasec.org/images/image-20201115181311265.png" alt="image-20201115181311265" style="zoom:40%;" />
 
 RASP能够正确识别并拦截XSS攻击：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201115181216802.png" alt="image-20201115181216802" style="zoom:40%;" />
+<img src="https://oss.javasec.org/images/image-20201115181216802.png" alt="image-20201115181216802" style="zoom:40%;" />
 
 #### 4.4.2 XSS富文本检测测试
 
@@ -334,14 +334,14 @@ RASP如果要实现精确的XSS检测能力就必须能够正确的识别出用�
 
 **示例 - 用户在留言板中带图片回复：**
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201115123956172.png" alt="image-20201115123956172" style="zoom:40%;" />
+<img src="https://oss.javasec.org/images/image-20201115123956172.png" alt="image-20201115123956172" style="zoom:40%;" />
 
 
 
 **示例 - 用户在留言板中回复被注释的HTML片段：**
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201115124359270.png" alt="image-20201115124359270" style="zoom:40%;" />
+<img src="https://oss.javasec.org/images/image-20201115124359270.png" alt="image-20201115124359270" style="zoom:40%;" />
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201115124556231.png" alt="image-20201115124556231" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201115124556231.png" alt="image-20201115124556231" style="zoom:50%;" />
 
 经测试，RASP对XSS攻击防御能力正常，能够识别合法的HTML和javascript代码（DOM类XSS占不支持）。
