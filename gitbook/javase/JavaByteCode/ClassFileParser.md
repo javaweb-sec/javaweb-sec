@@ -1,6 +1,6 @@
 # Java class文件解析
 
-为了能够更加深入的学习class结构，本章节将写一个[ClassByteCodeParser类](https://github.com/anbai-inc/javaweb-sec/blob/master/javaweb-sec-source/javase/src/main/java/com/anbai/sec/bytecode/ClassByteCodeParser.java)（有极小部分数据结构较复杂没解析）来实现简单的class文件解析。
+为了能够更加深入的学习class结构，本章节将写一个[ClassByteCodeParser类](https://github.com/javaweb-sec/javaweb-sec/blob/master/javaweb-sec-source/javase/src/main/java/com/anbai/sec/bytecode/ClassByteCodeParser.java)（有极小部分数据结构较复杂没解析）来实现简单的class文件解析。
 
 首先我们创建一个用于测试的`TestHelloWorld.java`文件，源码如下：
 

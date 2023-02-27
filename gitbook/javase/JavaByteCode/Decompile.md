@@ -170,7 +170,7 @@ java -jar /Users/yz/Desktop/javaweb-decomplier/javaweb-decomplier.jar -dgs=1 $(f
 
 <img src="https://oss.javasec.org/images/4.2.png" alt="4.2" style="zoom:50%;" />
 
-依赖的jar: [javaweb-decomplier](https://github.com/anbai-inc/javaweb-decomplier)、[Intellij java-decompiler](https://github.com/JetBrains/intellij-community/tree/master/plugins/java-decompiler/engine)。
+依赖的jar: [javaweb-decomplier](https://github.com/javaweb-sec/javaweb-decomplier)、[Intellij java-decompiler](https://github.com/JetBrains/intellij-community/tree/master/plugins/java-decompiler/engine)。
 
 
 

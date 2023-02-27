@@ -1,6 +1,6 @@
 # Java class文件属性解析
 
-class文件的属性解析是非常复杂的，因为属性表由非常多的类型组成，几乎每一个数据类型都不一样，而且属性表是动态的，它还会随着JDK的版本升级而新增属性对象。在class文件中：`成员变量`、`成员方法`、`类`都拥有属性信息，解析的时候可以使用同样的方法。因为属性表中的属性类型过多，本节仅以解析`ConstantValue`、`Code`为例，完整的解析代码请参考[ClassByteCodeParser类](https://github.com/anbai-inc/javaweb-sec/blob/master/javaweb-sec-source/javase/src/main/java/com/anbai/sec/bytecode/ClassByteCodeParser.java#L570)。
+class文件的属性解析是非常复杂的，因为属性表由非常多的类型组成，几乎每一个数据类型都不一样，而且属性表是动态的，它还会随着JDK的版本升级而新增属性对象。在class文件中：`成员变量`、`成员方法`、`类`都拥有属性信息，解析的时候可以使用同样的方法。因为属性表中的属性类型过多，本节仅以解析`ConstantValue`、`Code`为例，完整的解析代码请参考[ClassByteCodeParser类](https://github.com/javaweb-sec/javaweb-sec/blob/master/javaweb-sec-source/javase/src/main/java/com/anbai/sec/bytecode/ClassByteCodeParser.java#L570)。
 
 **属性信息表数据结构：**
 
