@@ -4,20 +4,19 @@
 
 Apache Tomcat软件是` Java Servlet`、`JavaServer Pages`、`Java Expression Language` 和` Java WebSocket` 技术的开源实现。Tomcat由于其自身简单、稳定、开源等特征，在中小型系统和并发量小的场景下被普遍使用，有极大的用户使用量。
 
+## Tomcat Servlet版本
 
+| Tomcat版本                   | Java EE版本  | Servlet版本 | JSP版本 |
+| ---------------------------- | ------------ | ----------- | ------- |
+| Tomcat 5.0.0 +               | J2EE 1.4     | Servlet 2.4 | JSP 2.0 |
+| Tomcat 6.0.0 - Tomcat 6.0.44 | Java EE 5    | Servlet 2.5 | JSP 2.1 |
+| Tomcat 7.0.0 - Tomcat 7.0.25 | Java EE 6    | Servlet 3.0 | JSP 2.2 |
+| Tomcat 8.0.0 +               | Java EE 7    | Servlet 3.1 | JSP 2.3 |
+| Tomcat 9.0.0 +               | Java EE 8    | Servlet 4.0 | JSP 2.3 |
+| Tomcat 10.0.0 +              | Jakarta EE8  | Servlet 5.0 | JSP 3.0 |
+| Tomcat 11.0.0 +              | Jakarta EE 9 | Servlet 6.0 | JSP 4.0 |
 
-## 规范对应版本
-
-| Tomcat版本                   | Java EE版本 | Servlet版本 | JSP版本 | 发布时间                        |
-| ---------------------------- | ----------- | ----------- | ------- | ------------------------------- |
-| Tomcat 5.0.0 +               | J2EE 1.4    | Servlet 2.4 | JSP 2.0 | (2003年11月24日)                |
-| Tomcat 6.0.0 - Tomcat 6.0.44 | Java EE 5   | Servlet 2.5 | JSP 2.1 | (2006年5月11日 - 2007年9月11日) |
-| Tomcat 7.0.0 - Tomcat 7.0.25 | Java EE 6   | Servlet 3.0 | JSP 2.2 | (2009年12月10日 - 2011年2月6日) |
-| Tomcat 8.0.0 +               | Java EE 7   | Servlet 3.1 | JSP 2.3 | (2013年5月28日)                 |
-| Tomcat 9.0.0 +               | Java EE 8   | Servlet 4.0 | JSP 2.3 | (2017年2月5日)                  |
-| Tomcat 10.0.0 +              | Jakarta EE8 | Servlet 4.0 | JSP 2.3 | /                               |
-
-参考: [Web Application Specifications](https://cwiki.apache.org/confluence/display/TOMCAT/Specifications)
+参考: [Web Application Specifications](https://cwiki.apache.org/confluence/display/TOMCAT/Specifications)、[Apache Tomcat 11](https://tomcat.apache.org/tomcat-11.0-doc/index.html)
 
 
 
