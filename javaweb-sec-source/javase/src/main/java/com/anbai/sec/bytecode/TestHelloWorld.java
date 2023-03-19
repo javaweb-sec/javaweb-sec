@@ -11,7 +11,7 @@ public class TestHelloWorld implements Serializable {
 
 	private static final long serialVersionUID = -7366591802115333975L;
 
-	private long id = 1l;
+	private long id = 1L;
 
 	private String username;
 

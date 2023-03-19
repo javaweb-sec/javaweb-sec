@@ -8,7 +8,7 @@ Java原生提供了对本地系统命令执行的支持，黑客通常会`RCE利
 
 在Java中我们通常会使用`java.lang.Runtime`类的`exec`方法来执行本地系统命令。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191205181818649.png" alt="image-20191205181818649" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20191205181818649.png" alt="image-20191205181818649" style="zoom:50%;" />
 
 
 
@@ -26,7 +26,7 @@ runtime-exec2.jsp执行cmd命令示例:**
 
    我们可以在nc中看到已经成功的接收到了java执行了`curl`命令的请求了，如此仅需要一行代码一个最简单的本地命令执行后门也就写好了。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191205180627895.png" alt="image-20191205180627895" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20191205180627895.png" alt="image-20191205180627895" style="zoom:50%;" />
 
 上面的代码虽然足够简单但是缺少了回显，稍微改下即可实现命令执行的回显了。
 
@@ -61,7 +61,7 @@ runtime-exec2.jsp执行cmd命令示例:**
 
 命令执行效果如下：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191205182511119.png" alt="image-20191205182511119" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20191205182511119.png" alt="image-20191205182511119" style="zoom:50%;" />
 
 ### Runtime命令执行调用链
 
@@ -169,7 +169,7 @@ org.apache.jsp.runtime_002dexec2_jsp._jspService(runtime_002dexec2_jsp.java:118)
 
 执行一个稍微复杂点的命令：`/bin/sh -c "cd /Users/;ls -la;"`,浏览器请求:[http://localhost:8080/process_builder.jsp?cmd=/bin/sh&cmd=-c&cmd=cd%20/Users/;ls%20-la](http://localhost:8080/process_builder.jsp?cmd=/bin/sh&cmd=-c&cmd=cd /Users/;ls -la)
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191206111423261.png" alt="image-20191206111423261" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20191206111423261.png" alt="image-20191206111423261" style="zoom:50%;" />
 
 
 
@@ -177,7 +177,7 @@ org.apache.jsp.runtime_002dexec2_jsp._jspService(runtime_002dexec2_jsp.java:118)
 
 `UNIXProcess`和`ProcessImpl`可以理解本就是一个东西，因为在JDK9的时候把`UNIXProcess`合并到了`ProcessImpl`当中了,参考[changeset 11315:98eb910c9a97](https://hg.openjdk.java.net/jdk-updates/jdk9u/jdk/rev/98eb910c9a97)。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191206111948376.png" alt="image-20191206111948376" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20191206111948376.png" alt="image-20191206111948376" style="zoom:50%;" />
 
 `UNIXProcess`和`ProcessImpl`其实就是最终调用`native`执行系统命令的类，这个类提供了一个叫`forkAndExec`的native方法，如方法名所述主要是通过`fork&exec`来执行本地系统命令。
 
@@ -196,7 +196,7 @@ private native int forkAndExec(int mode, byte[] helperpath,
 
 最终执行的`Java_java_lang_ProcessImpl_forkAndExec`：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191206112722220.png" alt="image-20191206112722220" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20191206112722220.png" alt="image-20191206112722220" style="zoom:50%;" />
 
 `Java_java_lang_ProcessImpl_forkAndExec`完整代码:[ProcessImpl_md.c](https://github.com/unofficial-openjdk/openjdk/blob/e59bd5b27066bb2eb77828110ee585b1598ba636/src/java.base/unix/native/libjava/ProcessImpl_md.c)
 
@@ -338,7 +338,7 @@ private native int forkAndExec(int mode, byte[] helperpath,
 
 命令执行效果如下：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191206135626282.png" alt="image-20191206135626282" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20191206135626282.png" alt="image-20191206135626282" style="zoom:50%;" />
 
 Windows可能并不适用，稍做调整应该就可以了。
 
@@ -467,7 +467,7 @@ Windows可能并不适用，稍做调整应该就可以了。
 
 命令执行效果如下：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191206153815471.png" alt="image-20191206153815471" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20191206153815471.png" alt="image-20191206153815471" style="zoom:50%;" />
 
 
 
@@ -644,7 +644,7 @@ curl http://localhost:8080/load_library.jsp?cmd=ifconfig -d "jni=JNI文件编码
 
 浏览器访问`load_library.jsp`执行命令测试：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191208130543317.png" alt="image-20191208130543317" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20191208130543317.png" alt="image-20191208130543317" style="zoom:50%;" />
 
 这个JNI示例Demo结合了`Java反射`、`ClassLoader机制`、`JNI`三个知识点，相对新手来说会有较大难度，这里不做详细讲解，在后面的对应的章节将做出详细解读。
 

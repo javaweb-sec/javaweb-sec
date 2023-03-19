@@ -6,7 +6,7 @@
 
 `Servlet容器`即实现了[Servlet 规范](https://javaee.github.io/servlet-spec/)的Web应用服务器，负责管理Servlet的生命周期、URL访问请求和`Servlet`映射、`Servlet`注册/卸载等。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200918172715530.png" alt="image-20200918172715530" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200918172715530.png" alt="image-20200918172715530" style="zoom:50%;" />
 
 ## 常见的Servlet容器
 

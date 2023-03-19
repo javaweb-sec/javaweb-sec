@@ -1,6 +1,6 @@
 {
   "title": "攻击Java Web应用-[Java Web安全]",
-  "author": "anbai-inc",
+  "author": "javaweb-sec",
   "description": "JavaWeb Sec",
   "language": "zh-hans",
   "gitbook": "3.2.3",
@@ -36,7 +36,7 @@
     },
     "github-buttons": {
       "buttons": [{
-        "user": "anbai-inc",
+        "user": "javaweb-sec",
         "repo": "javaweb-sec",
         "type": "star",
         "size": "small",
@@ -45,7 +45,7 @@
       ]
     },
     "donate": {
-      "alipay": "https://javasec.oss-cn-hongkong.aliyuncs.com/images/wechat.jpg",
+      "alipay": "https://oss.javasec.org/images/wechat.jpg",
       "title": "",
       "button": "微信群",
       "alipayText": "微信群"

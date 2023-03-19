@@ -96,15 +96,15 @@ Web应用通常都会包含文件上传功能，用户可以将其本地的文�
 
 因为Web应用未检测用户上传的文件合法性导致了任意文件上传漏洞，访问示例中的文件上传地址：[http://localhost:8000/modules/servlet/fileupload/file-upload.jsp](http://localhost:8000/modules/servlet/fileupload/file-upload.jsp)，并选择一个恶意的jsp后门(示例上传的是一个本地命令执行的后门):
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200921003740246.png" alt="image-20200921003740246" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200921003740246.png" alt="image-20200921003740246" style="zoom:50%;" />
 
 后门成功的写入到了网站目录：
 
-![image-20200921003719254](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200921003719254.png)
+![image-20200921003719254](https://oss.javasec.org/images/image-20200921003719254.png)
 
 访问命令执行后门测试：[http://localhost:8000/uploads/cmd.jsp?cmd=ls](http://localhost:8000/uploads/cmd.jsp?cmd=ls)，如下图：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200921003841786.png" alt="image-20200921003841786" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200921003841786.png" alt="image-20200921003841786" style="zoom:50%;" />
 
 ## 2. Servlet 3.0 内置文件上传解析
 
@@ -198,11 +198,11 @@ JSP使用`request.getParts();`必须配置`multipart-config`，否则请求时�
 
 访问示例中的文件上传地址：[http://localhost:8000/modules/servlet/fileupload/file-upload-parts.jsp](http://localhost:8000/modules/servlet/fileupload/file-upload-parts.jsp)：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201118150151152.png" alt="image-20201118150151152" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201118150151152.png" alt="image-20201118150151152" style="zoom:50%;" />
 
 文件上传成功：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201118150626809.png" alt="image-20201118150626809" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201118150626809.png" alt="image-20201118150626809" style="zoom:50%;" />
 
 ### 2.2 Servlet @MultipartConfig
 
@@ -294,11 +294,11 @@ public class FileUploadServlet extends HttpServlet {
 
 访问示例中的文件上传地址：[http://localhost:8000/FileUploadServlet](http://localhost:8000/FileUploadServlet)
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201118153002485.png" alt="image-20201118153002485" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201118153002485.png" alt="image-20201118153002485" style="zoom:50%;" />
 
 文件上传成功：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201118153018149.png" alt="image-20201118153018149" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201118153018149.png" alt="image-20201118153018149" style="zoom:50%;" />
 
 
 
@@ -382,11 +382,11 @@ public class FileUploadController {
 
 访问示例中的文件上传地址：[http://localhost:8000/FileUpload/upload.do](http://localhost:8000/FileUpload/upload.do)，如下图：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201116154250929.png" alt="image-20201116154250929" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201116154250929.png" alt="image-20201116154250929" style="zoom:50%;" />
 
 后门成功的写入到了网站目录：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201116154312441.png" alt="image-20201116154312441" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201116154312441.png" alt="image-20201116154312441" style="zoom:50%;" />
 
 ## 4. 文件上传 - 编码特性
 
@@ -410,7 +410,7 @@ public class FileUploadController {
 
 字符串：`测试.jsp`编码后的结果如下：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201119110638971.png" alt="image-20201119110638971" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201119110638971.png" alt="image-20201119110638971" style="zoom:50%;" />
 
 QP编码本与文件上传没有什么关系，但是由于在Java中最常用的[Apache commons fileupload](http://commons.apache.org/proper/commons-fileupload/)库从1.3开始支持了[RFC 2047](https://www.ietf.org/rfc/rfc2047.txt) Header值编码，从而支持解析使用QP编码后的文件名。
 
@@ -418,7 +418,7 @@ QP编码本与文件上传没有什么关系，但是由于在Java中最常用�
 
 **示例 - 文件上传测试：**
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201118171038557.png" alt="image-20201118171038557" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201118171038557.png" alt="image-20201118171038557" style="zoom:50%;" />
 
 **示例 - Payload：**
 
@@ -428,17 +428,17 @@ Content-Disposition: form-data; name="file"; filename="=?UTF-8?Q?=E6=B5=8B=E8=AF
 
 编码处理类：`org.apache.commons.fileupload.util.mime.MimeUtility#decodeText`
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201116182555363.png" alt="image-20201116182555363" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201116182555363.png" alt="image-20201116182555363" style="zoom:50%;" />
 
 文件上传成功后文件名被编码成了`测试.jsp`。
 
 Spring MVC中同样支持QP编码，在Spring中有两种处理`Multipart`的`Resolver`： `org.springframework.web.multipart.commons.CommonsMultipartResolver`和`org.springframework.web.multipart.support.StandardServletMultipartResolver`。`CommonsMultipartResolver`使用的是`commons fileupload`解析的所以支持QP编码。`StandardMultipartHttpServletRequest`比较特殊，Spring 4没有处理QP编码：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201116190648714.png" alt="image-20201116190648714" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201116190648714.png" alt="image-20201116190648714" style="zoom:50%;" />
 
 但是在Spring 5修改了实现，如果文件名是`=?`开始`?=`结尾的话会调用`javax.mail`库的`MimeDelegate`解析QP编码：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201116190416499.png" alt="image-20201116190416499" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201116190416499.png" alt="image-20201116190416499" style="zoom:50%;" />
 
 
 
@@ -460,29 +460,29 @@ Spring会对文件上传的名称做特殊的处理，`org.springframework.web.m
 
 在文件上传时，修改`Content-Disposition`中的`filename=`为`filename*="UTF-8'1.jpg'1.jsp"`：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201116202636853.png" alt="image-20201116202636853" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201116202636853.png" alt="image-20201116202636853" style="zoom:50%;" />
 
 Spring4的`org.springframework.web.multipart.support.StandardMultipartHttpServletRequest#parseRequest`解析逻辑：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201116200619169.png" alt="image-20201116200619169" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201116200619169.png" alt="image-20201116200619169" style="zoom:50%;" />
 
 Spring4的`org.springframework.web.multipart.support.StandardMultipartHttpServletRequest#extractFilenameWithCharset`代码如下：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201116200313346.png" alt="image-20201116200313346" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201116200313346.png" alt="image-20201116200313346" style="zoom:50%;" />
 
 `extractFilenameWithCharset`支持对传入的文件名编码，示例中传入的`UTF-8'1.jpg'1.jsp`会被解析成`UTF-8`编码，最终的文件名为`1.jsp`，而`1.jpg`则会被丢弃。
 
 Spring5的`org.springframework.web.multipart.support.StandardMultipartHttpServletRequest#parseRequest`除了支持QP编码以外，优化了Spring4的解析文件名的方式：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201116202343036.png" alt="image-20201116202343036" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201116202343036.png" alt="image-20201116202343036" style="zoom:50%;" />
 
 `org.springframework.http.ContentDisposition#parse`代码：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201116202037704.png" alt="image-20201116202037704" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201116202037704.png" alt="image-20201116202037704" style="zoom:50%;" />
 
 文件上传成功：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201116202909113.png" alt="image-20201116202909113" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201116202909113.png" alt="image-20201116202909113" style="zoom:50%;" />
 
 **示例 - Payload：**
 
@@ -515,11 +515,11 @@ public SysArticle getArticleByID(String id) {
 
 访问示例程序：[http://localhost:8000/getArticleById.php?id=100000](http://localhost:8000/getArticleById.php?id=100000)：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201118160422872.png" alt="image-20201118160422872" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201118160422872.png" alt="image-20201118160422872" style="zoom:50%;" />
 
 使用`Multipart`请求注入数据库信息测试：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201118161532459.png" alt="image-20201118161532459" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201118161532459.png" alt="image-20201118161532459" style="zoom:50%;" />
 
 
 
@@ -531,11 +531,11 @@ RASP不但应该防御`Apache commons-fileupload`库的文件上传请求，还�
 
 `Apache commons-fileupload`底层处理解析Multipart的类是`org.apache.commons.fileupload.FileUploadBase.FileItemIteratorImpl.FileItemStreamImpl`，如下：
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201118163055865.png" alt="image-20201118163055865" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201118163055865.png" alt="image-20201118163055865" style="zoom:50%;" />
 
 只需Hook `FileItemStreamImpl`类的构造方法就可以获取到`Multipart`的字段或者文件名称，RASP只需要检测传入的`pName`参数值`cmd.jsp`是否是一个合法的文件名称就可以实现文件上传校验了。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201118163440860.png" alt="image-20201118163440860" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201118163440860.png" alt="image-20201118163440860" style="zoom:50%;" />
 
 需要注意一点，Tomcat封装了`Apache commons fileupload`库，并修改了fileupload类的包名，如：`org.apache.tomcat.util.http.fileupload.FileUploadBase.FileItemIteratorImpl.FileItemStreamImpl#FileItemStreamImpl`，所以应当把这个类也放入检测范围内。
 
@@ -545,9 +545,9 @@ RASP不但应该防御`Apache commons-fileupload`库的文件上传请求，还�
 
 `javax.servlet.http.Part`是一个接口，不同的容器实现可能都不一样，RASP可以对`javax.servlet.http.Part`接口的`getInputStream`方法进行Hook，然后调用`getName`和`getSubmittedFileName`就可以获取到字段名称、文件名等信息。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201118165015405.png" alt="image-20201118165015405" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201118165015405.png" alt="image-20201118165015405" style="zoom:50%;" />
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201118165504047.png" alt="image-20201118165504047" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201118165504047.png" alt="image-20201118165504047" style="zoom:50%;" />
 
 需要特别注意的是`Jakarta EE8`修改了`javax.servlet.http.Part`的API包名为：`jakarta.servlet.http.Part`，为了能够适配高版本的`Jakarta` API。
 
@@ -555,5 +555,5 @@ RASP不但应该防御`Apache commons-fileupload`库的文件上传请求，还�
 
 RASP为了更好的防御文件上传类请求，需要支持[RFC 2047](https://www.ietf.org/rfc/rfc2047.txt)的QP编码，还需要支持对Spring MVC内置的文件名编码处理处理。
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201118170855641.png" alt="image-20201118170855641" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201118170855641.png" alt="image-20201118170855641" style="zoom:50%;" />
 

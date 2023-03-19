@@ -27,7 +27,7 @@ ClassFile {
 
 **TestHelloWorld.class十六进制：**
 
-<img src="https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201014142251979.png" alt="image-20201014142251979" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201014142251979.png" alt="image-20201014142251979" style="zoom:50%;" />
 
 ## Magic（魔数）
 
@@ -56,6 +56,10 @@ class文件的版本号由两个`u2`组成（`u2 minor_version; u2 major_version
 | Java13  | 57         | 39           | 2019-09  |
 | Java14  | 58         | 3A           | 2020-03  |
 | Java15  | 59         | 3B           | 2020-09  |
+| Java16  | 60         | 3C           | 2021-03  |
+| Java17  | 61         | 3D           | 2021-09  |
+| Java18  | 62         | 3E           | 2022-03  |
+| Java19  | 63         | 3F           | 2022-09  |
 
 
 ## constant_pool_count （常量池计数器）

@@ -268,7 +268,7 @@ public class CommandExecutionTest {
 
 **`CommandExecutionTest`执行命令演示:**
 
-![image-20191208152439368](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191208152439368.png)
+![image-20191208152439368](https://oss.javasec.org/images/image-20191208152439368.png)
 
 示例代码中的`CommandExecutionTest.java`其实和`load_library.jsp`逻辑差不多，Demo实现了自定义`ClassLoader`重写了`findClass`方法来加载`com.anbai.sec.cmd.CommandExecution`类的字节码并实现调用，然后再通过JNI加载动态链接库并调用了链接库中的命令执行函数。
 

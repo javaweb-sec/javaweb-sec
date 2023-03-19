@@ -392,7 +392,7 @@ class AnnotationInvocationHandler implements InvocationHandler, Serializable {
 
 **`readObject`方法:**
 
-![image-20191220181251898](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191220181251898.png)
+![image-20191220181251898](https://oss.javasec.org/images/image-20191220181251898.png)
 
 上图中的第`352`行中的`memberValues`是`AnnotationInvocationHandler`的成员变量，`memberValues`的值是在`var1.defaultReadObject();`时反序列化生成的，它也就是我们在创建`AnnotationInvocationHandler`时传入的带有恶意攻击链的`TransformedMap`。需要注意的是如果我们想要进入到`var5.setValue`这个逻辑那么我们的序列化的`map`中的`key`必须包含创建`AnnotationInvocationHandler`时传入的注解的方法名。
 
