@@ -70,7 +70,7 @@ Tomcat在默认情况下提供了一些管理后台，不同的管理后台提�
 
 ## Host Manager
 
-顾名思义，此管理后台用于管理运行在Tomcat上的虚拟主机，文件路径位置为`$CATALINA_BASE/webapps/manager`，context path为`/host-manager`。
+顾名思义，此管理后台用于管理运行在Tomcat上的虚拟主机，文件路径位置为`$CATALINA_BASE/webapps/host-manager`，context path为`/host-manager`。
 
 详细介绍可以在官方文档找到，以Tomcat 7.0为例，文档的位置为：https://tomcat.apache.org/tomcat-7.0-doc/host-manager-howto.html
 
