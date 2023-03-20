@@ -21,48 +21,7 @@
     <!-- MVC注解支持 -->
     <mvc:annotation-driven/>
 
-    <context:property-placeholder location="classpath:/config/jdbc.properties"/>
-
-    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
-        <property name="url" value="${jdbc.url}"/>
-        <property name="username" value="${jdbc.username}"/>
-        <property name="password" value="${jdbc.password}"/>
-        <property name="filters" value="stat"/>
-        <property name="maxActive" value="20"/>
-        <property name="initialSize" value="1"/>
-        <property name="maxWait" value="60000"/>
-        <property name="minIdle" value="1"/>
-        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
-        <property name="minEvictableIdleTimeMillis" value="300000"/>
-        <property name="validationQuery" value="SELECT 'x'"/>
-        <property name="testWhileIdle" value="true"/>
-        <property name="testOnBorrow" value="false"/>
-        <property name="testOnReturn" value="false"/>
-        <property name="poolPreparedStatements" value="true"/>
-        <property name="maxOpenPreparedStatements" value="20"/>
-    </bean>
-
-    <!-- jdbcTemplate Spring JDBC 模版 -->
-    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate" abstract="false" lazy-init="false">
-        <property name="dataSource" ref="dataSource"/>
-    </bean>
-
     <!-- 事务注解支持 -->
     <tx:annotation-driven/>
-
-    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dataSource"/>
-    </bean>
-
-    <aop:config>
-        <aop:advisor pointcut="execution(public * com.anbai.sec.*.*(..))" advice-ref="txAdvice"/>
-    </aop:config>
-
-    <tx:advice id="txAdvice" transaction-manager="transactionManager">
-        <tx:attributes>
-            <tx:method name="get*" read-only="true" propagation="NOT_SUPPORTED"/>
-            <tx:method name="*"/>
-        </tx:attributes>
-    </tx:advice>
 
 </beans>
