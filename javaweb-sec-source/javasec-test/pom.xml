@@ -19,7 +19,6 @@
         <module>javasec-vuls-core</module>
         <module>javasec-vuls-springboot</module>
         <module>javasec-vuls-struts2</module>
-        <module>javasec-vuls-shiro</module>
         <module>javasec-tomcat-ajp</module>
     </modules>
 
