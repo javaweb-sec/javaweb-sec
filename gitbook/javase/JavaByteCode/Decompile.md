@@ -240,7 +240,7 @@ Github：https://github.com/Konloch/bytecode-viewer
 
 反编译示例：`jad TestHelloWorld.class`
 
-<img src="https://oss.javasec.org/images/image-20201019160840290.png" alt="image-20201019160840290" style="zoom: 40%;" />
+<img src="https://oss.javasec.org/images/image-20201019160840290.png" alt="image-20201019160840290" />
 
 `JAD`参数如下：
 

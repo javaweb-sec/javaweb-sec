@@ -6,4 +6,4 @@ JSP、JSPX 文件是可以直接被 Java 容器直接解析的动态脚本， js
 
 JSP文件会被编译成一个java类文件，如`index.jsp`在Tomcat中`Jasper`编译后会生成`index_jsp.java`和`index_jsp.class`两个文件。而`index_jsp.java` 继承于`HttpJspBase`类，`HttpJspBase`是一个实现了`HttpJspPage`接口并继承了`HttpServlet`的标准的`Servlet`，`__jspService`方法其实是`HttpJspPage`接口方法，类似于`Servlet`中的`service`方法，这里的`__jspService`方法其实就是`HttpJspBase`的`service`方法调用。
 
-<img src="https://oss.javasec.org/images/17.png" alt="img" style="zoom: 50%;" />
+<img src="https://oss.javasec.org/images/17.png" alt="img" />

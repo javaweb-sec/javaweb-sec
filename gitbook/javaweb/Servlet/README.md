@@ -63,7 +63,7 @@ public class TestServlet extends HttpServlet {
 
 **基于配置实现的Servlet：**
 
-<img src="https://oss.javasec.org/images/image-20191214142745856.png" alt="image-20191214142745856" style="zoom: 40%;" />
+<img src="https://oss.javasec.org/images/image-20191214142745856.png" alt="image-20191214142745856" />
 
 
 

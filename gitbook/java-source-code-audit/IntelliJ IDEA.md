@@ -125,7 +125,7 @@ IDEA的反编译效果非常的不错，大部分时间都可以直接使用IDEA
 
 复制一个文件的内容到粘贴板，然后打开需要比较的文件后点击`右键`->`Compare with Clipboard`：
 
-<img src="https://oss.javasec.org/images/image-20200920123854460.png" alt="image-20200920123854460" style="zoom: 50%;" />
+<img src="https://oss.javasec.org/images/image-20200920123854460.png" alt="image-20200920123854460" />
 
 文件对比：
 
@@ -135,7 +135,7 @@ IDEA的反编译效果非常的不错，大部分时间都可以直接使用IDEA
 
 如果嫌比较粘贴板比较麻烦，可以直接选中需要比较的文件`右键`->`Compare With...`，如下：
 
-<img src="https://oss.javasec.org/images/image-20200920124401867.png" alt="image-20200920124401867" style="zoom: 35%;" />
+<img src="https://oss.javasec.org/images/image-20200920124401867.png" alt="image-20200920124401867" />
 
 然后在本地文件中选择一个需要比较的文件即可：
 

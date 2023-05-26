@@ -209,7 +209,7 @@ JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
 
 在使用`IDEA`调试的时候可以把断点设置到接口方法上，所有的接口实现类的被设置了断点的方法都可以`Debug`，如下图：
 
-<img src="https://oss.javasec.org/images/image-20200920170005507.png" alt="image-20200920170005507" style="zoom: 40%;" />
+<img src="https://oss.javasec.org/images/image-20200920170005507.png" alt="image-20200920170005507" />
 
 `IDEA`还支持对成员变量值进行监控，当被设置了监控的变量值发生改变时会进入断点：
 
