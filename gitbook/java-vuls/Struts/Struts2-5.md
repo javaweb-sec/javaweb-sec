@@ -51,19 +51,19 @@ Struts2 漏洞调试总结
 
 ## 生命周期
 
-<img src="https://oss.javasec.org/images/struts2-sum-1.jpg" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/struts2-sum-1.jpg" />
 
 通过上图可以看出，漏洞的出现一般位于请求刚进入框架时拦截器的解析，和在渲染结果时对标签、参数的处理。
 
 ## 漏洞位置
 
-<img src="https://oss.javasec.org/images/1625284624414.jpg" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/1625284624414.jpg" />
 
 一个字，遍地开花。
 
 ## 触发点图
 
-<img src="https://oss.javasec.org/images/struts2-sum-2.jpg" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/struts2-sum-2.jpg" />
 
 入口点仅示范性的写了几个。
 

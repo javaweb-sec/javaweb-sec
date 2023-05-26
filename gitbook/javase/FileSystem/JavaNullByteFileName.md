@@ -28,11 +28,11 @@
 
 修复的JDK版本所有跟文件名相关的操作都调用了`isInvalid`方法检测，防止文件名空字节截断。
 
-<img src="https://oss.javasec.org/images/image-20201209203738643.png" alt="image-20201209203738643" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201209203738643.png" alt="image-20201209203738643" />
 
 修复前(`Java SE 7 Update 25`)和修复后(`Java SE 7 Update 40`)的对比会发现`Java SE 7 Update 25`中的`java.io.File`类中并未添加`\u0000`的检测。
 
-<img src="https://oss.javasec.org/images/15461904682947.jpg" alt="-w851" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/15461904682947.jpg" alt="-w851" />
 
 受空字节截断影响的JDK版本范围:`JDK<1.7.40`,单是JDK7于2011年07月28日发布至2013年09月10日发表`Java SE 7 Update 40`这两年多期间受影响的就有16个版本，值得注意的是JDK1.6虽然JDK7修复之后发布了数十个版本，但是并没有任何一个版本修复过这个问题，而JDK8发布时间在JDK7修复以后所以并不受此漏洞影响。
 
@@ -77,11 +77,11 @@ public class FileNullBytes {
 
 使用`JDK1.7.0.25`测试成功截断文件名：
 
-<img src="https://oss.javasec.org/images/15461913651356.jpg" alt="-w987" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/15461913651356.jpg" alt="-w987" />
 
 使用`JDK1.7.0.80`测试写文件截断时抛出`java.io.FileNotFoundException: Invalid file path`异常:
 
-<img src="https://oss.javasec.org/images/15461915044088.jpg" alt="-w1017" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/15461915044088.jpg" alt="-w1017" />
 
 
 

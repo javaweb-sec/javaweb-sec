@@ -43,7 +43,7 @@ java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 Test
 
 这个时候程序会处于等待状态（光标会一致闪烁，等待远程连接）：
 
-<img src="https://oss.javasec.org/images/image-20200519171103826.png" alt="image-20200519171103826" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200519171103826.png" alt="image-20200519171103826" />
 
 ### 4.1 有源码调试
 
@@ -66,11 +66,11 @@ public class Test {
 ```
 
 在待调试的程序点设置断点，并点击`IDEA Debug`配置：
-<img src="https://oss.javasec.org/images/image-20200519171214694.png" alt="image-20200519171214694" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200519171214694.png" alt="image-20200519171214694" />
 
 这个时候就可以看到程序已经运行至断点的位置了：
 
-<img src="https://oss.javasec.org/images/image-20200519171503538.png" alt="image-20200519171503538" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200519171503538.png" alt="image-20200519171503538" />
 
 
 
@@ -105,15 +105,15 @@ drwxr-xr-x  5 yz  staff  160 May 19 16:57 ..
 
 **示例 - 直接选择项目中的jar：**
 
-<img src="https://oss.javasec.org/images/image-20200519172506843.png" alt="image-20200519172506843" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200519172506843.png" alt="image-20200519172506843" />
 
 **示例 - 选择项目以外的jar：**
 
-<img src="https://oss.javasec.org/images/image-20200519173445416.png" alt="image-20200519173445416" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200519173445416.png" alt="image-20200519173445416" />
 
 选择`jar`需要添加的`classpath`信息，通常不需要修改：
 
-<img src="https://oss.javasec.org/images/image-20200519172552668.png" alt="image-20200519172552668" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200519172552668.png" alt="image-20200519172552668" />
 
 启动Test示例：
 
@@ -123,9 +123,9 @@ java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 -cp test
 
 展开`test.jar`并在Test.class中设置断点，最后点击工具栏的调试按钮即可调试：
 
-<img src="https://oss.javasec.org/images/image-20200519173128450.png" alt="image-20200519173128450" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200519173128450.png" alt="image-20200519173128450" />
 
-<img src="https://oss.javasec.org/images/image-20200519173228789.png" alt="image-20200519173228789" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200519173228789.png" alt="image-20200519173228789" />
 
 
 
@@ -133,7 +133,7 @@ java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 -cp test
 
 常见的中间件启动脚本中都内置了调试参数，如Tomcat的`bin/catalina.sh`就内置了调试参数：
 
-<img src="https://oss.javasec.org/images/image-20200519174040635.png" alt="image-20200519174040635" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200519174040635.png" alt="image-20200519174040635" />
 
 但最简单直接的方式是直接在`Tomcat`的启动脚本`catalina.sh`(Windows换成catalina.bat)中添加`Debug`参数即可：
 
@@ -141,21 +141,21 @@ java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 -cp test
 JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
 ```
 
-<img src="https://oss.javasec.org/images/image-20200519175322193.png" alt="image-20200519175322193" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200519175322193.png" alt="image-20200519175322193" />
 
 然后再使用`catalina.sh`启动Tomcat就会发现`Tomcat`会处于等待远程连接状态：
 
-<img src="https://oss.javasec.org/images/image-20200519175350559.png" alt="image-20200519175350559" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200519175350559.png" alt="image-20200519175350559" />
 
 接下来就只需要导入`Tomcat`的jar并设置断点就可以调试了。
 
 添加`Tomcat`的`lib`目录到`IDEA`的`classpath`:
 
-<img src="https://oss.javasec.org/images/image-20200519175529897.png" alt="image-20200519175529897" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200519175529897.png" alt="image-20200519175529897" />
 
 展开左侧`External Libraries`->`lib`->`选择需要断点的类`->`点击工具栏的Debug`:
 
-<img src="https://oss.javasec.org/images/image-20200519175927288.png" alt="image-20200519175927288" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200519175927288.png" alt="image-20200519175927288" />
 
 然后在`webapps/ROOT`目录下新建一个`test.jsp`:
 
@@ -165,7 +165,7 @@ JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
 
 最后点击工具栏的Debug后控制台的`Tomcat`就会自动启动，知道触发断点为止，上图示例中我设置的断点是`org.apache.catalina.connector.RequestFacade#getParameter`，所以需要使用浏览器请求任意页面并传入参数(访问`http://localhost:8080/test.jsp?id=yzmm`)即可进入断点：
 
-<img src="https://oss.javasec.org/images/image-20200519180418785.png" alt="image-20200519180418785" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200519180418785.png" alt="image-20200519180418785" />
 
 其实调试Tomcat最简单的方式是直接启动一个Maven Web项目并使用`Tomcat`启动，然后在`pom.xml`中配置对应版本的`Tomcat`的依赖就可以直接Debug了，使用这种调试方法可以让您学会如何使用IDEA调试任意的Java程序，仅此而已。
 
@@ -173,35 +173,35 @@ JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
 
 某些时候我们需要设置一个断点调试的时候会发现一些我们不希望关心的断点也进来了，会比较影响`Debug`，这个时候我们可以使用`IDEA`的条件断点的方式来设置断点。先在对应的行设置一个断点，然后再点击断点的红点图标`右键`设置断点停止条件了。例如下图示例我们设置一个当用户名为`admin`时进入调试模式：
 
-<img src="https://oss.javasec.org/images/image-20200920162426500.png" alt="image-20200920162426500" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200920162426500.png" alt="image-20200920162426500" />
 
 ## 7. 动态获取表达式值
 
 调试模式时我们可以点击下图的`计算器`图标或者使用快捷键`⌥F8`来执行任意的`Java`代码片段，如下图：
 
-<img src="https://oss.javasec.org/images/image-20200920163423170.png" alt="image-20200920163423170" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200920163423170.png" alt="image-20200920163423170" />
 
 如果想要执行多行，点击`放大`/`缩小`的小图标切换：
 
-<img src="https://oss.javasec.org/images/image-20200920163740180.png" alt="image-20200920163740180" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200920163740180.png" alt="image-20200920163740180" />
 
 ## 8. 查看所有断点、暂停/启用所有断点
 
 如果断点数量被设置的比较多，可能会比较难于管理，所幸，`IDEA`提供了对所有断点批量管理的功能，点击下图的小图标或者使用快捷键`⇧⌘F8`即可批量管理所有断点：
 
-<img src="https://oss.javasec.org/images/image-20200920164033834.png" alt="image-20200920164033834" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200920164033834.png" alt="image-20200920164033834" />
 
 断点批量管理功能，新版的`IDEA`还新增了异常断点功能：
 
-<img src="https://oss.javasec.org/images/image-20200920164429170.png" alt="image-20200920164429170" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200920164429170.png" alt="image-20200920164429170" />
 
 如果想要一次性放过所有的断点而又不想一个个的去勾掉断点，可以点击红色圆圈带×的小图标：
 
-<img src="https://oss.javasec.org/images/image-20200920164306758.png" alt="image-20200920164306758" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200920164306758.png" alt="image-20200920164306758" />
 
 这样就可以看到所有已被设置了断点的图标都变成了灰色，也就是暂停了所有断点功能：
 
-<img src="https://oss.javasec.org/images/image-20200920165244373.png" alt="image-20200920165244373" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200920165244373.png" alt="image-20200920165244373" />
 
 再次点击该图标就会恢复到调试模式。
 
@@ -213,7 +213,7 @@ JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
 
 `IDEA`还支持对成员变量值进行监控，当被设置了监控的变量值发生改变时会进入断点：
 
-<img src="https://oss.javasec.org/images/image-20200920170948889.png" alt="image-20200920170948889" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20200920170948889.png" alt="image-20200920170948889" />
 
 ## 10. 代码覆盖率/性能
 

@@ -27,7 +27,7 @@ ClassFile {
 
 **TestHelloWorld.class十六进制：**
 
-<img src="https://oss.javasec.org/images/image-20201014142251979.png" alt="image-20201014142251979" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20201014142251979.png" alt="image-20201014142251979" />
 
 ## Magic（魔数）
 

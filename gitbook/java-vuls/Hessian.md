@@ -28,27 +28,27 @@ Hessian 本身作为 [Resin](https://caucho.com/products/resin) 的一部分，�
 
 通过把提供服务的类注册成 Servlet 的方式来作为 Server 端进行交互。
 
-![](../images/1650934576284.png)
+![](https://oss.javasec.org/images/1650934576284.png)
 
 服务端需要有一个该方法的具体实现，这里通过使该类继承自 `com.caucho.hessian.server.HessianServlet` 来将其标记为一个提供服务的 Servlet ：
 
-![](../images/1650934675668.png)
+![](https://oss.javasec.org/images/1650934675668.png)
 
 在 `web.xml` 中配置 Servlet 的映射。
 
-![](../images/1650935933223.png)
+![](https://oss.javasec.org/images/1650935933223.png)
 
 Client 端通过  `com.caucho.hessian.client.HessianProxyFactory` 工厂类创建对接口的代理对象，并进行调用，可以看到调用后执行了服务端的逻辑并返回了代码。
 
-![](../images/1650938036639.png)
+![](https://oss.javasec.org/images/1650938036639.png)
 
 除了将具体实现类继承自 HessianServlet 之外，还可以不继承，完全通过配置文件进行设置，将待调用的接口和类作为 HessianServlet 的初始化参数进行配置：
 
-![](../images/1650944418913.png)
+![](https://oss.javasec.org/images/1650944418913.png)
 
 `web.xml` 配置如下。
 
-![](../images/1650938432215.png)
+![](https://oss.javasec.org/images/1650938432215.png)
 
 
 ## 整合 Spring 项目
@@ -57,17 +57,17 @@ Spring-web 包内提供了 `org.springframework.remoting.caucho.HessianServiceEx
 
 从 spring-web-5.3 后，该类被标记为 `@Deprecated` ， 也就是说 spring 在逐渐淘汰对基于序列化的远程调用的相关支持。
 
-![](../images/1650948136857.png)
+![](https://oss.javasec.org/images/1650948136857.png)
 
 Spring 的配置方式种类就太多了，基于配置文件的可以看 spring 官方文档上的[这篇文章](https://docs.spring.io/spring-framework/docs/3.0.0.M4/reference/html/ch19s03.html)，基于代码和注解的可以查看[这篇文章](https://www.baeldung.com/spring-remoting-hessian-burlap)。
 
 由于本人喜欢使用注解这种方式，并且对 xml 极度厌恶，所以此处采用注解方式进行测试，如下图。
 
-![](../images/1650952391546.png)
+![](https://oss.javasec.org/images/1650952391546.png)
 
 配置后依旧使用同样的 Client 代码访问即可。
 
-![](../images/1650952443099.png)
+![](https://oss.javasec.org/images/1650952443099.png)
 
 ## 自封装调用
 
@@ -75,7 +75,7 @@ Spring 的配置方式种类就太多了，基于配置文件的可以看 spring
 
 比较常见的封装成如下的工具类自行调用:
 
-![](../images/1650943305812.png)
+![](https://oss.javasec.org/images/1650943305812.png)
 
 
 ## JNDI 源
@@ -84,7 +84,7 @@ Hessian 还可以通过将 HessianProxyFactory 配置为 JNDI Resource 的方式
 
 例如在 `resin.xml` 中添加如下配置：
 
-![](../images/1650972801210.png)
+![](https://oss.javasec.org/images/1650972801210.png)
 
 然后使用 JNDI 查询的方法调用，调用代码如下：
 
@@ -115,15 +115,15 @@ System.out.println("Hello: " + hello.sayHello(o));
 
 接下来重点关注这两个方法。首先是 `init` 方法，这个方法总体来讲就是用来初始化 HessianServlet 的成员变量，包括 `_homeAPI`(调用类的接口 Class)、`_homeImpl`(具体实现类的对象)、`_serializerFactory`(序列化工厂类)、`_homeSkeleton`(封装方法)等等。
 
-![](../images/1651031014032.png)
+![](https://oss.javasec.org/images/1651031014032.png)
 
 基础逻辑如下：
 
-![](../images/1651035644027.png)
+![](https://oss.javasec.org/images/1651035644027.png)
 
 这里有一个小细节，Hessian 自行封装了一个 `loadClass`  方法加载类，优先从线程中获取类加载器加载类，在没有设置的情况下使用当前类加载器加载。
 
-![](../images/1650981349908.png)
+![](https://oss.javasec.org/images/1650981349908.png)
 
 类加载的知识学着学着就忘记了，不知道为什么要这样写，所以看到这里特意和园长语音了一下，思考了一下，觉得大概有两种原因：
 - 不同环境下可能使用自定义类加载器重新加载类，对原来的代码进行魔改，这里可以确保拿到原本的代码。
@@ -131,40 +131,40 @@ System.out.println("Hello: " + hello.sayHello(o));
 
 接下来看下 `service` 方法，
 
-![](../images/1651037726744.png)
+![](https://oss.javasec.org/images/1651037726744.png)
 
 `invoke` 方法根据 objectID 是否为空决定调用哪个。
 
-![](../images/1651037762217.png)
+![](https://oss.javasec.org/images/1651037762217.png)
 
 接下来就进入 `com.caucho.hessian.server.HessianSkeleton` 的调用流程，先来简单了解一下这个类。HessianSkeleton 是 AbstractSkeleton 的子类，用来对 Hessian 提供的服务进行封装。
 
 首先 AbstractSkeleton 初始化时接收调用接口的类型，并按照自己的逻辑把接口中的方法保存在 `_methodMap` 中，包括“方法名”、“方法名__方法参数个数”、“方法名_参数类型_参数2类型”等自定义格式。
 
-![](../images/1651043998890.png)
+![](https://oss.javasec.org/images/1651043998890.png)
 
 HessianSkeleton 初始化时将实现类保存在成员变量 `_service` 中。
 
-![](../images/1651045336561.png)
+![](https://oss.javasec.org/images/1651045336561.png)
 
 HessianSkeleton 中还有两个成员变量，`HessianFactory` 用来创建 HessianInput/HessianOutput 流，`HessianInputFactory` 用来读取和创建 HessianInput/Hessian2Input 流，用到的时候会细说。
 
-![](../images/1651046335624.png)
+![](https://oss.javasec.org/images/1651046335624.png)
 
 简单了解了之后，来看下调用中的关键方法 `HessianSkeleton#invoke` ，首先是输入输出流的创建。
 
-![](../images/1651047768394.png)
+![](https://oss.javasec.org/images/1651047768394.png)
 
 然后主要是调用方法的查找和参数的反序列化，反序列化后进行反射调用，并写回结果。
 
-![](../images/1651050697331.png)
+![](https://oss.javasec.org/images/1651050697331.png)
 
 
 接下来说下 **Spring**。 
 
 在 Spring 中的关键类是 `org.springframework.remoting.caucho.HessianExporter`，关键方法是 `doInvoke` 方法，其实逻辑与 Servlet 类似，就不多重复了。
 
-![](../images/1651052914588.png)
+![](https://oss.javasec.org/images/1651052914588.png)
 
 可以看到这里也是额外处理了一下类加载器的问题。
 
@@ -178,43 +178,43 @@ Hessian 的序列化反序列化流程有几个关键类，一般包括输入输
 
 除了基础数据类型，主要关注的是对 Object 类型数据的写入方法 `writeObject`：
 
-![](../images/1651062358378.png)
+![](https://oss.javasec.org/images/1651062358378.png)
 
 这个方法根据指定的类型获取序列化器 `Serializer` 的实现类，并调用其 `writeObject` 方法序列化数据。在当前版本中，可看到一共有 29 个子类针对各种类型的数据。对于自定义类型，将会使用 `JavaSerializer/UnsafeSerializer/JavaUnsharedSerializer` 进行相关的序列化动作，默认情况下是 `UnsafeSerializer`。
 
-![](../images/1651062885396.png)
+![](https://oss.javasec.org/images/1651062885396.png)
 
 `UnsafeSerializer#writeObject` 方法兼容了 Hessian/Hessian2 两种协议的数据结构，会调用 `writeObjectBegin` 方法开始写入数据，
 
-![](../images/1651063977126.png)
+![](https://oss.javasec.org/images/1651063977126.png)
 
 `writeObjectBegin` 这个方法是 AbstractHessianOutput 的方法，Hessian2Output 重写了这个方法，而其他实现类没有。也就是说在 Hessian 1.0 和 Burlap 中，写入自定义数据类型（Object）时，都会调用 `writeMapBegin` 方法将其标记为 Map 类型。
 
-![](../images/1651064508602.png)
+![](https://oss.javasec.org/images/1651064508602.png)
 
 在 Hessian 2.0 中，将会调用 `writeDefinition20` 和 `Hessian2Output#writeObjectBegin` 方法写入自定义数据，就不再将其标记为 Map 类型。
 
 再看**反序列化**，对于输入流关键类为 AbstractHessianInput 的子类，这些类中的 `readObject` 方法定义了反序列化的关键逻辑。基本都是长达 200 行以上的 switch case 语句。在读取标识位后根据不同的数据类型调用相关的处理逻辑。这里还是以 Hessian2Input 为例。
 
-![](../images/1651055458287.png)
+![](https://oss.javasec.org/images/1651055458287.png)
 
 与序列化过程设计类似，Hessian 定义了 Deserializer 接口，并为不同的类型创建了不同的实现类。这里重点看下对自定义类型对象的读取。
 
 在 Hessian 1.0 的 HessianInput 中，没有针对 Object 的读取，而是都将其作为 Map 读取，在序列化的过程中我们也提到，在写入自定义类型时会将其标记为 Map 类型。
 
-![](../images/1651067540081.png)
+![](https://oss.javasec.org/images/1651067540081.png)
 
 `MapDeserializer#readMap` 方法提供了针对 Map 类型数据的处理逻辑。
 
-![](../images/1651067141512.png)
+![](https://oss.javasec.org/images/1651067141512.png)
 
 在 Hessian 2.0 中，则是提供了 `UnsafeDeserializer` 来对自定义类型数据进行反序列化，关键方法在 `readObject` 处。
 
-![](../images/1651068010709.png)
+![](https://oss.javasec.org/images/1651068010709.png)
 
 `instantiate` 使用 unsafe 实例的 `allocateInstance` 直接创建类实例。
 
-![](../images/1651067999672.png)
+![](https://oss.javasec.org/images/1651067999672.png)
 
 
 ## 远程调用
@@ -232,15 +232,15 @@ System.out.println("Hello: " + greeting.sayHello(map));
 
 可以看到，这里创建了 HessianProxyFactory 实例，并调用其 `create` 方法，这里实际上是使用了 Hessian 提供的 HessianProxy 来为待调用的接口和 HessianRemoteObject 创建动态代理类。
 
-![](../images/1651068959915.png)
+![](https://oss.javasec.org/images/1651068959915.png)
 
 我们知道动态代理对象无论调用什么方法都会走 `InvocationHandler` 的 invoke 方法。
 
-![](../images/1651069337128.png)
+![](https://oss.javasec.org/images/1651069337128.png)
 
 发送请求获取结果并反序列化，这里使用了 `HessianURLConnection` 来建立连接。
 
-![](../images/1651069346185.png)
+![](https://oss.javasec.org/images/1651069346185.png)
 
 非常简单的逻辑，就是发出了一个 HTTP 请求并反序列化数据而已。
 
@@ -252,7 +252,7 @@ System.out.println("Hello: " + greeting.sayHello(map));
 
 在我们测试使用的最新版中，这一设定位于 `HessianProxyFactory` 中的两个布尔型变量中，即 `_isHessian2Reply` 和 `_isHessian2Request`，如下图，默认情况下，客户端使用 Hessian 1.0 协议格式发送序列化数据，服务端使用 Hessian 2.0 协议格式返回序列化数据。
 
-![](../images/1651108246902.png)
+![](https://oss.javasec.org/images/1651108246902.png)
 
 如果想自己指定用 Hessian 2.0 协议进行传输，可以使用如下代码进行设置：
 
@@ -265,7 +265,7 @@ factory.setHessian2Request(true);
 
 在 Java 原生反序列化中，实现了 `java.io.Serializable` 接口的类才可以反序列化。Hessian 象征性的支持了这种规范，具体的逻辑如下图，在获取默认序列化器时，判断了类是否实现了 Serializable 接口。
 
-![](../images/1651114475710.png)
+![](https://oss.javasec.org/images/1651114475710.png)
 
 但同时 Hessian 还提供了一个 `_isAllowNonSerializable` 变量用来打破这种规范，可以使用 `SerializerFactory#setAllowNonSerializable` 方法将其设置为 true，从而使未实现 Serializable 接口的类也可以序列化和反序列化。
 
@@ -275,7 +275,7 @@ factory.setHessian2Request(true);
 
 然后是 transient 和 static 的问题，在序列化时，由 `UnsafeSerializer#introspect` 方法来获取对象中的字段，在老版本中应该是 `getFieldMap` 方法。依旧是判断了成员变量标识符，如果是 transient 和 static 字段则不会参与序列化反序列化流程。
 
-![](../images/1651116817595.png)
+![](https://oss.javasec.org/images/1651116817595.png)
 
 在原生流程中，标识为 transient 仅代表不希望 Java 序列化反序列化这个对象，开发人员可以在 `writeObject/readObject` 中使用自己的逻辑写入和恢复对象，但是 Hessian 中没有这种机制，因此标识为 transient 的字段在反序列化中一定没有值的。
 
@@ -299,11 +299,11 @@ factory.setHessian2Request(true);
 
 而众所周知， HashMap 在 put 键值对时，将会对 key 的 hashcode 进行校验查看是否有重复的 key 出现，这就将会调用 key 的 hasCode 方法，如下图。
 
-![](../images/1651123884314.png)
+![](https://oss.javasec.org/images/1651123884314.png)
 
 而 TreeMap 在 put 时，由于要进行排序，所以要对 key 进行比较操作，将会调用 compare 方法，会调用 key 的 compareTo 方法。
 
-![](../images/1651213661427.png)
+![](https://oss.javasec.org/images/1651213661427.png)
 
 也就是说 Hessian 相对比原生反序列化的利用链，有几个限制：
 - kick-off chain 起始方法只能为 hashCode/equals/compareTo 方法；
@@ -322,7 +322,7 @@ factory.setHessian2Request(true);
 - SpringAbstractBeanFactoryPointcutAdvisor
 
 也就是抽象类 `marshalsec.HessianBase` 分别实现的 5 个接口。
-![](../images/1650882733394.png)
+![](https://oss.javasec.org/images/1650882733394.png)
 
 触发漏洞的触发点对应在 HessianBase 的三个实现类：Hessian\Hessian2\Burlap。接下来我们依次看一下这些调用链。
 
@@ -332,13 +332,13 @@ factory.setHessian2Request(true);
 
 Rome 的链核心是 ToStringBean，这个类的 `toString` 方法会调用他封装类的全部无参 getter 方法，所以可以借助 `JdbcRowSetImpl#getDatabaseMetaData()` 方法触发 JNDI 注入。
 
-![](../images/1651135533586.png)
+![](https://oss.javasec.org/images/1651135533586.png)
 
-![](../images/1651135509258.png)
+![](https://oss.javasec.org/images/1651135509258.png)
 
 外层用 EqualsBean 和 HashMap 封装，反序列化调用 `EqualsBean#hashCode()` 触发 ToStringBean。
 
-![](../images/1651135625039.png)
+![](https://oss.javasec.org/images/1651135625039.png)
 
 这是一个 Rome 经典触发点，在 ysoserial 中也见过这个逻辑。
 
@@ -348,7 +348,7 @@ Rome 的链核心是 ToStringBean，这个类的 `toString` 方法会调用他�
 
 这个类有个 getObject 方法会从流里使用原生反序列化读取数据，就造成了二次反序列化。
 
-![](../images/1651139384898.png)
+![](https://oss.javasec.org/images/1651139384898.png)
 
 逻辑很清楚，无需多言，直接封装 ysoserial 中的 ROME 反序列化链即可。
 
@@ -358,17 +358,17 @@ Rome 的链核心是 ToStringBean，这个类的 `toString` 方法会调用他�
 
 这个类有诸多 get 方法，通过拼接字符串的方式执行系统命令。
 
-![](../images/1651142700263.png)
+![](https://oss.javasec.org/images/1651142700263.png)
 
 也是非常直观，可以直接利用。但只可惜这个类在高版本被移除，并仅支持 Unix/类Unix 操作系统。
 
 这里 UnixPrintService 接口是没有实现 Serializable 接口的，就需要之前提到过的绕过手段，marshalsec 中使用了自定义 SerializerFactory 类。
 
-![](../images/1651146693622.png)
+![](https://oss.javasec.org/images/1651146693622.png)
 
 通过 `setAllowNonSerializable` 方法修改后，指定给序列化流对象就可以了。
 
-![](../images/1651146775183.png)
+![](https://oss.javasec.org/images/1651146775183.png)
 
 实际上不需要这么麻烦，序列化时一行代码就解决了：
 
@@ -382,25 +382,25 @@ Resin 这条利用链的入口点实际上是 HashMap 对比两个对象时触�
 
 使用 XString 的 equals 方法触发 `com.caucho.naming.QName` 的 toSting 方法。
 
-![](../images/1651154876527.png)
+![](https://oss.javasec.org/images/1651154876527.png)
 
 QName 实际上是 Resin 对上下文 Context 的一种封装，它的 toString 方法会调用其封装类的 `composeName` 方法获取复合上下文的名称。
 
-![](../images/1651155579747.png)
+![](https://oss.javasec.org/images/1651155579747.png)
 
 这条利用链使用了 `javax.naming.spi.ContinuationContext` 类，其 `composeName` 方法调用 `getTargetContext` 方法，然后调用 `NamingManager#getContext` 方法传入其成员变量 CannotProceedException 的相关属性。
 
 漏洞触发点在 `NamingManager#getObjectInstance` 方法，这个方法调用 VersionHelper 加载类并实例化。
 
-![](../images/1651159006194.png)
+![](https://oss.javasec.org/images/1651159006194.png)
 
 加载时使用了 URLClassLoader 并指定了类名和 codebase。
 
-![](../images/1651159023947.png)
+![](https://oss.javasec.org/images/1651159023947.png)
 
 这个逻辑就赋予了程序远程加载类的功能，也就是漏洞的最终利用点。
 
-![](../images/1651160418027.png)
+![](https://oss.javasec.org/images/1651160418027.png)
 
 
 ## XBean
@@ -409,19 +409,19 @@ XBean 这条链几乎是与 Resin 一模一样，只不过是在 XBean 中找到
 
 首先还是用 XString 触发 `ContextUtil.ReadOnlyBinding` 的 toString 方法（实际继承 `javax.naming.Binding`），toString 方法调用 getObject 方法获取对象。
 
-![](../images/1651163590272.png)
+![](https://oss.javasec.org/images/1651163590272.png)
 
 调用 `ContextUtil#resolve` 方法。
 
-![](../images/1651163564869.png)
+![](https://oss.javasec.org/images/1651163564869.png)
 
 方法调用 `NamingManager#getObjectInstance` 方法，后续触发逻辑一致，从远程加载恶意类字节码。
 
-![](../images/1651163362200.png)
+![](https://oss.javasec.org/images/1651163362200.png)
 
 成功弹出计算器。
 
-![](../images/1651164795087.png)
+![](https://oss.javasec.org/images/1651164795087.png)
 
 ## Spring AOP
 
@@ -429,49 +429,49 @@ XBean 这条链几乎是与 Resin 一模一样，只不过是在 XBean 中找到
 
 触发点在 AbstractPointcutAdvisor 的 `equals` 方法，对比两个 AbstractPointcutAdvisor 是否相同，就是在对比其 Pointcut 切点和 Advice 是否为同一个。
 
-![](../images/1651207387125.png)
+![](https://oss.javasec.org/images/1651207387125.png)
 
 其子类 AbstractBeanFactoryPointcutAdvisor 是和 BeanFactory 有关的 PointcutAdvisor，简单来说就是进行切片时可以使用 beanFactory 里面注册的实例。其 `getAdvice` 方法会调用其成员变量 beanFactory 的 `getBean` 方法获取 Bean 实例。
 
-![](../images/1651206599878.png)
+![](https://oss.javasec.org/images/1651206599878.png)
 
 这时只要结合 SimpleJndiBeanFactory 就可以触发 JNDI 查询。
 
-![](../images/1651206567544.png)
+![](https://oss.javasec.org/images/1651206567544.png)
 
 配合工具弹出计算器。
 
-![](../images/1651205826995.png)
+![](https://oss.javasec.org/images/1651205826995.png)
 
 ## Spring Context & AOP
 
 这条链的触发点在于 AspectJAwareAdvisorAutoProxyCreator$PartiallyComparableAdvisorHolder 的 `toString` 方法，会打印 order 属性，调用 advisor 的 `getOrder` 方法。
 
-![](../images/1651226518210.png)
+![](https://oss.javasec.org/images/1651226518210.png)
 
 此时就需要找到类同时实现了 Advisor 和 Ordered 接口，于是找到了 AspectJPointcutAdvisor ，这个类的 `getOrder` 方法调用 AbstractAspectJAdvice 的 `getOrder` 方法。
 
-![](../images/1651227077569.png)
+![](https://oss.javasec.org/images/1651227077569.png)
 
 又调用了 AspectInstanceFactory 的  `getOrder` 方法。
 
-![](../images/1651227189610.png)
+![](https://oss.javasec.org/images/1651227189610.png)
 
 继续找 AspectInstanceFactory 的子类看有没有可以触发的点，找到了 BeanFactoryAspectInstanceFactory，其 `getOrder` 方法调用 beanFactory 的 `getType` 方法。
 
-![](../images/1651226416998.png)
+![](https://oss.javasec.org/images/1651226416998.png)
 
 于是又掏出 SimpleJndiBeanFactory ，他的的 `doGetType` 方法调用 `doGetSingleton` 方法执行 JNDI 查询，组成了完整的利用链。
 
-![](../images/1651226311692.png)
+![](https://oss.javasec.org/images/1651226311692.png)
 
 在 marshalsec 封装对象时，使用了 HotSwappableTargetSource 封装类，其 equals 方法会调用其 target 的 equals 方法。
 
-![](../images/1651220074314.png)
+![](https://oss.javasec.org/images/1651220074314.png)
 
 其实并无必要，感觉是纯炫技写法。
 
-![](../images/1651220324923.png)
+![](https://oss.javasec.org/images/1651220324923.png)
 
 
 ## Groovy
@@ -480,11 +480,11 @@ XBean 这条链几乎是与 Resin 一模一样，只不过是在 XBean 中找到
 
 触发点使用了 TreeMap 触发 compareTo 方法，使用 ConvertedClosure 生成动态代理对象，将方法调用转移至 MethodClosure 封装类，借用其 doCall 方法进一步调用 `ContinuationDirContext#listBindings` 方法触发后续的攻击流程。
 
-![](../images/1651216237802.png)
+![](https://oss.javasec.org/images/1651216237802.png)
 
 如果看过 ysoserial 和 之前的 Resin 链，这条链很好理解。
 
-![](../images/1651216914313.png)
+![](https://oss.javasec.org/images/1651216914313.png)
 
 
 ## 其他
@@ -508,7 +508,7 @@ XBean 这条链几乎是与 Resin 一模一样，只不过是在 XBean 中找到
 
 https://github.com/sofastack/sofa-hessian/blob/master/src/main/resources/security/serialize.blacklist
 
-![](../images/1651144285493.png)
+![](https://oss.javasec.org/images/1651144285493.png)
 
 > 
 

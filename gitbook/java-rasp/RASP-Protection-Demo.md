@@ -18,7 +18,7 @@ RASP通过注入自身到开发语言底层API中，从而完全的融入于Web�
 
 某门户系统上线RASP后发现某业务查询接口无法正常使用，不久后在RASP云端监控到了如下告警信息：
 
-<img src="../images/image-20210824161539992.png" alt="image-20210824161539992" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20210824161539992.png" alt="image-20210824161539992" />
 
 从攻击日志中可以看出RASP捕获到了一次SQL注入攻击，但是经过分析该攻击日志后发现实际上是一个SQL注入漏洞被RASP的零规则检测出来了，而非SQL注入攻击。
 
@@ -26,7 +26,7 @@ RASP通过注入自身到开发语言底层API中，从而完全的融入于Web�
 
 这是一个非常典型的SQL注入案例，我们通常在处理`where in`查询的时候会因为无法直接使用SQL预编译而选择了拼接SQL的方式来实现业务，从而也就导致了SQL注入的产生。
 
-<img src="../images/image-20210824192908240.png" alt="image-20210824192908240" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20210824192908240.png" alt="image-20210824192908240" />
 
 
 
@@ -34,13 +34,13 @@ RASP通过注入自身到开发语言底层API中，从而完全的融入于Web�
 
 某业务系统上线RASP后发现系统中的预览文件功能不正常，随后在RASP云端监控到了如下告警信息：
 
-<img src="../images/image-20210824170411564.png" alt="image-20210824170411564" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20210824170411564.png" alt="image-20210824170411564" />
 
 从攻击日志中可以看出RASP捕获到了一次文件系统攻击，经过分析攻击日志后发现该请求属于正常业务，请求参数也不包含恶意的Payload，所以并不是恶意攻击，但是RASP分析了请求的参数后判定参数`styleFilePath`的值`/work/******/index_20210824_1.zip`可控，因此存在任意文件读取漏洞。
 
 该漏洞在我们平时的开发中也是一个非常的漏洞，通常我们在写读取文件相关的接口的时候会忽略了请求参数值的合法性所带来的安全问题，从而导致了攻击者可以通过传入一些恶意的参数值从而获取服务器敏感信息，如：读取数据库配置文件获取数据库密码、读取`~/.ssh/id_rsa`获取ssh私钥、读取`~/.bash_history`获取bash记录的历史命令等，从而很有可能会导致服务器被非法入侵。
 
-<img src="../images/image-20210825151218116.png" alt="image-20210825151218116" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20210825151218116.png" alt="image-20210825151218116" />
 
 
 
@@ -48,13 +48,13 @@ RASP通过注入自身到开发语言底层API中，从而完全的融入于Web�
 
 某资产管理平台上线RASP后发现业务系统存在本地命令执行攻击，经过日志分析后确认该接口存在本地命令执行注入漏洞，日志如下图：
 
-<img src="../images/image-20210825104619829.png" alt="image-20210825104619829" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20210825104619829.png" alt="image-20210825104619829" />
 
 从请求的URL地址可以看出这是一个测试DNS连接速度的接口，传入IP地址会调用操作系统中的`ping`命令，如：`/bin/sh -c ping -c 1` **8.8.8.8**，分析传入的参数`ip`值`8.8.8.8`注入到了bash命令当中，所以可以判断此处存在本地命令执行漏洞。
 
 本地命令注入漏洞是一种非常高风险的的漏洞，攻击者如果可以控制或注入cmd命令那么后果将不堪设想，例如修改请求参数`ip`的值为：`8.8.8.8;curl localhost:9000`，即可注入一个curl命令，当然也可以通过注入的命令间接的控制服务器。
 
-<img src="../images/image-20210824202936784.png" alt="image-20210824202936784" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20210824202936784.png" alt="image-20210824202936784" />
 
 
 
@@ -62,13 +62,13 @@ RASP通过注入自身到开发语言底层API中，从而完全的融入于Web�
 
 某日，RASP平台突然接到一处SSRF攻击告警日志，如下图：
 
-<img src="../images/image-20210824204625355.png" alt="image-20210824204625355" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20210824204625355.png" alt="image-20210824204625355" />
 
 分析攻击日志并结合攻击的调用链得知：攻击者使用了Weblogic 10.3.6版本的SSRF漏洞探测服务器资源，RASP拦截到的攻击内容是` http://baidu.com`，而请求参数中`operator=http://baidu.com`，由此可知`operator`参数存在安全问题。
 
 攻击使用SSRF漏洞多用于探测服务器内部资源，是一种威胁程度较高的攻击手段，某些时候SSRF漏洞甚至可以间接的获取到Webshell，所以对待该类型漏洞也必须引起重视，Web应用必须做好对传入的URL检测，从而防止SSRF攻击。
 
-<img src="../images/image-20210824213343581.png" alt="image-20210824213343581" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20210824213343581.png" alt="image-20210824213343581" />
 
 
 
@@ -76,13 +76,13 @@ RASP通过注入自身到开发语言底层API中，从而完全的融入于Web�
 
 某日护网期间，RASP平台突然出现了一个WebShell攻击，一时间既然把看守平台的安全运维人员吓的一激灵，瞬间感觉到了危险降临，此刻气氛紧张到了极点；平日里总是听闻RASP是如何的强大，为何还会有WebShell类型的攻击？于是颤抖的右手点击了攻击详情，如下图：
 
-<img src="../images/image-20210825104120921.png" alt="image-20210825104120921" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20210825104120921.png" alt="image-20210825104120921" />
 
 从攻击日志中只能定位WebShell的绝对路径，并不能确定是否是真实存在的后门，但从文件名`shell.jspx`可以看出这多半是一个后门文件，于是立即登录服务器查看查看该文件内容，经分析得知是一个`冰蝎`的后门，查看文件的ctime是2021年2月，而RASP是在护网前几日才紧急上线的。
 
 如此说来，有人早在护网前就已经利用致*OA的漏洞上传了WebShell，如今想借机利用该后门进行深入渗透，可是访问该后门的时候却被RASP所拦截了，果然攻击队有些不讲武德，所幸有RASP守护服务器安全。
 
-<img src="../images/image-20210824214004430.png" alt="image-20210824214004430" style="zoom:50%;" />
+<img src="https://oss.javasec.org/images/image-20210824214004430.png" alt="image-20210824214004430" />
 
 ## 7. 总结
 
