@@ -137,5 +137,5 @@ public final class ProcessBuilder {
 
 常见的Java Web攻击方式最终几乎都会调用对应的Java类方法执行，而RASP恰好可以使用Hook机制控制任意的Java类方法执行逻辑，因此RASP可以使用Hook机制将易受攻击的Java类进行监控，从而实现防止恶意的Java Web攻击。
 
-<img src="https://oss.javasec.org/images/image-20201202201757182.png" alt="image-20201202201757182" />
+![img](https://oss.javasec.org/images/image-20201202201757182.png)
 

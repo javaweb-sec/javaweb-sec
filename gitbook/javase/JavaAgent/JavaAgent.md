@@ -11,7 +11,7 @@ Java Agent还限制了我们必须以jar包的形式运行或加载，我们必�
 
 ```java
 Premain-Class: com.anbai.sec.agent.CrackLicenseAgent
-Agent-Class: com.anbai.sec.agent.CrackLicenseAgent
+        Agent-Class: com.anbai.sec.agent.CrackLicenseAgent
 ```
 
 如果我们需要修改已经被JVM加载过的类的字节码，那么还需要设置在`MANIFEST.MF`中添加`Can-Retransform-Classes: true`或`Can-Redefine-Classes: true`。
@@ -32,7 +32,7 @@ Agent-Class: com.anbai.sec.agent.CrackLicenseAgent
 
 **`Instrumentation`类方法如下：**
 
-<img src="https://oss.javasec.org/images/07EC4F97-CD49-41E6-95CE-FEB000325E33.png" alt="07EC4F97-CD49-41E6-95CE-FEB000325E33" />
+![img](https://oss.javasec.org/images/07EC4F97-CD49-41E6-95CE-FEB000325E33.png)
 
 
 
@@ -50,17 +50,17 @@ package java.lang.instrument;
 public interface ClassFileTransformer {
   
   /**
-	 * 类文件转换方法，重写transform方法可获取到待加载的类相关信息
-	 *
-	 * @param loader              定义要转换的类加载器；如果是引导加载器，则为 null
-	 * @param className           类名,如:java/lang/Runtime
-	 * @param classBeingRedefined 如果是被重定义或重转换触发，则为重定义或重转换的类；如果是类加载，则为 null
-	 * @param protectionDomain    要定义或重定义的类的保护域
-	 * @param classfileBuffer     类文件格式的输入字节缓冲区（不得修改）
-	 * @return 字节码byte数组。
-	 */
-	byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-	                        ProtectionDomain protectionDomain, byte[] classfileBuffer);
+     * 类文件转换方法，重写transform方法可获取到待加载的类相关信息
+     *
+     * @param loader              定义要转换的类加载器；如果是引导加载器，则为 null
+     * @param className           类名,如:java/lang/Runtime
+     * @param classBeingRedefined 如果是被重定义或重转换触发，则为重定义或重转换的类；如果是类加载，则为 null
+     * @param protectionDomain    要定义或重定义的类的保护域
+     * @param classfileBuffer     类文件格式的输入字节缓冲区（不得修改）
+     * @return 字节码byte数组。
+     */
+    byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+                            ProtectionDomain protectionDomain, byte[] classfileBuffer);
   
 }
 ```
@@ -488,7 +488,7 @@ mvn clean install
 
 `Maven`构建完成后在`javaweb-sec/javaweb-sec-source/javasec-agent/target`目录会自动生成一个`javasec-agent.jar`文件。
 
-<img src="https://oss.javasec.org/images/image-20201029205623321.png" alt="image-20201029205623321" />
+![img](https://oss.javasec.org/images/image-20201029205623321.png)
 
 
 
@@ -503,11 +503,11 @@ java -javaagent:target/javasec-agent.jar -classpath target/test-classes/ com.anb
 
 程序执行结果：
 
-<img src="https://oss.javasec.org/images/image-20201101010058593.png" alt="image-20201101010058593" />
+![img](https://oss.javasec.org/images/image-20201101010058593.png)
 
 生成的`CrackLicenseTest.class`如下：
 
-<img src="https://oss.javasec.org/images/image-20201103103324443.png" alt="image-20201103103324443" />
+![img](https://oss.javasec.org/images/image-20201103103324443.png)
 
 由上示例可以看到`CrackLicenseTest`类的`checkExpiry`方法字节码已经被我们修改成功了 。
 
@@ -567,7 +567,7 @@ java -classpath $JAVA_HOME/lib/tools.jar:target/javasec-agent.jar com.anbai.sec.
 
 当Attach成功后我们可以看到原来的进程输出结果也已经不在输出授权过期提示信息了，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201101013416799.png" alt="image-20201101013416799" />
+![img](https://oss.javasec.org/images/image-20201101013416799.png)
 
 使用Attach模式需要特别的需要注意和Agent模式的区别，因为Attach是运行在Java程序启动后，所以我们需要修改的Java类很有可能已经被JVM加载了，而已加载的Java类是不会再被Agent处理的，这时候我们需要在Attach到目标进程后`retransformClasses`，让JVM重新该Java类，这样我们就可以使用Agent机制修改该类的字节码了。
 

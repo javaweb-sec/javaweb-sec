@@ -24,9 +24,9 @@ public class TestHelloWorld {
 
 **TestHelloWorld.java编译解析流程：**
 
-<img src="https://oss.javasec.org/images/image-20201015170935576.png" alt="image-20201015170935576" />
+![img](https://oss.javasec.org/images/image-20201015170935576.png)
 
 **TestHelloWorld.java 源码、字节码：**
 
-<img src="https://oss.javasec.org/images/image-20201014104801579.png" alt="image-20201014104801579" />
+![img](https://oss.javasec.org/images/image-20201014104801579.png)
 

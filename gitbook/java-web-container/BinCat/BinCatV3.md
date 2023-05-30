@@ -42,122 +42,122 @@ import java.util.logging.Logger;
  */
 public class BinCatRequest implements HttpServletRequest {
 
-	// 客户端Socket连接对象
-	private final Socket clientSocket;
+    // 客户端Socket连接对象
+    private final Socket clientSocket;
 
-	// Socket输入流对象
-	private final InputStream socketInputStream;
+    // Socket输入流对象
+    private final InputStream socketInputStream;
 
-	// Http请求头对象
-	private Map<String, String> headerMap;
+    // Http请求头对象
+    private Map<String, String> headerMap;
 
-	// Http请求参数对象
-	private Map<String, String[]> parameterMap;
+    // Http请求参数对象
+    private Map<String, String[]> parameterMap;
 
-	// Http请求attribute对象
-	private final Map<String, Object> attributeMap = new ConcurrentHashMap<String, Object>();
+    // Http请求attribute对象
+    private final Map<String, Object> attributeMap = new ConcurrentHashMap<String, Object>();
 
-	// Http请求Cookie对象
-	private Cookie[] cookie;
+    // Http请求Cookie对象
+    private Cookie[] cookie;
 
-	// Http请求Cookie对象
-	private final Map<String, String> cookieMap = new ConcurrentHashMap<String, String>();
+    // Http请求Cookie对象
+    private final Map<String, String> cookieMap = new ConcurrentHashMap<String, String>();
 
-	// Http请求Session对象
-	private final Map<String, BinCatSession> sessionMap = new ConcurrentHashMap<String, BinCatSession>();
+    // Http请求Session对象
+    private final Map<String, BinCatSession> sessionMap = new ConcurrentHashMap<String, BinCatSession>();
 
-	// Http请求方法类型
-	private String requestMethod;
+    // Http请求方法类型
+    private String requestMethod;
 
-	// Http请求URL
-	private String requestURL;
+    // Http请求URL
+    private String requestURL;
 
-	// Http请求QueryString
-	private String queryString;
+    // Http请求QueryString
+    private String queryString;
 
-	// Http请求协议版本信息
-	private String httpVersion;
+    // Http请求协议版本信息
+    private String httpVersion;
 
-	// 是否已经解析过Http请求参数，防止多次解析请求参数
-	private volatile boolean parsedParameter = false;
+    // 是否已经解析过Http请求参数，防止多次解析请求参数
+    private volatile boolean parsedParameter = false;
 
-	// Http请求内容长度
-	private int contentLength;
+    // Http请求内容长度
+    private int contentLength;
 
-	// Http请求内容类型
-	private String contentType;
+    // Http请求内容类型
+    private String contentType;
 
-	// 存储Session的ID名称
-	private static final String SESSION_ID_NAME = "JSESSIONID";
+    // 存储Session的ID名称
+    private static final String SESSION_ID_NAME = "JSESSIONID";
 
-	// Http请求主机名
-	private String host;
+    // Http请求主机名
+    private String host;
 
-	// Http请求主机端口
-	private int port;
+    // Http请求主机端口
+    private int port;
 
-	private static final Logger LOG = Logger.getLogger("info");
+    private static final Logger LOG = Logger.getLogger("info");
 
-	public BinCatRequest(Socket clientSocket) throws IOException {
-		this.clientSocket = clientSocket;
-		this.socketInputStream = clientSocket.getInputStream();
+    public BinCatRequest(Socket clientSocket) throws IOException {
+        this.clientSocket = clientSocket;
+        this.socketInputStream = clientSocket.getInputStream();
 
-		// 解析Http协议
-		parse();
-	}
+        // 解析Http协议
+        parse();
+    }
 
-	/**
-	 * 解析Http请求协议，不解析Body部分
-	 *
-	 * @throws IOException
-	 */
-	private void parse() throws IOException {
-		// 此处省略Http请求协议解析、参数解析等内容...
-	}
+    /**
+     * 解析Http请求协议，不解析Body部分
+     *
+     * @throws IOException
+     */
+    private void parse() throws IOException {
+        // 此处省略Http请求协议解析、参数解析等内容...
+    }
 
-	/**
-	 * 解析Http请求参数
-	 *
-	 * @throws IOException Http协议解析异常
-	 */
-	private synchronized void parseParameter() {
-		// 此处省略Http请求协议解析、参数解析等内容...
-	}
+    /**
+     * 解析Http请求参数
+     *
+     * @throws IOException Http协议解析异常
+     */
+    private synchronized void parseParameter() {
+        // 此处省略Http请求协议解析、参数解析等内容...
+    }
 
-  // 此处省略HttpServletRequest接口中的大部分方法，仅保留几个示例方法...
+    // 此处省略HttpServletRequest接口中的大部分方法，仅保留几个示例方法...
 
-	public String getHeader(String name) {
-		return this.headerMap.get(name);
-	}
+    public String getHeader(String name) {
+        return this.headerMap.get(name);
+    }
 
-	public ServletInputStream getInputStream() throws IOException {
-		return new ServletInputStream() {
-			@Override
-			public int read() throws IOException {
-				return socketInputStream.read();
-			}
-		};
-	}
+    public ServletInputStream getInputStream() throws IOException {
+        return new ServletInputStream() {
+            @Override
+            public int read() throws IOException {
+                return socketInputStream.read();
+            }
+        };
+    }
 
-	public String getParameter(String name) {
-		if (!parsedParameter) {
-			this.parseParameter();
-		}
+    public String getParameter(String name) {
+        if (!parsedParameter) {
+            this.parseParameter();
+        }
 
-		if (parameterMap.containsKey(name)) {
-			return this.parameterMap.get(name)[0];
-		}
+        if (parameterMap.containsKey(name)) {
+            return this.parameterMap.get(name)[0];
+        }
 
-		return null;
-	}
-  
-	public String getRemoteAddr() {
-		return clientSocket.getInetAddress().getHostAddress();
-	}
+        return null;
+    }
 
-	public void setAttribute(String name, Object o) {
-		attributeMap.put(name, o);
-	}
+    public String getRemoteAddr() {
+        return clientSocket.getInetAddress().getHostAddress();
+    }
+
+    public void setAttribute(String name, Object o) {
+        attributeMap.put(name, o);
+    }
 
 }
 ```
@@ -181,43 +181,43 @@ import java.util.*;
 
 public class BinCatResponse implements HttpServletResponse {
 
-	private final Socket socket;
+    private final Socket socket;
 
-	private final Map<String, String> header;
+    private final Map<String, String> header;
 
-	private final ByteArrayOutputStream out;
+    private final ByteArrayOutputStream out;
 
-	private int status = 404;
+    private int status = 404;
 
-	private String statusMessage = "Not Found";
+    private String statusMessage = "Not Found";
 
-	private String charset = "UTF-8";
+    private String charset = "UTF-8";
 
-	private int contentLength = 0;
+    private int contentLength = 0;
 
-	private String contentType = "text/html; charset=UTF-8";
+    private String contentType = "text/html; charset=UTF-8";
 
-	private String location;
+    private String location;
 
-	public BinCatResponse(Socket socket, Map<String, String> header, ByteArrayOutputStream out) {
-		this.socket = socket;
-		this.header = header;
-		this.out = out;
-	}
+    public BinCatResponse(Socket socket, Map<String, String> header, ByteArrayOutputStream out) {
+        this.socket = socket;
+        this.header = header;
+        this.out = out;
+    }
 
   // 此处省略HttpServletResponse接口中的大部分方法，仅保留几个示例方法...
   
-	public void setHeader(String name, String value) {
-		this.header.put(name, value);
-	}
+    public void setHeader(String name, String value) {
+        this.header.put(name, value);
+    }
   
-	public String getHeader(String name) {
-		return header.get(name);
-	}
+    public String getHeader(String name) {
+        return header.get(name);
+    }
 
-	public PrintWriter getWriter() throws IOException {
-		return new PrintWriter(out);
-	}
+    public PrintWriter getWriter() throws IOException {
+        return new PrintWriter(out);
+    }
 
 }
 ```
@@ -241,24 +241,24 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class BinCatSession implements HttpSession {
 
-	private final String sessionID;
+    private final String sessionID;
 
-	// Http请求Session对象
-	private final Map<String, Object> sessionMap = new ConcurrentHashMap<String, Object>();
+    // Http请求Session对象
+    private final Map<String, Object> sessionMap = new ConcurrentHashMap<String, Object>();
 
-	public BinCatSession(String sessionID) {
-		this.sessionID = sessionID;
-	}
+    public BinCatSession(String sessionID) {
+        this.sessionID = sessionID;
+    }
 
   // 此处省略HttpSession接口中的大部分方法，仅保留几个示例方法...
   
-	public Object getAttribute(String name) {
-		return this.sessionMap.get(name);
-	}
+    public Object getAttribute(String name) {
+        return this.sessionMap.get(name);
+    }
 
-	public void setAttribute(String name, Object value) {
-		this.sessionMap.put(name, value);
-	}
+    public void setAttribute(String name, Object value) {
+        this.sessionMap.put(name, value);
+    }
 
 }
 ```
@@ -304,8 +304,8 @@ for (Class<? extends HttpServlet> clazz : servletList) {
           }
         } catch (IOException e) {
            // 修改状态码
-				   response.setStatus(500, "Internal Server Error");
-         	 e.printStackTrace();
+                   response.setStatus(500, "Internal Server Error");
+             e.printStackTrace();
         }
     }
 }
@@ -357,114 +357,114 @@ import java.util.regex.Pattern;
  */
 public class BinCatServerV3 {
 
-	private static final Logger LOG = Logger.getLogger("info");
+    private static final Logger LOG = Logger.getLogger("info");
 
-	public static void main(String[] args) {
-		try {
-			// 设置服务监听端口
-			int port = 8080;
+    public static void main(String[] args) {
+        try {
+            // 设置服务监听端口
+            int port = 8080;
 
-			// 设置服务名称
-			String serverName = "BinCat-0.0.3";
+            // 设置服务名称
+            String serverName = "BinCat-0.0.3";
 
-			// 创建ServerSocket，监听本地端口
-			ServerSocket ss = new ServerSocket(port);
+            // 创建ServerSocket，监听本地端口
+            ServerSocket ss = new ServerSocket(port);
 
-			// 初始化Servlet映射类对象
-			final Set<Class<? extends HttpServlet>> servletList = new HashSet<Class<? extends HttpServlet>>();
+            // 初始化Servlet映射类对象
+            final Set<Class<? extends HttpServlet>> servletList = new HashSet<Class<? extends HttpServlet>>();
 
-			// 手动注册Servlet类
-			servletList.add(TestServlet.class);
-			servletList.add(CMDServlet.class);
+            // 手动注册Servlet类
+            servletList.add(TestServlet.class);
+            servletList.add(CMDServlet.class);
 
-			LOG.info(serverName + " 启动成功，监听端口: " + port);
+            LOG.info(serverName + " 启动成功，监听端口: " + port);
 
-			while (true) {
-				// 等待客户端连接
-				Socket socket = ss.accept();
+            while (true) {
+                // 等待客户端连接
+                Socket socket = ss.accept();
 
-				try {
-					// 获取Socket输入流对象
-					InputStream in = socket.getInputStream();
+                try {
+                    // 获取Socket输入流对象
+                    InputStream in = socket.getInputStream();
 
-					// 获取Socket输出流对象
-					OutputStream out = socket.getOutputStream();
+                    // 获取Socket输出流对象
+                    OutputStream out = socket.getOutputStream();
 
-					// 创建BinCat请求处理对象
-					BinCatRequest request = new BinCatRequest(socket);
+                    // 创建BinCat请求处理对象
+                    BinCatRequest request = new BinCatRequest(socket);
 
-					// 创建BinCat请求处理结果输出流
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    // 创建BinCat请求处理结果输出流
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-					// 创建BinCat请求处理结果Header对象
-					Map<String, String> responseHeader = new ConcurrentHashMap<String, String>();
+                    // 创建BinCat请求处理结果Header对象
+                    Map<String, String> responseHeader = new ConcurrentHashMap<String, String>();
 
-					// 创建BinCat响应处理对象
-					BinCatResponse response = new BinCatResponse(socket, responseHeader, baos);
+                    // 创建BinCat响应处理对象
+                    BinCatResponse response = new BinCatResponse(socket, responseHeader, baos);
 
-					// 请求URI地址
-					String uri = request.getRequestURI();
+                    // 请求URI地址
+                    String uri = request.getRequestURI();
 
-					// 处理Http请求URL
-					for (Class<? extends HttpServlet> clazz : servletList) {
-						WebServlet webServlet  = clazz.getAnnotation(WebServlet.class);
-						String[]   urlPatterns = webServlet.urlPatterns();
+                    // 处理Http请求URL
+                    for (Class<? extends HttpServlet> clazz : servletList) {
+                        WebServlet webServlet  = clazz.getAnnotation(WebServlet.class);
+                        String[]   urlPatterns = webServlet.urlPatterns();
 
-						for (String urlPattern : urlPatterns) {
-							try {
-								// 检测请求的URL地址和Servlet的地址是否匹配
-								if (Pattern.compile(urlPattern).matcher(uri).find()) {
-									// 修改状态码
-									response.setStatus(200, "OK");
+                        for (String urlPattern : urlPatterns) {
+                            try {
+                                // 检测请求的URL地址和Servlet的地址是否匹配
+                                if (Pattern.compile(urlPattern).matcher(uri).find()) {
+                                    // 修改状态码
+                                    response.setStatus(200, "OK");
 
-									// 创建Servlet类实例
-									HttpServlet httpServlet = clazz.newInstance();
+                                    // 创建Servlet类实例
+                                    HttpServlet httpServlet = clazz.newInstance();
 
-									// 调用Servlet请求处理方法
-									httpServlet.service(request, response);
-									break;
-								}
-							} catch (Exception e) {
-								// 修改状态码
-								response.setStatus(500, "Internal Server Error");
-								e.printStackTrace();
+                                    // 调用Servlet请求处理方法
+                                    httpServlet.service(request, response);
+                                    break;
+                                }
+                            } catch (Exception e) {
+                                // 修改状态码
+                                response.setStatus(500, "Internal Server Error");
+                                e.printStackTrace();
 
-								baos.write(("<pre>" + StringUtils.exceptionToString(e) + "</pre>").getBytes());
-							}
-						}
-					}
+                                baos.write(("<pre>" + StringUtils.exceptionToString(e) + "</pre>").getBytes());
+                            }
+                        }
+                    }
 
-					// 处理Http响应内容
-					out.write(("HTTP/1.1 " + response.getStatus() + " " + response.getMessage() + "\n").getBytes());
-					// 输出Web服务器信息
-					out.write(("Server: " + serverName + "\n").getBytes());
-					// 输出返回的消息类型
-					out.write(("Content-Type: " + response.getContentType() + "\n").getBytes());
-					// 输出返回字节数
-					out.write(("Content-Length: " + baos.size() + "\n").getBytes());
+                    // 处理Http响应内容
+                    out.write(("HTTP/1.1 " + response.getStatus() + " " + response.getMessage() + "\n").getBytes());
+                    // 输出Web服务器信息
+                    out.write(("Server: " + serverName + "\n").getBytes());
+                    // 输出返回的消息类型
+                    out.write(("Content-Type: " + response.getContentType() + "\n").getBytes());
+                    // 输出返回字节数
+                    out.write(("Content-Length: " + baos.size() + "\n").getBytes());
 
-					// 输出用户自定义的Header
-					for (String key : responseHeader.keySet()) {
-						out.write((key + ": " + responseHeader.get(key) + "\n").getBytes());
-					}
+                    // 输出用户自定义的Header
+                    for (String key : responseHeader.keySet()) {
+                        out.write((key + ": " + responseHeader.get(key) + "\n").getBytes());
+                    }
 
-					// 写入换行
-					out.write("\n".getBytes());
-					// 将读取到的数据写入到客户端Socket
-					out.write(baos.toByteArray());
+                    // 写入换行
+                    out.write("\n".getBytes());
+                    // 将读取到的数据写入到客户端Socket
+                    out.write(baos.toByteArray());
 
-					in.close();
-					out.close();
-				} catch (Exception e) {
-					LOG.info("处理客户端请求异常:" + e);
-				} finally {
-					socket.close();
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+                    in.close();
+                    out.close();
+                } catch (Exception e) {
+                    LOG.info("处理客户端请求异常:" + e);
+                } finally {
+                    socket.close();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
 ```
@@ -504,7 +504,7 @@ public class TestServlet extends HttpServlet {
 
 浏览器请求[http://localhost:8080/TestServlet/](http://localhost:8080/TestServlet/):
 
-<img src="https://oss.javasec.org/images/image-20200910201502285.png" alt="image-20200910201502285" />
+![img](https://oss.javasec.org/images/image-20200910201502285.png)
 
 **CMDServlet示例代码：**
 
@@ -544,14 +544,14 @@ public class CMDServlet extends HttpServlet {
 
 浏览器请求[http://localhost:8080/CMD/?cmd=whoami](http://localhost:8080/CMD/?cmd=whoami):
 
-<img src="https://oss.javasec.org/images/image-20200910201725672.png" alt="image-20200910201725672" />
+![img](https://oss.javasec.org/images/image-20200910201725672.png)
 
 使用`curl`发送POST请求:`curl -i localhost:8080/CMD/ -d "cmd=pwd"`，服务器可以正常接收POST参数，处理结果如图：
 
-<img src="https://oss.javasec.org/images/image-20200910203406943.png" alt="image-20200910203406943" />
+![img](https://oss.javasec.org/images/image-20200910203406943.png)
 
 **请求一个错误服务：**
 
-<img src="https://oss.javasec.org/images/image-20200910203858328.png" alt="image-20200910203858328" />
+![img](https://oss.javasec.org/images/image-20200910203858328.png)
 
 至此，我们已经实现了一个非常初级的`Servlet容器`了。

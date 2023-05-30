@@ -10,7 +10,7 @@ Tomcat在默认情况下提供了一些管理后台，不同的管理后台提�
 
 在生产环境中，为了实现部署新的Web应用程序或取消部署现有的程序而不必重启容器、动态更新程序代码、列出一些JVM或操作系统的属性值、列出应用程序或会话等等基础功能，Tomcat默认包括了一个Web应用程序，通常位于`$CATALINA_BASE/webapps/manager`目录下：
 
-<img src="https://oss.javasec.org/images/image-20200924160215953.png" alt="image-20200924160215953" />
+![img](https://oss.javasec.org/images/image-20200924160215953.png)
 
 并且这个应用程序默认的context path也为`/manager`，访问应用的方式为`/manager/html`。
 
@@ -31,7 +31,7 @@ Tomcat在默认情况下提供了一些管理后台，不同的管理后台提�
 
 如果想要使用这些功能，则需要在`$CATALINA_BASE/conf/tomcat-users.xml`中配置相关的用户信息，包括用户名、密码、用户角色，来对使用这些功能的用户进行身份鉴别和权限验证。
 
-<img src="https://oss.javasec.org/images/image-20200924164035213.png" alt="image-20200924164035213" />
+![img](https://oss.javasec.org/images/image-20200924164035213.png)
 
 在 manager 项目中的web.xml中我们可以看到能够使用的这些角色：
 
@@ -76,7 +76,7 @@ Tomcat在默认情况下提供了一些管理后台，不同的管理后台提�
 
 servlet-mapping以及用户权限均有两个：
 
-<img src="https://oss.javasec.org/images/image-20200924175829141.png" alt="image-20200924175829141" />
+![img](https://oss.javasec.org/images/image-20200924175829141.png)
 
 配置方式同 manager，不再重复，以下为页面示例：
 
@@ -98,15 +98,15 @@ servlet-mapping以及用户权限均有两个：
 
 - 通过 `security-constraint` 配置需要鉴权的访问路径
 
-<img src="https://oss.javasec.org/images/image-20200924183406405.png" alt="image-20200924183406405" />
+![img](https://oss.javasec.org/images/image-20200924183406405.png)
 
 - 用户的身份信息（账户、密码）、权限（角色）
 
-<img src="https://oss.javasec.org/images/image-20200924183627781.png" alt="image-20200924183627781" />
+![img](https://oss.javasec.org/images/image-20200924183627781.png)
 
 - 默认的域（Realm）配置，Tomcat的`server.xml`中默认配置 `UserDatabaseRealm`，它从配置的全局资源 `conf/tomcat-users.xml` 中提取用户信息，在Tomcat 7.0及以上版本中，还提供了`LockOutRealm` 的组合域，用来阻止短时间内多次登录失败的情况。
 
-<img src="https://oss.javasec.org/images/image-20200924183800370.png" alt="image-20200924183800370" />
+![img](https://oss.javasec.org/images/image-20200924183800370.png)
 
 在经过了如上配置后，再访问这些管理后台将需要进行Basic认证。
 
@@ -161,11 +161,11 @@ Authorization: Basic dG9tY2F0OjEyMzEyMw==
 
 刚才提到了，在Tomcat 7以上配置文件默认添加了`LockOutRealm`，首先我们看一下 `LockOutRealm`的逻辑，代码位于`org.apache.catalina.realm.LockOutRealm`。类里的字段很明了，无需解释。
 
-<img src="https://oss.javasec.org/images/image-20200924190438021.png" alt="image-20200924190438021" />
+![img](https://oss.javasec.org/images/image-20200924190438021.png)
 
 在 `authenticate` 方法中进行身份验证，如果用户登陆失败，将调用 `registerAuthFailure` 方法标记用户的登录失败状态
 
-<img src="https://oss.javasec.org/images/image-20200924190057039.png" alt="image-20200924190057039" />
+![img](https://oss.javasec.org/images/image-20200924190057039.png)
 
 这段代码我贴一下：
 
@@ -194,6 +194,6 @@ Authorization: Basic dG9tY2F0OjEyMzEyMw==
 
 函数最后一行是内部类的方法，将 failures += 1，并将 lastFailureTime置为当前时间：
 
-<img src="https://oss.javasec.org/images/image-20200924190259639.png" alt="image-20200924190259639" />
+![img](https://oss.javasec.org/images/image-20200924190259639.png)
 
 由此可知，在5分钟之内同一账户登陆失败5次以上，`LockOutRealm` 将会封锁用户，在未来5分钟之内没有新的登陆失败的情况，会从0开始重新计数，因此这种方式是能够一定程度缓解系统受到的暴力破解攻击的。

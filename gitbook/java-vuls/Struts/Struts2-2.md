@@ -13,17 +13,17 @@
 在 struts.xml 中配置成如下，
 ```
 <package name="S2-012" extends="struts-default">
-	<action name="user" class="com.demo.action.UserAction">
-		<result name="redirect" type="redirect">/index.jsp?name=${name}</result>
-		<result name="input">/index.jsp</result>
-		<result name="success">/index.jsp</result>
-	</action>
+    <action name="user" class="com.demo.action.UserAction">
+        <result name="redirect" type="redirect">/index.jsp?name=${name}</result>
+        <result name="input">/index.jsp</result>
+        <result name="success">/index.jsp</result>
+    </action>
 </package>
 ```
 
 Struts2 使用 StrutsResultSupport 的子类 ServletRedirectResult 类处理 redirect 结果，`execute()` 方法调用 `conditionalParse()` 方法去解析 `this.location`，也就是我们配置的 `/index.jsp?name=${name}`，调用了 `TextParseUtil.translateVariables()` 方法去解析，后续的解析逻辑与 S2-001 一致，不再重复，导致了二次解析。
 
-<img src="https://oss.javasec.org/images/1625284296644.png" />
+![img](https://oss.javasec.org/images/1625284296644.png)
 
 
 此版本中构造 payload 别忘了调用静态方法时需要将 `_memberAccess` 的 allowStaticMethodAccess 设置为 true。最终的 payload 为：
@@ -66,28 +66,28 @@ Struts2 中使用链接标签 `<s:a>` 和 `<s:url>` 来渲染链接，使用 url
 ```
 此时访问 jsp 文件所带的参数，就会被解析到渲染出来的 a 标签中，如下图：
 
-<img src="https://oss.javasec.org/images/1625284296646.png" />
+![img](https://oss.javasec.org/images/1625284296646.png)
 
 而就是这个解析的过程中，产生了漏洞。先跟一下处理逻辑：
 - `ComponentTagSupport#doStartTag()` 方法开始解析标签，会调用对应的组件也就是 Anchor 的 start 方法。
 - 接着调用 evaluateParams 以及 evaluateExtraParams 方法，在这个方法中，会依次调用 UrlRenderer 的 `beforeRenderUrl()` 和 `renderUrl()` 来渲染链接标签中的 URL。
 - 实际上调用的是实现类 `org.apache.struts2.components.ServletUrlRenderer` 的方法，在 `beforeRenderUrl()`  中可以看到，includeParams 默认为 GET，根据其不同配置，将会进行不同的处理，最后会调用 `mergeRequestParameters()` 将 context 中的参数处理后缓存到一个 UrlProvider 对象中。
 
-<img src="https://oss.javasec.org/images/1625284296649.png" />
+![img](https://oss.javasec.org/images/1625284296649.png)
 
 - `beforeRenderUrl()` 处理完，将调用 `renderUrl()`，最后调用 `UrlHelper.buildUrl()` 方法构造 URL 。
 
 而 S2-013 的漏洞点，就出在对 URL 的处理函数中，`buildUrl()` 方法调用 `buildParametersString()` 方法，又调用 `buildParameterSubstring()` 方法。
 
-<img src="https://oss.javasec.org/images/1625284296651.png" />
+![img](https://oss.javasec.org/images/1625284296651.png)
 
 其中一个重要的处理调用方法为 `translateAndDecode()` ，这个方法调用 `translateVariable()` 方法：
 
-<img src="https://oss.javasec.org/images/1625284296653.png" />
+![img](https://oss.javasec.org/images/1625284296653.png)
 
 而这个方法获取全局 ValueStack，并调用 `TextParseUtil.translateVariables()` 方法解析输入，这个方法我们很熟悉了，不再赘述。
 
-<img src="https://oss.javasec.org/images/1625284296655.png" />
+![img](https://oss.javasec.org/images/1625284296655.png)
 
 这样就暴露出了漏洞点：`translateAndDecode` 在`beforeRenderUrl` 时由 `parseQueryString` 方法调用一次，在  `renderUrl` 时又由 `buildUrl` 调用一次，导致调用了两次，所以对请求参数名和参数值都进行了二次解析，导致了 OGNL 注入。
 
@@ -113,7 +113,7 @@ Struts2 中使用链接标签 `<s:a>` 和 `<s:url>` 来渲染链接，使用 url
 
 由于 `UrlHelper#translateVariable()` 方法调用的是只有两个参数的 `TextParseUtil.translateVariables()` 方法。
 
-<img src="https://oss.javasec.org/images/1625284296656.png" />
+![img](https://oss.javasec.org/images/1625284296656.png)
 
 这个方法指定 openChars 可以为 `$` `%`，所以可以除了使用 `%{}` ，也可以使用 `${}` 包裹表达式。因此 payload 为：
 
@@ -135,9 +135,9 @@ Struts2 返回结果时，将用户可控的参数拿来解析，就会导致漏
 
 ```
 <package name="S2-015" extends="struts-default">
-	<action name="*" class="com.demo.action.PageAction">
-		<result>/{1}.jsp</result>
-	</action>
+    <action name="*" class="com.demo.action.PageAction">
+        <result>/{1}.jsp</result>
+    </action>
 </package>
 ```
 
@@ -145,13 +145,13 @@ Struts2 返回结果时，将用户可控的参数拿来解析，就会导致漏
 
 经过了以上配置后，我们再来跟一下访问流程：
 - `StrutsPrepareAndExecuteFilter#doFilter` 方法预处理请求，调用 `PrepareOperations#findActionMapping` ，调用 `ActionMapper#getMapping` 方法处理请求 action。
-  <img src="https://oss.javasec.org/images/1625284296658.png" />
+  ![img](https://oss.javasec.org/images/1625284296658.png)
 -  调用 `this.dropExtension` 将 `extensions` 中的扩展后缀也就是 action 剪掉，并将这 action 以键值对的方式储存在 ActionMapping 中，然后还会调用 `parseNameAndNamespace()` 、`handleSpecialParameters()` 、最后使用 `parseActionName()` 处理动态调用的情况
-   <img src="https://oss.javasec.org/images/1625284296659.png" />
+   ![img](https://oss.javasec.org/images/1625284296659.png)
 - 处理中间调用流程，在我们的配置中，使用 * 匹配了全部的 action 地址，并返回 `{1}.jsp` ，这些信息放在了 ResultConfig 对象中，最后处理结果时将会进行解析和渲染：
-  <img src="https://oss.javasec.org/images/1625284296661.png" />
+  ![img](https://oss.javasec.org/images/1625284296661.png)
 - DefaultActionInvocation 的 executeResult 方法 调用 StrutsResultSupport 的 `execute()` 方法 调用 `conditionalParse()` 最后调用 `TextParseUtil.translateVariables()` 方法解析这个地址。
-  <img src="https://oss.javasec.org/images/1625284296664.png" />
+  ![img](https://oss.javasec.org/images/1625284296664.png)
 
 可以看到此漏洞最终触发点实际上与 S2-012 是一致的。
 
@@ -176,7 +176,7 @@ S2-015 中还通报了另一种导致漏洞的点，官方给出的漏洞范例�
 
 在处理返回结果时，处理响应包头部信息使用 HttpHeaderResult 类的 `execute()` 方法，取得`${message}` 的内容，然后调用 `TextParseUtil.translateVariables()` 进行解析。
 
-<img src="https://oss.javasec.org/images/1625284296666.png" />
+![img](https://oss.javasec.org/images/1625284296666.png)
 
 payload 与之前一致。
 
@@ -190,11 +190,11 @@ payload 与之前一致。
 
 在 DefaultActionMapper 中，定义了一些 PREFIX 常量，用来标识一些不同的前缀：
 
-<img src="https://oss.javasec.org/images/1625284296670.png" />
+![img](https://oss.javasec.org/images/1625284296670.png)
 
 这个类中还存在一个成员属性 prefixTrie ，它是一个 PrefixTrie 对象，他用来将不同的前缀与不同的对象相匹配，这个属性会在 DefaultActionMapper 的无参构造方法中进行初始化。
 
-<img src="https://oss.javasec.org/images/1625284296672.png" />
+![img](https://oss.javasec.org/images/1625284296672.png)
 
 我们发现其将不同的前缀分别对应到了不同的 ParameterAction 类中，分别实现了不同的  `execute()` 方法：
 - `method:`：将参数 key 字符串去掉前缀，并使用 ActionMapping 的 `setMethod()` 方法设置；
@@ -204,7 +204,7 @@ payload 与之前一致。
 
 在 S2-015 的漏洞分析中提到过， `StrutsPrepareAndExecuteFilter#doFilter` 方法会调用到`handleSpecialParameters()` 方法来处理一些特殊的参数值，其中就包括了以 ".x/.y" 结尾和存在特殊前缀的访问：
 
-<img src="https://oss.javasec.org/images/1625284296676.png" />
+![img](https://oss.javasec.org/images/1625284296676.png)
 
 使用 prefixTrie 的 `get()` 方法来匹配是否包含相关前缀，并调用保存在其中的类的 execute 方法，就是 DefaultActionMapper 中初始化的那些类的相关方法。
 
@@ -250,26 +250,26 @@ redirectAction:%{new java.lang.ProcessBuilder(new java.lang.String[]{"open", "-a
 对于 S2-018，我看到了官方的修复方案中，提到了关于 action 前缀的命名空间的修复，结合漏洞描述，我猜测可能与使用 `action:` 前缀跨命名空间调用相关，于是我简单写了这样一个 demo：
 - 创建了 TestAction、Test2Action 两个 action，`execute()` 方法直接返回 success；
 - 在 struts.xml 中为两个 action 配置不同的 namespace，如下图；
-  <img src="https://oss.javasec.org/images/1625284296679.png" />
+  ![img](https://oss.javasec.org/images/1625284296679.png)
 - 两个 action 分别调用了不同的 jsp 显示不同的内容，TestAction->test.jsp->su18，Test2Action->test2.jsp->su17。
 
 接下来我们尝试调用，正常访问没有问题：
 
-<img src="https://oss.javasec.org/images/1625284296682.png" />
+![img](https://oss.javasec.org/images/1625284296682.png)
 
 然后我们尝试在访问 test2.action 时使用 action 前缀调用 test.action 的 `execute()` 方法，应用程序报错：
 
-<img src="https://oss.javasec.org/images/1625284296684.png" />
+![img](https://oss.javasec.org/images/1625284296684.png)
 
 报错声明对于命名空间 `/su18` ，找不到名为 test 的 action，那我们直接访问路径为：http://localhost:8080/test2.action?action:test!execute，或者直接访问：http://localhost:8080/aaaaa.action?action:test!execute，发现可以访问到同一命名空间中的 test action。
 
-<img src="https://oss.javasec.org/images/1625284296686.png" />
+![img](https://oss.javasec.org/images/1625284296686.png)
 
 这种情况表面上访问了 aaaaa.action，实际上访问了 test.action，这就已经有点挂羊头卖狗肉的意思的了，但这种情况还没有跨出 namespace 。
 
 那如何访问不同命名空间中的方法呢？这里偷懒直接看一下 diff：
 
-<img src="https://oss.javasec.org/images/1625284296688.png" />
+![img](https://oss.javasec.org/images/1625284296688.png)
 
 发现在更新后，对 `action:` 前缀后面的值处理了 "/"，并对包含 "/" 的值进行了截取。
 
@@ -290,27 +290,27 @@ S2-020 修复了一个 DOS ，我们不关注这个，略过。我们关心 clas
 
 这样的正则，其实上还是可以在一定程度上修改 context 及 root 中的内容，例如：
 
-<img src="https://oss.javasec.org/images/1625284296692.png" />
+![img](https://oss.javasec.org/images/1625284296692.png)
 
 而且这个正则允许 `a.b.c.d.e` 的参数形式：
 
-<img src="https://oss.javasec.org/images/1625284296695.png" />
+![img](https://oss.javasec.org/images/1625284296695.png)
 
 这种形式能造成什么危害呢？
 
 在 OGNL 中，可以直接使用变量名访问 root 对象中的内容，是因为程序会在 root 对象中尝试寻找对应的变量以及 get/set/is 方法：
 
-<img src="https://oss.javasec.org/images/1625284296697.png" />
+![img](https://oss.javasec.org/images/1625284296697.png)
 
 因此，我们可以直接使用 `class` 关键字获取 root 的 Class 对象，因为会调用 `getClass()` 方法，这个方法每个类都有，并可以通过这个方法访问其 ClassLoader 对象等等，如下图：
 
-<img src="https://oss.javasec.org/images/1625284296700.png" />
+![img](https://oss.javasec.org/images/1625284296700.png)
 
 在 struts2 中， root 对象是当次访问的 Action 对象，而其 ClassLoader 通常由运行环境所提供，例如在 Tomcat 下，这个 ClassLoader 应该为当前应用所使用的：`org.apache.catalina.loader.WebappClassLoader`。
 
 在这个 ClassLoader 中，存放了很多在容器运行时，上下文中的所需要的一些值，如果这些值被修改了，可能会影响到应用程序的运行方式。
 
-<img src="https://oss.javasec.org/images/1625284296703.png" />
+![img](https://oss.javasec.org/images/1625284296703.png)
 
 能被我们修改的属性需要有以下几个条件：
 - 有 set 方法，或者是可以使用 set 方法改变的值；
@@ -323,58 +323,58 @@ S2-020 修复了一个 DOS ，我们不关注这个，略过。我们关心 clas
 
 此时 Tomcat 的文档路径将会改为我们传入的指定路径，可以访问其中的内容：
 
-<img src="https://oss.javasec.org/images/1625284296705.png" />
+![img](https://oss.javasec.org/images/1625284296705.png)
 
 
 在互联网上  yiran4827 师傅发出了他编写的脚本，用来找到 Tomcat 中可能存在风险的相关属性：
 
 ```java
 <%!public void processClass(Object instance, javax.servlet.jsp.JspWriter out, java.util.HashSet set, String poc){
-	try {
-	    Class<?> c = instance.getClass();
-	    set.add(instance);
-	    Method[] allMethods = c.getMethods();
-	    for (Method m : allMethods) {
-		if (!m.getName().startsWith("set")) {
-		    continue;
-		}
-		if (!m.toGenericString().startsWith("public")) {
-		    continue;
-		}
-		Class<?>[] pType  = m.getParameterTypes();
-		if(pType.length!=1) continue;
-		
-		if(pType[0].getName().equals("java.lang.String")||
-		pType[0].getName().equals("boolean")||
-		pType[0].getName().equals("int")){
-			String fieldName = m.getName().substring(3,4).toLowerCase()+m.getName().substring(4);
-			out.print(poc+"."+fieldName + "<br>");
-		}
-	    }
-	    for (Method m : allMethods) {
-		if (!m.getName().startsWith("get")) {
-		    continue;
-		}
-		if (!m.toGenericString().startsWith("public")) {
-		    continue;
-		}		
-		Class<?>[] pType  = m.getParameterTypes();
-		if(pType.length!=0) continue;
-		if(m.getReturnType() == Void.TYPE) continue;
-		Object o = m.invoke(instance);
-		if(o!=null)
-		{
-			if(set.contains(o)) continue;
-			processClass(o,out, set, poc+"."+m.getName().substring(3,4).toLowerCase()+m.getName().substring(4));	
-		} 
-	    }
-	} catch (java.io.IOException x) {
-	    x.printStackTrace();
-	} catch (java.lang.IllegalAccessException x) {
-	    x.printStackTrace();
-	} catch (java.lang.reflect.InvocationTargetException x) {
-	    x.printStackTrace();
-	} 	
+    try {
+        Class<?> c = instance.getClass();
+        set.add(instance);
+        Method[] allMethods = c.getMethods();
+        for (Method m : allMethods) {
+        if (!m.getName().startsWith("set")) {
+            continue;
+        }
+        if (!m.toGenericString().startsWith("public")) {
+            continue;
+        }
+        Class<?>[] pType  = m.getParameterTypes();
+        if(pType.length!=1) continue;
+        
+        if(pType[0].getName().equals("java.lang.String")||
+        pType[0].getName().equals("boolean")||
+        pType[0].getName().equals("int")){
+            String fieldName = m.getName().substring(3,4).toLowerCase()+m.getName().substring(4);
+            out.print(poc+"."+fieldName + "<br>");
+        }
+        }
+        for (Method m : allMethods) {
+        if (!m.getName().startsWith("get")) {
+            continue;
+        }
+        if (!m.toGenericString().startsWith("public")) {
+            continue;
+        }       
+        Class<?>[] pType  = m.getParameterTypes();
+        if(pType.length!=0) continue;
+        if(m.getReturnType() == Void.TYPE) continue;
+        Object o = m.invoke(instance);
+        if(o!=null)
+        {
+            if(set.contains(o)) continue;
+            processClass(o,out, set, poc+"."+m.getName().substring(3,4).toLowerCase()+m.getName().substring(4));    
+        } 
+        }
+    } catch (java.io.IOException x) {
+        x.printStackTrace();
+    } catch (java.lang.IllegalAccessException x) {
+        x.printStackTrace();
+    } catch (java.lang.reflect.InvocationTargetException x) {
+        x.printStackTrace();
+    }   
 }%>
 ```
 
@@ -435,17 +435,17 @@ Struts2 官方继续维护它的正则。
 
 针对此漏洞，我们使用 2.3.24 版本进行调试，依旧是在 DefaultActionMapper 中，将 4 个前缀对应的处理方法初始化在了 prefixTrie 中。
 
-<img src="https://oss.javasec.org/images/1625284296708.png" />
+![img](https://oss.javasec.org/images/1625284296708.png)
 
 在收到请求时，由 `StrutsPrepareAndExecuteFilter#doFilter` 方法处理并执行到 action，这部分由 ActionInvocation 的实现类 DefaultActionInvocation 进行实现调度，在这之间会调用Dispatcher 的 `serviceAction()` 方法创建 ActionProxy 代理对象，并将相关的信息存储在这个代理对象中。
 
 需要注意的是，会对 methodName 进行处理，包括 `StringEscapeUtils.escapeHtml4()` 以及 `StringEscapeUtils.escapeEcmaScript()` 方法，对一些特殊字符进行转义。
 
-<img src="https://oss.javasec.org/images/1625284296710.png" />
+![img](https://oss.javasec.org/images/1625284296710.png)
 
 在 `DefaultActionInvocation#invokeAction`  方法中，会将 proxy 中的方法名拿出来，在后面拼接 `()` 并调用 `OgnlUtil.getValue()` 方法以 action 对象为 root 进行解析。
 
-<img src="https://oss.javasec.org/images/1625284296713.png" />
+![img](https://oss.javasec.org/images/1625284296713.png)
 
 这就是最终的漏洞触发点，这部分流程其实我们比较好理解，但是关键点在于如何构造 payload 绕过当前的一些限制。
 
@@ -453,7 +453,7 @@ Struts2 官方继续维护它的正则。
 
 其次，在调用方法时会有相关的判断，系统内置了对调用类包名的正则、对类名的黑名单的校验，如下图：
 
-<img src="https://oss.javasec.org/images/1625284296718.png" />
+![img](https://oss.javasec.org/images/1625284296718.png)
 
 我们需要绕过这些 payload，可以将 excludedClasses 以及 excludedPackageNamePatterns 这两个 SET 设置为空，因此最终的 payload 为：
 
@@ -465,7 +465,7 @@ method:#_memberAccess.excludedClasses=@java.util.Collections@EMPTY_SET,#_memberA
 
 这里还是使用了 `new ProcessBuilder()` 的方式，如果想使用 Runtime 或其他静态方法调用，依旧是要将 allowStaticMethodAccess 修改为 true，在 S2-016 中，因为 set 方法被删除，我们通过反射来修改 allowStaticMethodAccess 的值，但是在 2.3.20 版本以后，SecurityMemberAccess 引入了一个新的判断方法 `isClassExcluded()`，用来对之前提到的类的黑名单进行校验：
 
-<img src="https://oss.javasec.org/images/1625284296720.png" />
+![img](https://oss.javasec.org/images/1625284296720.png)
 
 在这个方法中直接判断了执行的方法的类不能是 `Object.class`，因此，我们就不能通过 `getClass()` 方法获得一个类的 class 对象。
 
@@ -478,7 +478,7 @@ method:#_memberAccess.excludedClasses=@java.util.Collections@EMPTY_SET,#_memberA
 
 在 `ognl.OgnlContext` 中，有一个 public static 的 MemberAccess 对象，实际上是 DefaultMemberAccess 对象。我们直接将 `_memberAccess` 对象引用至此对象，就绕过了 SecurityMemberAccess 对象里 `isAccessible()` 方法冗长的判断，直接执行静态代码了。
 
-<img src="https://oss.javasec.org/images/1625284296723.png" />
+![img](https://oss.javasec.org/images/1625284296723.png)
 
 
 这就是网上流传的 S2-032 的 payload 所使用的方式，所以最终 payload 为：
@@ -492,7 +492,7 @@ method:#_memberAccess=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS,@java.lang.Runtime
 
 在 OGNL 表达式中，还有一种方式那就是 `@a@class` 的方式，这种方式不同于 `getClass()` 的方法调用方式，将由 ClassResolver 的实现类获取类的 Class 对象，具体实现是 `Class.forName('a')` 或者是使用当前线程的 ClassLoader 去 loadClass。
 
-<img src="https://oss.javasec.org/images/1625284296725.png" />
+![img](https://oss.javasec.org/images/1625284296725.png)
 
 这种使用方式将在 S2-045 中进行使用，此处不进行扩展。
 
@@ -508,7 +508,7 @@ method:#_memberAccess=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS,@java.lang.Runtime
 
 这里使用官方的 struts2-rest-showcase 进行调试，使用的依赖包为 struts2-rest-plugin-2.3.24.1.jar ，在这个包中配置了一个 struts-plugin.xml，将会由 Struts2 进行加载。
 
-<img src="https://oss.javasec.org/images/1625284296727.png" />
+![img](https://oss.javasec.org/images/1625284296727.png)
 
 在这个配置中，我们看到一些中间处理类和常量被替换了，其中我们比较关注的是：ActionMapper -> RestActionMapper。
 
@@ -516,15 +516,15 @@ method:#_memberAccess=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS,@java.lang.Runtime
 
 在 RestActionMapper 中，与 DefaultActionMapper 处理方法类似，去后缀，解析 url，处理特殊的请求参数，这代码基本是粘过来的。
 
-<img src="https://oss.javasec.org/images/1625284296730.png" />
+![img](https://oss.javasec.org/images/1625284296730.png)
 
 但是有一个区别是，DefaultActionMapper 用来处理 action 请求，系统配置的默认扩展名是 action，RestActionMapper 用来处理 REST 请求，系统配置的 action 扩展名是 xhtml、xml、json，默认扩展是 xhtml。也就是说，在使用了 REST 插件后，访问以上扩展名的连接，会以 action 来进行解析。
 
-<img src="https://oss.javasec.org/images/1625284296734.png" />
+![img](https://oss.javasec.org/images/1625284296734.png)
 
 RestActionMapper 同样提供了动态方法调用的功能，可以使用 "!" 调用其他的方法，在handleDynamicMethodInvocation 方法中处理并存入 ActionMapping 中。
 
-<img src="https://oss.javasec.org/images/1625284296736.png" />
+![img](https://oss.javasec.org/images/1625284296736.png)
 
 虽然在 DefaultActionMapper 中也提供此项功能，但是其中使用了 allowedActionNames 正则，在解析 url 时使用的方法 `parseNameAndNamespace()` 对 actionName 进行了过滤和清除，正则为：`[a-zA-Z0-9._!/\-]*`
 
@@ -540,7 +540,7 @@ RestActionMapper 同样提供了动态方法调用的功能，可以使用 "!" �
 
 成功弹出计算器：
 
-<img src="https://oss.javasec.org/images/1625284296738.png" />
+![img](https://oss.javasec.org/images/1625284296738.png)
 
 
 # S2-037
@@ -555,7 +555,7 @@ REST 形式访问时，对解析的 methodName 没有过滤导致了漏洞。
 
 在 `RestActionMapper#getMapping` 提供了一个功能，代码如下：
 
-<img src="https://oss.javasec.org/images/1625284296741.png" />
+![img](https://oss.javasec.org/images/1625284296741.png)
 
 这段代码实际上实现了一个功能：对于 `actionName/id/methodName` 形式的访问参数，会分别截取进行赋值，其中的第二个 "/" 后面的内容就会作为 methodName 进行处理，并放入 ActionMapping 中。
 

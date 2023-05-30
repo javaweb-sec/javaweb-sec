@@ -96,7 +96,7 @@ Web应用通常都会包含文件上传功能，用户可以将其本地的文�
 
 因为Web应用未检测用户上传的文件合法性导致了任意文件上传漏洞，访问示例中的文件上传地址：[http://localhost:8000/modules/servlet/fileupload/file-upload.jsp](http://localhost:8000/modules/servlet/fileupload/file-upload.jsp)，并选择一个恶意的jsp后门(示例上传的是一个本地命令执行的后门):
 
-<img src="https://oss.javasec.org/images/image-20200921003740246.png" alt="image-20200921003740246" />
+![img](https://oss.javasec.org/images/image-20200921003740246.png)
 
 后门成功的写入到了网站目录：
 
@@ -104,7 +104,7 @@ Web应用通常都会包含文件上传功能，用户可以将其本地的文�
 
 访问命令执行后门测试：[http://localhost:8000/uploads/cmd.jsp?cmd=ls](http://localhost:8000/uploads/cmd.jsp?cmd=ls)，如下图：
 
-<img src="https://oss.javasec.org/images/image-20200921003841786.png" alt="image-20200921003841786" />
+![img](https://oss.javasec.org/images/image-20200921003841786.png)
 
 ## 2. Servlet 3.0 内置文件上传解析
 
@@ -198,11 +198,11 @@ JSP使用`request.getParts();`必须配置`multipart-config`，否则请求时�
 
 访问示例中的文件上传地址：[http://localhost:8000/modules/servlet/fileupload/file-upload-parts.jsp](http://localhost:8000/modules/servlet/fileupload/file-upload-parts.jsp)：
 
-<img src="https://oss.javasec.org/images/image-20201118150151152.png" alt="image-20201118150151152" />
+![img](https://oss.javasec.org/images/image-20201118150151152.png)
 
 文件上传成功：
 
-<img src="https://oss.javasec.org/images/image-20201118150626809.png" alt="image-20201118150626809" />
+![img](https://oss.javasec.org/images/image-20201118150626809.png)
 
 ### 2.2 Servlet @MultipartConfig
 
@@ -230,75 +230,75 @@ import java.util.Collection;
 @WebServlet(urlPatterns = "/FileUploadServlet")
 public class FileUploadServlet extends HttpServlet {
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		PrintWriter out = resp.getWriter();
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        PrintWriter out = resp.getWriter();
 
-		out.println("<!DOCTYPE html>\n" +
-				"<html lang=\"zh\">\n" +
-				"<head>\n" +
-				"    <meta charset=\"UTF-8\">\n" +
-				"    <title>File upload</title>\n" +
-				"</head>\n" +
-				"<body>\n" +
-				"<form action=\"\" enctype=\"multipart/form-data\" method=\"post\">\n" +
-				"    <p>\n" +
-				"        用户名: <input name=\"username\" type=\"text\"/>\n" +
-				"        文件: <input id=\"file\" name=\"file\" type=\"file\"/>\n" +
-				"    </p>\n" +
-				"    <input name=\"submit\" type=\"submit\" value=\"Submit\"/>\n" +
-				"</form>\n" +
-				"</body>\n" +
-				"</html>");
+        out.println("<!DOCTYPE html>\n" +
+                "<html lang=\"zh\">\n" +
+                "<head>\n" +
+                "    <meta charset=\"UTF-8\">\n" +
+                "    <title>File upload</title>\n" +
+                "</head>\n" +
+                "<body>\n" +
+                "<form action=\"\" enctype=\"multipart/form-data\" method=\"post\">\n" +
+                "    <p>\n" +
+                "        用户名: <input name=\"username\" type=\"text\"/>\n" +
+                "        文件: <input id=\"file\" name=\"file\" type=\"file\"/>\n" +
+                "    </p>\n" +
+                "    <input name=\"submit\" type=\"submit\" value=\"Submit\"/>\n" +
+                "</form>\n" +
+                "</body>\n" +
+                "</html>");
 
-		out.flush();
-		out.close();
-	}
+        out.flush();
+        out.close();
+    }
 
-	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		PrintWriter out         = response.getWriter();
-		String      contentType = request.getContentType();
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        PrintWriter out         = response.getWriter();
+        String      contentType = request.getContentType();
 
-		// 检测是否是multipart请求
-		if (contentType != null && contentType.startsWith("multipart/")) {
-			String dir       = request.getSession().getServletContext().getRealPath("/uploads/");
-			File   uploadDir = new File(dir);
+        // 检测是否是multipart请求
+        if (contentType != null && contentType.startsWith("multipart/")) {
+            String dir       = request.getSession().getServletContext().getRealPath("/uploads/");
+            File   uploadDir = new File(dir);
 
-			if (!uploadDir.exists()) {
-				uploadDir.mkdir();
-			}
+            if (!uploadDir.exists()) {
+                uploadDir.mkdir();
+            }
 
-			Collection<Part> parts = request.getParts();
+            Collection<Part> parts = request.getParts();
 
-			for (Part part : parts) {
-				String fileName = part.getSubmittedFileName();
+            for (Part part : parts) {
+                String fileName = part.getSubmittedFileName();
 
-				if (fileName != null) {
-					File uploadFile = new File(uploadDir, fileName);
-					out.println(part.getName() + ": " + uploadFile.getAbsolutePath());
+                if (fileName != null) {
+                    File uploadFile = new File(uploadDir, fileName);
+                    out.println(part.getName() + ": " + uploadFile.getAbsolutePath());
 
-					FileUtils.write(uploadFile, IOUtils.toString(part.getInputStream(), "UTF-8"));
-				} else {
-					out.println(part.getName() + ": " + IOUtils.toString(part.getInputStream()));
-				}
-			}
-		}
+                    FileUtils.write(uploadFile, IOUtils.toString(part.getInputStream(), "UTF-8"));
+                } else {
+                    out.println(part.getName() + ": " + IOUtils.toString(part.getInputStream()));
+                }
+            }
+        }
 
-		out.flush();
-		out.close();
-	}
+        out.flush();
+        out.close();
+    }
 
 }
 ```
 
 访问示例中的文件上传地址：[http://localhost:8000/FileUploadServlet](http://localhost:8000/FileUploadServlet)
 
-<img src="https://oss.javasec.org/images/image-20201118153002485.png" alt="image-20201118153002485" />
+![img](https://oss.javasec.org/images/image-20201118153002485.png)
 
 文件上传成功：
 
-<img src="https://oss.javasec.org/images/image-20201118153018149.png" alt="image-20201118153018149" />
+![img](https://oss.javasec.org/images/image-20201118153018149.png)
 
 
 
@@ -328,65 +328,65 @@ import static org.javaweb.utils.HttpServletRequestUtils.getDocumentRoot;
 @RequestMapping("/FileUpload/")
 public class FileUploadController {
 
-	@RequestMapping("/upload.php")
-	public void uploadPage(HttpServletResponse response) {
-		HttpServletResponseUtils.responseHTML(response, "<!DOCTYPE html>\n" +
-				"<html lang=\"en\">\n" +
-				"<head>\n" +
-				"    <meta charset=\"UTF-8\">\n" +
-				"    <title>File upload</title>\n" +
-				"</head>\n" +
-				"<body>\n" +
-				"<form action=\"/FileUpload/upload.do\" enctype=\"multipart/form-data\" method=\"post\">\n" +
-				"    <p>\n" +
-				"        用户名: <input name=\"username\" type=\"text\"/>\n" +
-				"        文件: <input id=\"file\" name=\"file\" type=\"file\"/>\n" +
-				"    </p>\n" +
-				"    <input name=\"submit\" type=\"submit\" value=\"Submit\"/>\n" +
-				"</form>\n" +
-				"</body>\n" +
-				"</html>");
-	}
+    @RequestMapping("/upload.php")
+    public void uploadPage(HttpServletResponse response) {
+        HttpServletResponseUtils.responseHTML(response, "<!DOCTYPE html>\n" +
+                "<html lang=\"en\">\n" +
+                "<head>\n" +
+                "    <meta charset=\"UTF-8\">\n" +
+                "    <title>File upload</title>\n" +
+                "</head>\n" +
+                "<body>\n" +
+                "<form action=\"/FileUpload/upload.do\" enctype=\"multipart/form-data\" method=\"post\">\n" +
+                "    <p>\n" +
+                "        用户名: <input name=\"username\" type=\"text\"/>\n" +
+                "        文件: <input id=\"file\" name=\"file\" type=\"file\"/>\n" +
+                "    </p>\n" +
+                "    <input name=\"submit\" type=\"submit\" value=\"Submit\"/>\n" +
+                "</form>\n" +
+                "</body>\n" +
+                "</html>");
+    }
 
-	@ResponseBody
-	@RequestMapping("/upload.do")
-	public Map<String, Object> upload(String username, @RequestParam("file") MultipartFile file, HttpServletRequest request) {
-		// 文件名称
-		String filePath   = "uploads/" + username + "/" + file.getOriginalFilename();
-		File   uploadFile = new File(getDocumentRoot(request), filePath);
+    @ResponseBody
+    @RequestMapping("/upload.do")
+    public Map<String, Object> upload(String username, @RequestParam("file") MultipartFile file, HttpServletRequest request) {
+        // 文件名称
+        String filePath   = "uploads/" + username + "/" + file.getOriginalFilename();
+        File   uploadFile = new File(getDocumentRoot(request), filePath);
 
-		// 上传目录
-		File uploadDir = uploadFile.getParentFile();
+        // 上传目录
+        File uploadDir = uploadFile.getParentFile();
 
-		// 上传文件对象
-		Map<String, Object> jsonMap = new LinkedHashMap<String, Object>();
+        // 上传文件对象
+        Map<String, Object> jsonMap = new LinkedHashMap<String, Object>();
 
-		if (!uploadDir.exists()) {
-			uploadDir.mkdirs();
-		}
+        if (!uploadDir.exists()) {
+            uploadDir.mkdirs();
+        }
 
-		try {
-			FileUtils.copyInputStreamToFile(file.getInputStream(), uploadFile);
+        try {
+            FileUtils.copyInputStreamToFile(file.getInputStream(), uploadFile);
 
-			jsonMap.put("url", filePath);
-			jsonMap.put("msg", "上传成功!");
-		} catch (IOException e) {
-			jsonMap.put("msg", "上传失败，服务器异常!");
-		}
+            jsonMap.put("url", filePath);
+            jsonMap.put("msg", "上传成功!");
+        } catch (IOException e) {
+            jsonMap.put("msg", "上传失败，服务器异常!");
+        }
 
-		return jsonMap;
-	}
+        return jsonMap;
+    }
 
 }
 ```
 
 访问示例中的文件上传地址：[http://localhost:8000/FileUpload/upload.do](http://localhost:8000/FileUpload/upload.do)，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201116154250929.png" alt="image-20201116154250929" />
+![img](https://oss.javasec.org/images/image-20201116154250929.png)
 
 后门成功的写入到了网站目录：
 
-<img src="https://oss.javasec.org/images/image-20201116154312441.png" alt="image-20201116154312441" />
+![img](https://oss.javasec.org/images/image-20201116154312441.png)
 
 ## 4. 文件上传 - 编码特性
 
@@ -410,7 +410,7 @@ public class FileUploadController {
 
 字符串：`测试.jsp`编码后的结果如下：
 
-<img src="https://oss.javasec.org/images/image-20201119110638971.png" alt="image-20201119110638971" />
+![img](https://oss.javasec.org/images/image-20201119110638971.png)
 
 QP编码本与文件上传没有什么关系，但是由于在Java中最常用的[Apache commons fileupload](http://commons.apache.org/proper/commons-fileupload/)库从1.3开始支持了[RFC 2047](https://www.ietf.org/rfc/rfc2047.txt) Header值编码，从而支持解析使用QP编码后的文件名。
 
@@ -418,7 +418,7 @@ QP编码本与文件上传没有什么关系，但是由于在Java中最常用�
 
 **示例 - 文件上传测试：**
 
-<img src="https://oss.javasec.org/images/image-20201118171038557.png" alt="image-20201118171038557" />
+![img](https://oss.javasec.org/images/image-20201118171038557.png)
 
 **示例 - Payload：**
 
@@ -428,17 +428,17 @@ Content-Disposition: form-data; name="file"; filename="=?UTF-8?Q?=E6=B5=8B=E8=AF
 
 编码处理类：`org.apache.commons.fileupload.util.mime.MimeUtility#decodeText`
 
-<img src="https://oss.javasec.org/images/image-20201116182555363.png" alt="image-20201116182555363" />
+![img](https://oss.javasec.org/images/image-20201116182555363.png)
 
 文件上传成功后文件名被编码成了`测试.jsp`。
 
 Spring MVC中同样支持QP编码，在Spring中有两种处理`Multipart`的`Resolver`： `org.springframework.web.multipart.commons.CommonsMultipartResolver`和`org.springframework.web.multipart.support.StandardServletMultipartResolver`。`CommonsMultipartResolver`使用的是`commons fileupload`解析的所以支持QP编码。`StandardMultipartHttpServletRequest`比较特殊，Spring 4没有处理QP编码：
 
-<img src="https://oss.javasec.org/images/image-20201116190648714.png" alt="image-20201116190648714" />
+![img](https://oss.javasec.org/images/image-20201116190648714.png)
 
 但是在Spring 5修改了实现，如果文件名是`=?`开始`?=`结尾的话会调用`javax.mail`库的`MimeDelegate`解析QP编码：
 
-<img src="https://oss.javasec.org/images/image-20201116190416499.png" alt="image-20201116190416499" />
+![img](https://oss.javasec.org/images/image-20201116190416499.png)
 
 
 
@@ -460,29 +460,29 @@ Spring会对文件上传的名称做特殊的处理，`org.springframework.web.m
 
 在文件上传时，修改`Content-Disposition`中的`filename=`为`filename*="UTF-8'1.jpg'1.jsp"`：
 
-<img src="https://oss.javasec.org/images/image-20201116202636853.png" alt="image-20201116202636853" />
+![img](https://oss.javasec.org/images/image-20201116202636853.png)
 
 Spring4的`org.springframework.web.multipart.support.StandardMultipartHttpServletRequest#parseRequest`解析逻辑：
 
-<img src="https://oss.javasec.org/images/image-20201116200619169.png" alt="image-20201116200619169" />
+![img](https://oss.javasec.org/images/image-20201116200619169.png)
 
 Spring4的`org.springframework.web.multipart.support.StandardMultipartHttpServletRequest#extractFilenameWithCharset`代码如下：
 
-<img src="https://oss.javasec.org/images/image-20201116200313346.png" alt="image-20201116200313346" />
+![img](https://oss.javasec.org/images/image-20201116200313346.png)
 
 `extractFilenameWithCharset`支持对传入的文件名编码，示例中传入的`UTF-8'1.jpg'1.jsp`会被解析成`UTF-8`编码，最终的文件名为`1.jsp`，而`1.jpg`则会被丢弃。
 
 Spring5的`org.springframework.web.multipart.support.StandardMultipartHttpServletRequest#parseRequest`除了支持QP编码以外，优化了Spring4的解析文件名的方式：
 
-<img src="https://oss.javasec.org/images/image-20201116202343036.png" alt="image-20201116202343036" />
+![img](https://oss.javasec.org/images/image-20201116202343036.png)
 
 `org.springframework.http.ContentDisposition#parse`代码：
 
-<img src="https://oss.javasec.org/images/image-20201116202037704.png" alt="image-20201116202037704" />
+![img](https://oss.javasec.org/images/image-20201116202037704.png)
 
 文件上传成功：
 
-<img src="https://oss.javasec.org/images/image-20201116202909113.png" alt="image-20201116202909113" />
+![img](https://oss.javasec.org/images/image-20201116202909113.png)
 
 **示例 - Payload：**
 
@@ -506,20 +506,20 @@ Content-Disposition: form-data; name="file"; filename*="UTF-8'1.jpg'=?UTF-8?Q?=E
 @ResponseBody
 @RequestMapping("/getArticleById.php")
 public SysArticle getArticleByID(String id) {
-		return jdbcTemplate.queryForObject(
-				"select * from sys_article where id = " + id,
-				BeanPropertyRowMapper.newInstance(SysArticle.class)
-		);
+        return jdbcTemplate.queryForObject(
+                "select * from sys_article where id = " + id,
+                BeanPropertyRowMapper.newInstance(SysArticle.class)
+        );
 }
 ```
 
 访问示例程序：[http://localhost:8000/getArticleById.php?id=100000](http://localhost:8000/getArticleById.php?id=100000)：
 
-<img src="https://oss.javasec.org/images/image-20201118160422872.png" alt="image-20201118160422872" />
+![img](https://oss.javasec.org/images/image-20201118160422872.png)
 
 使用`Multipart`请求注入数据库信息测试：
 
-<img src="https://oss.javasec.org/images/image-20201118161532459.png" alt="image-20201118161532459" />
+![img](https://oss.javasec.org/images/image-20201118161532459.png)
 
 
 
@@ -531,11 +531,11 @@ RASP不但应该防御`Apache commons-fileupload`库的文件上传请求，还�
 
 `Apache commons-fileupload`底层处理解析Multipart的类是`org.apache.commons.fileupload.FileUploadBase.FileItemIteratorImpl.FileItemStreamImpl`，如下：
 
-<img src="https://oss.javasec.org/images/image-20201118163055865.png" alt="image-20201118163055865" />
+![img](https://oss.javasec.org/images/image-20201118163055865.png)
 
 只需Hook `FileItemStreamImpl`类的构造方法就可以获取到`Multipart`的字段或者文件名称，RASP只需要检测传入的`pName`参数值`cmd.jsp`是否是一个合法的文件名称就可以实现文件上传校验了。
 
-<img src="https://oss.javasec.org/images/image-20201118163440860.png" alt="image-20201118163440860" />
+![img](https://oss.javasec.org/images/image-20201118163440860.png)
 
 需要注意一点，Tomcat封装了`Apache commons fileupload`库，并修改了fileupload类的包名，如：`org.apache.tomcat.util.http.fileupload.FileUploadBase.FileItemIteratorImpl.FileItemStreamImpl#FileItemStreamImpl`，所以应当把这个类也放入检测范围内。
 
@@ -545,9 +545,9 @@ RASP不但应该防御`Apache commons-fileupload`库的文件上传请求，还�
 
 `javax.servlet.http.Part`是一个接口，不同的容器实现可能都不一样，RASP可以对`javax.servlet.http.Part`接口的`getInputStream`方法进行Hook，然后调用`getName`和`getSubmittedFileName`就可以获取到字段名称、文件名等信息。
 
-<img src="https://oss.javasec.org/images/image-20201118165015405.png" alt="image-20201118165015405" />
+![img](https://oss.javasec.org/images/image-20201118165015405.png)
 
-<img src="https://oss.javasec.org/images/image-20201118165504047.png" alt="image-20201118165504047" />
+![img](https://oss.javasec.org/images/image-20201118165504047.png)
 
 需要特别注意的是`Jakarta EE8`修改了`javax.servlet.http.Part`的API包名为：`jakarta.servlet.http.Part`，为了能够适配高版本的`Jakarta` API。
 
@@ -555,5 +555,5 @@ RASP不但应该防御`Apache commons-fileupload`库的文件上传请求，还�
 
 RASP为了更好的防御文件上传类请求，需要支持[RFC 2047](https://www.ietf.org/rfc/rfc2047.txt)的QP编码，还需要支持对Spring MVC内置的文件名编码处理处理。
 
-<img src="https://oss.javasec.org/images/image-20201118170855641.png" alt="image-20201118170855641" />
+![img](https://oss.javasec.org/images/image-20201118170855641.png)
 

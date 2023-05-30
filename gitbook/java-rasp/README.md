@@ -18,13 +18,13 @@ RASP防御的核心就是在Web应用程序执行关键的Java API之前插入�
 
 **示例 - Web攻击原理：**
 
-<img src="https://oss.javasec.org/images/image-20201115214755444.png" alt="image-20201115214755444" />
+![img](https://oss.javasec.org/images/image-20201115214755444.png)
 
 当Web应用接入RASP防御后，RASP会在Java语言底层重要的API（如：文件读写、命令执行等API）中设置防御点（API Hook方式），攻击者一旦发送Web攻击请求就会被RASP监控并拦截，从而有效的防御Web攻击。
 
 **示例 - RASP防御原理：**
 
-<img src="https://oss.javasec.org/images/image-20201104172033466.png" alt="image-20201104172033466" />
+![img](https://oss.javasec.org/images/image-20201104172033466.png)
 
 
 

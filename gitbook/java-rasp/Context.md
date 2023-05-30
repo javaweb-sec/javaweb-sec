@@ -10,13 +10,13 @@ RASP内置了`javax.servlet.Servlet`和`javax.servlet.Filter`接口的Hook方法
 
 **RASP劫持Servlet/Filter对象原理：**
 
-<img src="https://oss.javasec.org/images/image-20201202170149095.png" alt="image-20201202170149095" />
+![img](https://oss.javasec.org/images/image-20201202170149095.png)
 
 
 
 **RASPHttpRequestContextManager：**
 
-<img src="https://oss.javasec.org/images/image-20201203164721652.png" alt="image-20201203164721652" />
+![img](https://oss.javasec.org/images/image-20201203164721652.png)
 
 当Servlet或Filter请求结束后会调用`RASPHttpRequestContextManager#finishHook`清理RASP Context中的缓存数据。
 

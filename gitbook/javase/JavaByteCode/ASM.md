@@ -20,25 +20,25 @@ ASM提供了三个基于`ClassVisitor API`的核心API，用于生成和转换�
 // 创建ClassReader对象，用于解析类对象，可以根据类名、二进制、输入流的方式创建
 final ClassReader cr = new ClassReader(className);
 
-System.out.println(
-      "解析类名：" + cr.getClassName() + "，父类：" + cr.getSuperName() +
-            "，实现接口：" + Arrays.toString(cr.getInterfaces())
-);
+        System.out.println(
+        "解析类名：" + cr.getClassName() + "，父类：" + cr.getSuperName() +
+        "，实现接口：" + Arrays.toString(cr.getInterfaces())
+        );
 ```
 
 调用`ClassReader`类的`accpet`方法需要传入自定义的`ClassVisitor`对象，`ClassReader`会按照如下顺序，依次调用该`ClassVisitor`的类方法。
 
 ```java
-visit 
-  [ visitSource ] [ visitModule ][ visitNestHost ][ visitPermittedclass ][ visitOuterClass ] 
-  ( visitAnnotation | visitTypeAnnotation | visitAttribute )* 
-  ( visitNestMember | visitInnerClass | visitRecordComponent | visitField | visitMethod )*
-visitEnd
+visit
+        [ visitSource ] [ visitModule ][ visitNestHost ][ visitPermittedclass ][ visitOuterClass ]
+        ( visitAnnotation | visitTypeAnnotation | visitAttribute )*
+        ( visitNestMember | visitInnerClass | visitRecordComponent | visitField | visitMethod )*
+        visitEnd
 ```
 
 **ClassVisitor类图：**
 
-<img src="https://oss.javasec.org/images/image-20201020185201582.png" alt="image-20201020185201582" />
+![img](https://oss.javasec.org/images/image-20201020185201582.png)
 
 
 
@@ -88,60 +88,60 @@ import static org.objectweb.asm.Opcodes.ASM9;
 
 public class ASMClassVisitorTest {
 
-	public static void main(String[] args) {
-		// 定义需要解析的类名称
-		String className = "com.anbai.sec.bytecode.TestHelloWorld";
+    public static void main(String[] args) {
+        // 定义需要解析的类名称
+        String className = "com.anbai.sec.bytecode.TestHelloWorld";
 
-		try {
-			// 创建ClassReader对象，用于解析类对象，可以根据类名、二进制、输入流的方式创建
-			final ClassReader cr = new ClassReader(className);
+        try {
+            // 创建ClassReader对象，用于解析类对象，可以根据类名、二进制、输入流的方式创建
+            final ClassReader cr = new ClassReader(className);
 
-			System.out.println(
-					"解析类名：" + cr.getClassName() + "，父类：" + cr.getSuperName() +
-							"，实现接口：" + Arrays.toString(cr.getInterfaces())
-			);
+            System.out.println(
+                    "解析类名：" + cr.getClassName() + "，父类：" + cr.getSuperName() +
+                            "，实现接口：" + Arrays.toString(cr.getInterfaces())
+            );
 
-			System.out.println("-----------------------------------------------------------------------------");
+            System.out.println("-----------------------------------------------------------------------------");
 
-			// 使用自定义的ClassVisitor访问者对象，访问该类文件的结构
-			cr.accept(new ClassVisitor(ASM9) {
-				@Override
-				public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-					System.out.println(
-							"变量修饰符：" + access + "\t 类名：" + name + "\t 父类名：" + superName +
-									"\t 实现的接口：" + Arrays.toString(interfaces)
-					);
+            // 使用自定义的ClassVisitor访问者对象，访问该类文件的结构
+            cr.accept(new ClassVisitor(ASM9) {
+                @Override
+                public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+                    System.out.println(
+                            "变量修饰符：" + access + "\t 类名：" + name + "\t 父类名：" + superName +
+                                    "\t 实现的接口：" + Arrays.toString(interfaces)
+                    );
 
-					System.out.println("-----------------------------------------------------------------------------");
+                    System.out.println("-----------------------------------------------------------------------------");
 
-					super.visit(version, access, name, signature, superName, interfaces);
-				}
+                    super.visit(version, access, name, signature, superName, interfaces);
+                }
 
-				@Override
-				public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-					System.out.println(
-							"变量修饰符：" + access + "\t 变量名称：" + name + "\t 描述符：" + desc + "\t 默认值：" + value
-					);
+                @Override
+                public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
+                    System.out.println(
+                            "变量修饰符：" + access + "\t 变量名称：" + name + "\t 描述符：" + desc + "\t 默认值：" + value
+                    );
 
-					return super.visitField(access, name, desc, signature, value);
-				}
+                    return super.visitField(access, name, desc, signature, value);
+                }
 
-				@Override
-				public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+                @Override
+                public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 
-					System.out.println(
-							"方法修饰符：" + access + "\t 方法名称：" + name + "\t 描述符：" + desc +
-									"\t 抛出的异常：" + Arrays.toString(exceptions)
-					);
+                    System.out.println(
+                            "方法修饰符：" + access + "\t 方法名称：" + name + "\t 描述符：" + desc +
+                                    "\t 抛出的异常：" + Arrays.toString(exceptions)
+                    );
 
-					return super.visitMethod(access, name, desc, signature, exceptions);
-				}
-			}, EXPAND_FRAMES);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+                    return super.visitMethod(access, name, desc, signature, exceptions);
+                }
+            }, EXPAND_FRAMES);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-	}
+    }
 
 }
 ```
@@ -151,22 +151,22 @@ public class ASMClassVisitorTest {
 ```java
 解析类名：com/anbai/sec/bytecode/TestHelloWorld，父类：java/lang/Object，实现接口：[java/io/Serializable]
 -----------------------------------------------------------------------------
-变量修饰符：131105	 类名：com/anbai/sec/bytecode/TestHelloWorld	 父类名：java/lang/Object	 实现的接口：[java/io/Serializable]
+变量修饰符：131105     类名：com/anbai/sec/bytecode/TestHelloWorld    父类名：java/lang/Object    实现的接口：[java/io/Serializable]
 -----------------------------------------------------------------------------
-变量修饰符：26	 变量名称：serialVersionUID	 描述符：J	 默认值：-7366591802115333975
-变量修饰符：2	 变量名称：id	 描述符：J	 默认值：null
-变量修饰符：2	 变量名称：username	 描述符：Ljava/lang/String;	 默认值：null
-变量修饰符：2	 变量名称：password	 描述符：Ljava/lang/String;	 默认值：null
-方法修饰符：1	 方法名称：<init>	 描述符：()V	 抛出的异常：null
-方法修饰符：1	 方法名称：hello	 描述符：(Ljava/lang/String;)Ljava/lang/String;	 抛出的异常：null
-方法修饰符：9	 方法名称：main	 描述符：([Ljava/lang/String;)V	 抛出的异常：null
-方法修饰符：1	 方法名称：getId	 描述符：()J	 抛出的异常：null
-方法修饰符：1	 方法名称：setId	 描述符：(J)V	 抛出的异常：null
-方法修饰符：1	 方法名称：getUsername	 描述符：()Ljava/lang/String;	 抛出的异常：null
-方法修饰符：1	 方法名称：setUsername	 描述符：(Ljava/lang/String;)V	 抛出的异常：null
-方法修饰符：1	 方法名称：getPassword	 描述符：()Ljava/lang/String;	 抛出的异常：null
-方法修饰符：1	 方法名称：setPassword	 描述符：(Ljava/lang/String;)V	 抛出的异常：null
-方法修饰符：1	 方法名称：toString	 描述符：()Ljava/lang/String;	 抛出的异常：null
+变量修饰符：26     变量名称：serialVersionUID   描述符：J   默认值：-7366591802115333975
+变量修饰符：2  变量名称：id     描述符：J   默认值：null
+变量修饰符：2  变量名称：username   描述符：Ljava/lang/String;  默认值：null
+变量修饰符：2  变量名称：password   描述符：Ljava/lang/String;  默认值：null
+方法修饰符：1  方法名称：<init>     描述符：()V     抛出的异常：null
+方法修饰符：1  方法名称：hello  描述符：(Ljava/lang/String;)Ljava/lang/String;  抛出的异常：null
+方法修饰符：9  方法名称：main   描述符：([Ljava/lang/String;)V  抛出的异常：null
+方法修饰符：1  方法名称：getId  描述符：()J     抛出的异常：null
+方法修饰符：1  方法名称：setId  描述符：(J)V    抛出的异常：null
+方法修饰符：1  方法名称：getUsername    描述符：()Ljava/lang/String;    抛出的异常：null
+方法修饰符：1  方法名称：setUsername    描述符：(Ljava/lang/String;)V   抛出的异常：null
+方法修饰符：1  方法名称：getPassword    描述符：()Ljava/lang/String;    抛出的异常：null
+方法修饰符：1  方法名称：setPassword    描述符：(Ljava/lang/String;)V   抛出的异常：null
+方法修饰符：1  方法名称：toString   描述符：()Ljava/lang/String;    抛出的异常：null
 ```
 
 通过这个简单的示例，我们可以通过ASM实现遍历一个类的基础信息。
@@ -195,59 +195,59 @@ import static org.objectweb.asm.Opcodes.*;
 
 public class ASMClassWriterTest {
 
-	public static void main(String[] args) {
-		// 定义需要解析的类名称
-		String className = "com.anbai.sec.bytecode.TestHelloWorld";
+    public static void main(String[] args) {
+        // 定义需要解析的类名称
+        String className = "com.anbai.sec.bytecode.TestHelloWorld";
 
-		// 定义修改后的类名
-		final String newClassName = "JavaSecTestHelloWorld";
+        // 定义修改后的类名
+        final String newClassName = "JavaSecTestHelloWorld";
 
-		try {
-			// 创建ClassReader对象，用于解析类对象，可以根据类名、二进制、输入流的方式创建
-			final ClassReader cr = new ClassReader(className);
+        try {
+            // 创建ClassReader对象，用于解析类对象，可以根据类名、二进制、输入流的方式创建
+            final ClassReader cr = new ClassReader(className);
 
-			// 创建ClassWriter对象，COMPUTE_FRAMES会自动计算max_stack和max_locals
-			final ClassWriter cw = new ClassWriter(cr, COMPUTE_FRAMES);
+            // 创建ClassWriter对象，COMPUTE_FRAMES会自动计算max_stack和max_locals
+            final ClassWriter cw = new ClassWriter(cr, COMPUTE_FRAMES);
 
-			// 使用自定义的ClassVisitor访问者对象，访问该类文件的结构
-			cr.accept(new ClassVisitor(ASM9, cw) {
-				@Override
-				public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-					super.visit(version, access, newClassName, signature, superName, interfaces);
-				}
+            // 使用自定义的ClassVisitor访问者对象，访问该类文件的结构
+            cr.accept(new ClassVisitor(ASM9, cw) {
+                @Override
+                public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+                    super.visit(version, access, newClassName, signature, superName, interfaces);
+                }
 
-				@Override
-				public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-					// 将"hello"方法名字修改为"hi"
-					if (name.equals("hello")) {
-						// 修改方法访问修饰符，移除public属性，修改为private
-						access = access & ~ACC_PUBLIC | ACC_PRIVATE;
+                @Override
+                public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+                    // 将"hello"方法名字修改为"hi"
+                    if (name.equals("hello")) {
+                        // 修改方法访问修饰符，移除public属性，修改为private
+                        access = access & ~ACC_PUBLIC | ACC_PRIVATE;
 
-						return super.visitMethod(access, "hi", desc, signature, exceptions);
-					}
+                        return super.visitMethod(access, "hi", desc, signature, exceptions);
+                    }
 
-					return super.visitMethod(access, name, desc, signature, exceptions);
-				}
-			}, EXPAND_FRAMES);
+                    return super.visitMethod(access, name, desc, signature, exceptions);
+                }
+            }, EXPAND_FRAMES);
 
-			File classFilePath = new File(new File(System.getProperty("user.dir"), "javaweb-sec-source/javase/src/main/java/com/anbai/sec/bytecode/asm/"), newClassName + ".class");
+            File classFilePath = new File(new File(System.getProperty("user.dir"), "javaweb-sec-source/javase/src/main/java/com/anbai/sec/bytecode/asm/"), newClassName + ".class");
 
-			// 修改后的类字节码
-			byte[] classBytes = cw.toByteArray();
+            // 修改后的类字节码
+            byte[] classBytes = cw.toByteArray();
 
-			// 写入修改后的字节码到class文件
-			FileUtils.writeByteArrayToFile(classFilePath, classBytes);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+            // 写入修改后的字节码到class文件
+            FileUtils.writeByteArrayToFile(classFilePath, classBytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
 ```
 
 修改成功后将会生成一个名为`JavaSecTestHelloWorld.class`的新的class文件，反编译`JavaSecTestHelloWorld`类会发现该类的`hello`方法也已被修改为了`hi`，修饰符已被改为`private`，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201021103823611.png" alt="image-20201021103823611" />
+![img](https://oss.javasec.org/images/image-20201021103823611.png)
 
 ## 修改类方法字节码
 
@@ -389,11 +389,11 @@ public class ASMMethodVisitorTest {
 
 程序执行后会在`com.anbai.sec.bytecode`包下创建一个`TestHelloWorld.class`文件：
 
-<img src="https://oss.javasec.org/images/image-20201021174318013.png" alt="image-20201021174318013" />
+![img](https://oss.javasec.org/images/image-20201021174318013.png)
 
 命令行运行`TestHelloWorld`类，可以看到程序执行的逻辑已经被成功修改，输出结果如下：
 
-<img src="https://oss.javasec.org/images/image-20201021174453163.png" alt="image-20201021174453163" />
+![img](https://oss.javasec.org/images/image-20201021174453163.png)
 
 
 
@@ -546,7 +546,7 @@ hello方法执行结果：Hello World~
 
 程序执行后会在`TestASMHelloWorldDump`类同级的包下生成一个`TestASMHelloWorld`类，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201021163840625.png" alt="image-20201021163840625" />
+![img](https://oss.javasec.org/images/image-20201021163840625.png)
 
 ## IDEA/Eclipse插件
 
@@ -558,11 +558,11 @@ hello方法执行结果：Hello World~
 
 在IDEA中插件中心搜索：`ASM Bytecode Outline`，就可以找到ASM字节码插件，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201021193710065.png" alt="image-20201021193710065" />
+![img](https://oss.javasec.org/images/image-20201021193710065.png)
 
 安装完`ASM Bytecode Outline`后选择任意Java类，右键菜单中会出现`Show Bytecode outline`选项，点击之后就可以看到该类对应的ASM和Bytecode代码，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201021194226711.png" alt="image-20201021194226711" />
+![img](https://oss.javasec.org/images/image-20201021194226711.png)
 
 
 
@@ -574,19 +574,19 @@ Eclipse同IDEA，在插件中心搜索bytecode就可以找到`Bytecode Outline`�
 
 如果您使用的Eclipse版本相对较低（低版本的Eclipse自带了ASM依赖，如`Eclipse Photon Release (4.8.0)`）可直接在插件中心安装`Bytecode Outline`，否则需要先安装ASM依赖，点击`Help`->`Eclipse Marketplace...`，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201021195157340.png" alt="image-20201021201418835" />
+![img](https://oss.javasec.org/images/image-20201021195157340.png)
 
 然后搜索`bytecode`，找到`Bytecode Outline`，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201021195157340.png" alt="image-20201021195157340" />
+![img](https://oss.javasec.org/images/image-20201021195157340.png)
 
 点击`Instal`->`I accept the terms of the license agreement`->`Finish`：
 
-<img src="https://oss.javasec.org/images/image-20201021195253390.png" alt="image-20201021195253390" />
+![img](https://oss.javasec.org/images/image-20201021195253390.png)
 
 提示安全警告，直接点击`Install anyway`：
 
-<img src="https://oss.javasec.org/images/image-20201021195347822.png" alt="image-20201021195347822" />
+![img](https://oss.javasec.org/images/image-20201021195347822.png)
 
 
 
@@ -598,40 +598,40 @@ Eclipse同IDEA，在插件中心搜索bytecode就可以找到`Bytecode Outline`�
 
 点击`Help`->`Install New Software...`
 
-<img src="https://oss.javasec.org/images/image-20201021201200390.png" alt="image-20201021201200390" />
+![img](https://oss.javasec.org/images/image-20201021201200390.png)
 
 然后在https://download.eclipse.org/tools/orbit/downloads/drops/选择对应的Eclipse版本：
 
-<img src="https://oss.javasec.org/images/image-20201021201957013.png" alt="image-20201021201957013" />
+![img](https://oss.javasec.org/images/image-20201021201957013.png)
 
 复制仓库地址：
 
-<img src="https://oss.javasec.org/images/image-20201021202053530.png" alt="image-20201021202053530" />
+![img](https://oss.javasec.org/images/image-20201021202053530.png)
 
 然后在`Work with`输入框中输入：`https://download.eclipse.org/tools/orbit/downloads/drops/I20200904215518/repository`，点击`Add..`，填入仓库名字，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201021200357368.png" alt="image-20201021200357368" />
+![img](https://oss.javasec.org/images/image-20201021200357368.png)
 
 选择`All Bundles`或者找到`ASM`相关依赖，并按照提示完成依赖安装，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201021200428572.png" alt="image-20201021200428572" />
+![img](https://oss.javasec.org/images/image-20201021200428572.png)
 
 ### Bytecode Outline配置
 
 安装好`Bytecode Outline`插件以后默认没有`Bytecode`窗体，需要再视图中添加`Bytecode`，点击`Window`->`Show View`->`Other`，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201021203041991.png" alt="image-20201021203041991" />
+![img](https://oss.javasec.org/images/image-20201021203041991.png)
 
 然后在弹出的视图窗体中输入`bytecode`后点击`open`，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201021203116896.png" alt="image-20201021203116896" />
+![img](https://oss.javasec.org/images/image-20201021203116896.png)
 
 随便写一个测试类，在`Bytecode`窗体中可以看到对应的`Bytecode`，如果需要看ASM代码，点击右侧菜单的`ASM图标`即可，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201021203256732.png" alt="image-20201021203256732" />
+![img](https://oss.javasec.org/images/image-20201021203256732.png)
 
 如果想对照查看Java和ASM代码，只需点击对应的Java代码就会自动高亮ASM部分的代码，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201021203526682.png" alt="image-20201021203526682" />
+![img](https://oss.javasec.org/images/image-20201021203526682.png)
 
 我们可以借助`Bytecode Outline`插件学习ASM，也可以直接使用`Bytecode Outline`生成的ASM代码来实现字节码编辑。

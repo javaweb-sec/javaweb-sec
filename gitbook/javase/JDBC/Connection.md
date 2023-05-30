@@ -31,7 +31,7 @@ Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
 
 实际上这一步是利用了Java反射+类加载机制往`DriverManager`中注册了驱动包！
 
-<img src="https://oss.javasec.org/images/image-20191208225820692.png" alt="image-20191208225820692" />
+![img](https://oss.javasec.org/images/image-20191208225820692.png)
 
 `Class.forName("com.mysql.jdbc.Driver")`实际上会触发类加载，`com.mysql.jdbc.Driver`类将会被初始化，所以`static静态语句块`中的代码也将会被执行，所以看似毫无必要的`Class.forName`其实也是暗藏玄机的。如果反射某个类又不想初始化类方法有两种途径：
 
@@ -46,7 +46,7 @@ Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
 
 **Mysql驱动包示例:**
 
-<img src="https://oss.javasec.org/images/image-20191208232329364.png" alt="image-20191208232329364" />
+![img](https://oss.javasec.org/images/image-20191208232329364.png)
 
 
 

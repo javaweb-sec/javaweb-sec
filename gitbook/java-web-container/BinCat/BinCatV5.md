@@ -8,7 +8,7 @@
 
 首先我们在`javaweb-sec`项目下创建一个`javasec-test`的模块(用于存储`javasec`文章所用到的测试项目)，然后我们在`javasec-test`模块中创建一个`javasec-blog`模块(一个标准的`SpringBoot`项目)，`javasec-blog`项目是一个用于演示的博客项目。
 
-<img src="https://oss.javasec.org/images/image-20200917110907091.png" alt="image-20200917110907091" />
+![img](https://oss.javasec.org/images/image-20200917110907091.png)
 
 ### javasec-blog War项目构建
 
@@ -69,7 +69,7 @@
 
 项目构建成功后结构如下：
 
-<img src="https://oss.javasec.org/images/image-20200917143151435.png" alt="image-20200917143151435" />
+![img](https://oss.javasec.org/images/image-20200917143151435.png)
 
 ## BinCat V5实现
 
@@ -587,7 +587,7 @@ Enumeration<URL> resources = classLoader.getResources(servletService);
 
 **SpringServletContainerInitializer示例：**
 
-<img src="https://oss.javasec.org/images/image-20200917164429015.png" alt="image-20200917164429015" />
+![img](https://oss.javasec.org/images/image-20200917164429015.png)
 
 创建`SCI`实现类示例和获取该示例的`HandlesTypes`配置方式如下：
 

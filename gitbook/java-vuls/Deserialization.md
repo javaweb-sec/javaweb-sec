@@ -25,7 +25,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface RMITestInterface extends Remote {
-   String test() throws RemoteException;
+    String test() throws RemoteException;
 }
 ```
 
@@ -37,15 +37,15 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class RMITestImpl extends UnicastRemoteObject implements RMITestInterface {
 
-   private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-   protected RMITestImpl() throws RemoteException {
-      super();
-   }
-  
-   public String test() throws RemoteException {
-      return "Hello RMI~";
-   }
+    protected RMITestImpl() throws RemoteException {
+        super();
+    }
+
+    public String test() throws RemoteException {
+        return "Hello RMI~";
+    }
 
 }
 ```
@@ -58,28 +58,28 @@ import java.rmi.registry.LocateRegistry;
 
 public class RMIServerTest {
 
-	// RMI服务器IP地址
-	public static final String RMI_HOST = "127.0.0.1";
+    // RMI服务器IP地址
+    public static final String RMI_HOST = "127.0.0.1";
 
-	// RMI服务端口
-	public static final int RMI_PORT = 9527;
+    // RMI服务端口
+    public static final int RMI_PORT = 9527;
 
-	// RMI服务名称
-	public static final String RMI_NAME = "rmi://" + RMI_HOST + ":" + RMI_PORT + "/test";
+    // RMI服务名称
+    public static final String RMI_NAME = "rmi://" + RMI_HOST + ":" + RMI_PORT + "/test";
 
-	public static void main(String[] args) {
-		try {
-			// 注册RMI端口
-			LocateRegistry.createRegistry(RMI_PORT);
+    public static void main(String[] args) {
+        try {
+            // 注册RMI端口
+            LocateRegistry.createRegistry(RMI_PORT);
 
-			// 绑定Remote对象
-			Naming.bind(RMI_NAME, new RMITestImpl());
+            // 绑定Remote对象
+            Naming.bind(RMI_NAME, new RMITestImpl());
 
-			System.out.println("RMI服务启动成功,服务地址:" + RMI_NAME);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+            System.out.println("RMI服务启动成功,服务地址:" + RMI_NAME);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }
 ```
@@ -95,26 +95,26 @@ import java.rmi.Naming;
 
 public class RMIClientTest {
 
-	public static void main(String[] args) {
-		try {
-			// 查找远程RMI服务
-			RMITestInterface rt = (RMITestInterface) Naming.lookup("rmi://127.0.0.1:9527/test");
+    public static void main(String[] args) {
+        try {
+            // 查找远程RMI服务
+            RMITestInterface rt = (RMITestInterface) Naming.lookup("rmi://127.0.0.1:9527/test");
 
-			// 调用远程接口RMITestInterface类的test方法
-			String result = rt.test();
+            // 调用远程接口RMITestInterface类的test方法
+            String result = rt.test();
 
-			// 输出RMI方法调用结果
-			System.out.println(result);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+            // 输出RMI方法调用结果
+            System.out.println(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
 ```
 
 程序运行结果：`Hello RMI~`
 
-<img src="https://oss.javasec.org/images/image-20201113194547079.png" alt="image-20201113194547079" />
+![img](https://oss.javasec.org/images/image-20201113194547079.png)
 
 上述示例演示了一个业务逻辑绝对的简单且安全RMI服务的正常业务流程，但是漏洞并不是出现在业务本身，而是Java的RMI服务和反序列化机制。
 
@@ -124,11 +124,11 @@ public class RMIClientTest {
 
 攻击者可以借助RMI协议，发送带有`Apache Commons Collections`反序列化攻击`Payload`的请求到RMI服务端，服务端一旦反序列化RMI客户端的请求就会触发攻击链，最终实现在远程的RMI服务器上执行任意系统命令。
 
-<img src="https://oss.javasec.org/images/image-20201113204528201.png" alt="image-20201113204528201" />
+![img](https://oss.javasec.org/images/image-20201113204528201.png)
 
 发送在远程服务器上执行`open -a Calculator.app`（打开计算器）命令的攻击Payload：
 
-<img src="https://oss.javasec.org/images/image-20201113205630930.png" alt="image-20201113205630930" />
+![img](https://oss.javasec.org/images/image-20201113205630930.png)
 
 请求成功后在RMI服务端成功的弹出了计算器，攻击成功。
 
@@ -144,15 +144,15 @@ public class RMIClientTest {
 
 从`JDK6u141`、`JDK7u131`、`JDK 8u121`开始引入了JEP 290，[JEP 290: Filter Incoming Serialization Data](http://openjdk.java.net/jeps/290)限制了RMI类反序列化，添加了安全过滤机制，在一定程度上阻止了反序列化攻击。
 
-<img src="https://oss.javasec.org/images/image-20201113211316664.png" alt="image-20201113211316664" />
+![img](https://oss.javasec.org/images/image-20201113211316664.png)
 
 `ObjectInputStream`在序列化对象时是会调用`java.io.ObjectInputStream#filterCheck`->`sun.rmi.registry.RegistryImpl#registryFilter`，检测合法性：
 
-<img src="https://oss.javasec.org/images/image-20201113203150382.png" alt="image-20201113203150382" />
+![img](https://oss.javasec.org/images/image-20201113203150382.png)
 
 当攻击者向一个实现了`JEP 290`的服务端JDK发送反序列化对象时会攻击失败并抛出：`java.io.InvalidClassException: filter status: REJECTED`异常。
 
-<img src="https://oss.javasec.org/images/image-20201113201005557.png" alt="image-20201113201005557" />
+![img](https://oss.javasec.org/images/image-20201113201005557.png)
 
 JDK9中`ObjectInputStream`可以设置`ObjectInputFilter`，可实现自定义对象过滤器，如下：
 
@@ -190,95 +190,95 @@ import java.util.regex.Pattern;
 
 public class ObjectInputStreamFilter extends ObjectInputStream {
 
-	// 定义禁止反序列化的类黑名单正则表达式
-	private static final String[] REGEXPS = new String[]{
-			"bsh\\.XThis$", "bsh\\.Interpreter$",
-			"com\\.mchange\\.v2\\.c3p0\\.impl\\.PoolBackedDataSourceBase$",
-			"org\\.apache\\.commons\\.beanutils\\.BeanComparator$",
-			"org\\.apache\\.commons\\.collections\\.Transformer$",
-			"org\\.apache\\.commons\\.collections\\.functors\\.InvokerTransformer$",
-			"org\\.apache\\.commons\\.collections\\.functors\\.ChainedTransformer$",
-			"org\\.apache\\.commons\\.collections\\.functors\\.ConstantTransformer$",
-			"org\\.apache\\.commons\\.collections\\.functors\\.InstantiateTransformer$",
-			"org\\.apache\\.commons\\.collections4\\.functors\\.InvokerTransformer$",
-			"org\\.apache\\.commons\\.collections4\\.functors\\.ChainedTransformer$",
-			"org\\.apache\\.commons\\.collections4\\.functors\\.ConstantTransformer$",
-			"org\\.apache\\.commons\\.collections4\\.functors\\.InstantiateTransformer$",
-			"org\\.apache\\.commons\\.collections4\\.comparators\\.TransformingComparator$",
-			"org\\.apache\\.commons\\.fileupload\\.disk\\.DiskFileItem$",
-			"org\\.apache\\.wicket\\.util\\.upload\\.DiskFileItem$",
-			"org\\.codehaus\\.groovy\\.runtime\\.ConvertedClosure$",
-			"org\\.codehaus\\.groovy\\.runtime\\.MethodClosure$",
-			"org\\.hibernate\\.engine\\.spi\\.TypedValue$",
-			"org\\.hibernate\\.tuple\\.component\\.AbstractComponentTuplizer$",
-			"org\\.hibernate\\.tuple\\.component\\.PojoComponentTuplizer$",
-			"org\\.hibernate\\.type\\.AbstractType$", "org\\.hibernate\\.type\\.ComponentType$",
-			"org\\.hibernate\\.type\\.Type$", "com\\.sun\\.rowset\\.JdbcRowSetImpl$",
-			"org\\.jboss\\.(weld\\.)?interceptor\\.builder\\.InterceptionModelBuilder$",
-			"org\\.jboss\\.(weld\\.)?interceptor\\.builder\\.MethodReference$",
-			"org\\.jboss\\.(weld\\.)?interceptor\\.proxy\\.DefaultInvocationContextFactory$",
-			"org\\.jboss\\.(weld\\.)?interceptor\\.proxy\\.InterceptorMethodHandler$",
-			"org\\.jboss\\.(weld\\.)?interceptor\\.reader\\.ClassMetadataInterceptorReference$",
-			"org\\.jboss\\.(weld\\.)?interceptor\\.reader\\.DefaultMethodMetadata$",
-			"org\\.jboss\\.(weld\\.)?interceptor\\.reader\\.ReflectiveClassMetadata$",
-			"org\\.jboss\\.(weld\\.)?interceptor\\.reader\\.SimpleInterceptorMetadata$",
-			"org\\.jboss\\.(weld\\.)?interceptor\\.spi\\.instance\\.InterceptorInstantiator$",
-			"org\\.jboss\\.(weld\\.)?interceptor\\.spi\\.metadata\\.InterceptorReference$",
-			"org\\.jboss\\.(weld\\.)?interceptor\\.spi\\.metadata\\.MethodMetadata$",
-			"org\\.jboss\\.(weld\\.)?interceptor\\.spi\\.model\\.InterceptionModel$",
-			"org\\.jboss\\.(weld\\.)?interceptor\\.spi\\.model\\.InterceptionType$",
-			"java\\.rmi\\.registry\\.Registry$", "java\\.rmi\\.server\\.ObjID$",
-			"java\\.rmi\\.server\\.RemoteObjectInvocationHandler$",
-			"net\\.sf\\.json\\.JSONObject$", "javax\\.xml\\.transform\\.Templates$",
-			"org\\.python\\.core\\.PyObject$", "org\\.python\\.core\\.PyBytecode$",
-			"org\\.python\\.core\\.PyFunction$", "org\\.mozilla\\.javascript\\..*$",
-			"org\\.apache\\.myfaces\\.context\\.servlet\\.FacesContextImpl$",
-			"org\\.apache\\.myfaces\\.context\\.servlet\\.FacesContextImplBase$",
-			"org\\.apache\\.myfaces\\.el\\.CompositeELResolver$",
-			"org\\.apache\\.myfaces\\.el\\.unified\\.FacesELContext$",
-			"org\\.apache\\.myfaces\\.view\\.facelets\\.el\\.ValueExpressionMethodExpression$",
-			"com\\.sun\\.syndication\\.feed\\.impl\\.ObjectBean$",
-			"org\\.springframework\\.beans\\.factory\\.ObjectFactory$",
-			"org\\.springframework\\.core\\.SerializableTypeWrapper\\$MethodInvokeTypeProvider$",
-			"org\\.springframework\\.aop\\.framework\\.AdvisedSupport$",
-			"org\\.springframework\\.aop\\.target\\.SingletonTargetSource$",
-			"org\\.springframework\\.aop\\.framework\\.JdkDynamicAopProxy$",
-			"org\\.springframework\\.core\\.SerializableTypeWrapper\\$TypeProvider$",
-			"java\\.util\\.PriorityQueue$", "java\\.lang\\.reflect\\.Proxy$",
-			"javax\\.management\\.MBeanServerInvocationHandler$",
-			"javax\\.management\\.openmbean\\.CompositeDataInvocationHandler$",
-			"org\\.springframework\\.aop\\.framework\\.JdkDynamicAopProxy$",
-			"java\\.beans\\.EventHandler$", "java\\.util\\.Comparator$",
-			"org\\.reflections\\.Reflections$"
-	};
+    // 定义禁止反序列化的类黑名单正则表达式
+    private static final String[] REGEXPS = new String[]{
+            "bsh\\.XThis$", "bsh\\.Interpreter$",
+            "com\\.mchange\\.v2\\.c3p0\\.impl\\.PoolBackedDataSourceBase$",
+            "org\\.apache\\.commons\\.beanutils\\.BeanComparator$",
+            "org\\.apache\\.commons\\.collections\\.Transformer$",
+            "org\\.apache\\.commons\\.collections\\.functors\\.InvokerTransformer$",
+            "org\\.apache\\.commons\\.collections\\.functors\\.ChainedTransformer$",
+            "org\\.apache\\.commons\\.collections\\.functors\\.ConstantTransformer$",
+            "org\\.apache\\.commons\\.collections\\.functors\\.InstantiateTransformer$",
+            "org\\.apache\\.commons\\.collections4\\.functors\\.InvokerTransformer$",
+            "org\\.apache\\.commons\\.collections4\\.functors\\.ChainedTransformer$",
+            "org\\.apache\\.commons\\.collections4\\.functors\\.ConstantTransformer$",
+            "org\\.apache\\.commons\\.collections4\\.functors\\.InstantiateTransformer$",
+            "org\\.apache\\.commons\\.collections4\\.comparators\\.TransformingComparator$",
+            "org\\.apache\\.commons\\.fileupload\\.disk\\.DiskFileItem$",
+            "org\\.apache\\.wicket\\.util\\.upload\\.DiskFileItem$",
+            "org\\.codehaus\\.groovy\\.runtime\\.ConvertedClosure$",
+            "org\\.codehaus\\.groovy\\.runtime\\.MethodClosure$",
+            "org\\.hibernate\\.engine\\.spi\\.TypedValue$",
+            "org\\.hibernate\\.tuple\\.component\\.AbstractComponentTuplizer$",
+            "org\\.hibernate\\.tuple\\.component\\.PojoComponentTuplizer$",
+            "org\\.hibernate\\.type\\.AbstractType$", "org\\.hibernate\\.type\\.ComponentType$",
+            "org\\.hibernate\\.type\\.Type$", "com\\.sun\\.rowset\\.JdbcRowSetImpl$",
+            "org\\.jboss\\.(weld\\.)?interceptor\\.builder\\.InterceptionModelBuilder$",
+            "org\\.jboss\\.(weld\\.)?interceptor\\.builder\\.MethodReference$",
+            "org\\.jboss\\.(weld\\.)?interceptor\\.proxy\\.DefaultInvocationContextFactory$",
+            "org\\.jboss\\.(weld\\.)?interceptor\\.proxy\\.InterceptorMethodHandler$",
+            "org\\.jboss\\.(weld\\.)?interceptor\\.reader\\.ClassMetadataInterceptorReference$",
+            "org\\.jboss\\.(weld\\.)?interceptor\\.reader\\.DefaultMethodMetadata$",
+            "org\\.jboss\\.(weld\\.)?interceptor\\.reader\\.ReflectiveClassMetadata$",
+            "org\\.jboss\\.(weld\\.)?interceptor\\.reader\\.SimpleInterceptorMetadata$",
+            "org\\.jboss\\.(weld\\.)?interceptor\\.spi\\.instance\\.InterceptorInstantiator$",
+            "org\\.jboss\\.(weld\\.)?interceptor\\.spi\\.metadata\\.InterceptorReference$",
+            "org\\.jboss\\.(weld\\.)?interceptor\\.spi\\.metadata\\.MethodMetadata$",
+            "org\\.jboss\\.(weld\\.)?interceptor\\.spi\\.model\\.InterceptionModel$",
+            "org\\.jboss\\.(weld\\.)?interceptor\\.spi\\.model\\.InterceptionType$",
+            "java\\.rmi\\.registry\\.Registry$", "java\\.rmi\\.server\\.ObjID$",
+            "java\\.rmi\\.server\\.RemoteObjectInvocationHandler$",
+            "net\\.sf\\.json\\.JSONObject$", "javax\\.xml\\.transform\\.Templates$",
+            "org\\.python\\.core\\.PyObject$", "org\\.python\\.core\\.PyBytecode$",
+            "org\\.python\\.core\\.PyFunction$", "org\\.mozilla\\.javascript\\..*$",
+            "org\\.apache\\.myfaces\\.context\\.servlet\\.FacesContextImpl$",
+            "org\\.apache\\.myfaces\\.context\\.servlet\\.FacesContextImplBase$",
+            "org\\.apache\\.myfaces\\.el\\.CompositeELResolver$",
+            "org\\.apache\\.myfaces\\.el\\.unified\\.FacesELContext$",
+            "org\\.apache\\.myfaces\\.view\\.facelets\\.el\\.ValueExpressionMethodExpression$",
+            "com\\.sun\\.syndication\\.feed\\.impl\\.ObjectBean$",
+            "org\\.springframework\\.beans\\.factory\\.ObjectFactory$",
+            "org\\.springframework\\.core\\.SerializableTypeWrapper\\$MethodInvokeTypeProvider$",
+            "org\\.springframework\\.aop\\.framework\\.AdvisedSupport$",
+            "org\\.springframework\\.aop\\.target\\.SingletonTargetSource$",
+            "org\\.springframework\\.aop\\.framework\\.JdkDynamicAopProxy$",
+            "org\\.springframework\\.core\\.SerializableTypeWrapper\\$TypeProvider$",
+            "java\\.util\\.PriorityQueue$", "java\\.lang\\.reflect\\.Proxy$",
+            "javax\\.management\\.MBeanServerInvocationHandler$",
+            "javax\\.management\\.openmbean\\.CompositeDataInvocationHandler$",
+            "org\\.springframework\\.aop\\.framework\\.JdkDynamicAopProxy$",
+            "java\\.beans\\.EventHandler$", "java\\.util\\.Comparator$",
+            "org\\.reflections\\.Reflections$"
+    };
 
-	public ObjectInputStreamFilter(final InputStream inputStream) throws IOException {
-		super(inputStream);
-	}
+    public ObjectInputStreamFilter(final InputStream inputStream) throws IOException {
+        super(inputStream);
+    }
 
-	@Override
-	protected Class<?> resolveClass(final ObjectStreamClass serialInput) throws IOException, ClassNotFoundException {
-		classNameFilter(new String[]{serialInput.getName()});
-		return super.resolveClass(serialInput);
-	}
+    @Override
+    protected Class<?> resolveClass(final ObjectStreamClass serialInput) throws IOException, ClassNotFoundException {
+        classNameFilter(new String[]{serialInput.getName()});
+        return super.resolveClass(serialInput);
+    }
 
-	@Override
-	protected Class<?> resolveProxyClass(String[] interfaces) throws IOException, ClassNotFoundException {
-		classNameFilter(interfaces);
-		return super.resolveProxyClass(interfaces);
-	}
+    @Override
+    protected Class<?> resolveProxyClass(String[] interfaces) throws IOException, ClassNotFoundException {
+        classNameFilter(interfaces);
+        return super.resolveProxyClass(interfaces);
+    }
 
-	private void classNameFilter(String[] classNames) throws InvalidClassException {
-		for (String className : classNames) {
-			for (String regexp : REGEXPS) {
-				Matcher blackMatcher = Pattern.compile(regexp).matcher(className);
+    private void classNameFilter(String[] classNames) throws InvalidClassException {
+        for (String className : classNames) {
+            for (String regexp : REGEXPS) {
+                Matcher blackMatcher = Pattern.compile(regexp).matcher(className);
 
-				if (blackMatcher.find()) {
-					throw new InvalidClassException("禁止反序列化的类：" + className);
-				}
-			}
-		}
-	}
+                if (blackMatcher.find()) {
+                    throw new InvalidClassException("禁止反序列化的类：" + className);
+                }
+            }
+        }
+    }
 
 }
 ```
@@ -300,7 +300,7 @@ ois.readObject();
 
 反序列化包含恶意Payload的输入流时会抛出异常：
 
-<img src="https://oss.javasec.org/images/image-20201113222313150.png" alt="image-20201113222313150" />
+![img](https://oss.javasec.org/images/image-20201113222313150.png)
 
 重写ObjectInputStream类方法虽然灵活，但是必须修改每一个需要反序列化输入流的实现类，比较繁琐。
 
@@ -315,14 +315,14 @@ package java.io;
 
 public class ObjectInputStream extends InputStream implements ObjectInput, ObjectStreamConstants {
   
-  	// .. 省略其他代码
-		
+    // .. 省略其他代码
+        
     protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
-    		// 插入RASP检测代码，检测ObjectStreamClass反序列化的类名是否合法
+            // 插入RASP检测代码，检测ObjectStreamClass反序列化的类名是否合法
     }
 
     protected Class<?> resolveProxyClass(String[] interfaces) throws IOException, ClassNotFoundException {
-    		// 插入RASP检测代码，检测动态代理类接口类名是否合法
+            // 插入RASP检测代码，检测动态代理类接口类名是否合法
     }
   
 }
@@ -330,7 +330,7 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
 
 **RASP防御反序列化攻击流程图：**
 
-<img src="https://oss.javasec.org/images/image-20201113211451873.png" alt="image-20201113211451873" />
+![img](https://oss.javasec.org/images/image-20201113211451873.png)
 
 使用RASP检测反序列化攻击，可以不用受制于请求协议、服务、框架等，检测规则可实时更新，从而程度上实现反序列化攻击防御。
 
@@ -351,9 +351,9 @@ public class ObjectInputStream extends InputStream implements ObjectInput, Objec
 
 在使用RASP防御的情况下请求示例程序后Java会执行`Runtime.getRuntime().exec("whoami");`，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201113225456270.png" alt="image-20201113225456270" />
+![img](https://oss.javasec.org/images/image-20201113225456270.png)
 
 当启动RASP后再次请求示例程序后会发现示例程序已无法正常访问，因为当RASP发现正在反序列化的类存在恶意攻击时候会立即阻断反序列化行为，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201113223111183.png" alt="image-20201113223111183" />
+![img](https://oss.javasec.org/images/image-20201113223111183.png)
 

@@ -54,11 +54,11 @@ Java源码就是未经编译的`.java`文件，我们可以很轻松的阅读其
 
 字符串搜索：
 
-<img src="https://oss.javasec.org/images/image-20201019142922249.png" alt="image-20201019142922249" />
+![img](https://oss.javasec.org/images/image-20201019142922249.png)
 
 `JD-GUI`支持批量反编译，在菜单中点击`File`-->`Save All Sources`即可反编译整个jar文件，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201019152122562.png" alt="image-20201019152122562" />
+![img](https://oss.javasec.org/images/image-20201019152122562.png)
 
 
 
@@ -82,7 +82,7 @@ Github：https://github.com/java-decompiler/jd-gui
 
 `Recaf`默认使用的是反编译模式，可根据需求选择为Hex或者Table模式，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201019140224424.png" alt="image-20201019140224424" />
+![img](https://oss.javasec.org/images/image-20201019140224424.png)
 
 #### 反编译模式
 
@@ -96,11 +96,11 @@ Github：https://github.com/java-decompiler/jd-gui
 
 #### Table模式/字节码编辑
 
-<img src="https://oss.javasec.org/images/image-20201019135811893.png" alt="image-20201019135811893" />
+![img](https://oss.javasec.org/images/image-20201019135811893.png)
 
 字节码编辑：
 
-<img src="https://oss.javasec.org/images/image-20201019135923429.png" alt="image-20201019135923429" />
+![img](https://oss.javasec.org/images/image-20201019135923429.png)
 
 ### Java Agent/Attach模式
 
@@ -110,11 +110,11 @@ Github：https://github.com/java-decompiler/jd-gui
 
 在菜单栏中点击`注入`菜单，选择`Running process`可以看到本机所有运行的Java进程，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201019142224784.png" alt="image-20201019142224784" />
+![img](https://oss.javasec.org/images/image-20201019142224784.png)
 
 `attach`模式可附加`Recaf`到一个指定的JVM进程：
 
-<img src="https://oss.javasec.org/images/image-20201019140022294.png" alt="image-20201019140022294" />
+![img](https://oss.javasec.org/images/image-20201019140022294.png)
 
 #### Agent模式
 
@@ -126,11 +126,11 @@ Github：https://github.com/java-decompiler/jd-gui
 
 `Recaf`支持很多种搜索方式，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201019143255436.png" alt="image-20201019143255436" />
+![img](https://oss.javasec.org/images/image-20201019143255436.png)
 
 字符串搜索测试：
 
-<img src="https://oss.javasec.org/images/image-20201019143217542.png" alt="image-20201019143217542" />
+![img](https://oss.javasec.org/images/image-20201019143217542.png)
 
 
 
@@ -168,7 +168,7 @@ java -jar /Users/yz/Desktop/javaweb-decomplier/javaweb-decomplier.jar -dgs=1 $(f
 
 执行上面的命令后会在`jcms-decomplier`目录下看到所有的jar已经被`Fernflower`反编译了。
 
-<img src="https://oss.javasec.org/images/4.2.png" alt="4.2" />
+![img](https://oss.javasec.org/images/4.2.png)
 
 依赖的jar: [javaweb-decomplier](https://github.com/javaweb-sec/javaweb-decomplier)、[Intellij java-decompiler](https://github.com/JetBrains/intellij-community/tree/master/plugins/java-decompiler/engine)。
 
@@ -182,14 +182,14 @@ Fernflower文档：https://the.bytecode.club/fernflower.txt
 
 `IDEA`自带的反编译工具`FernFlower`，在IDEA中可以直接打开class文件，默认将使用`FernFlower`反编译，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201019143701601.png" alt="image-20201019143701601" />
+![img](https://oss.javasec.org/images/image-20201019143701601.png)
 
 IDEA支持class文件名(`⇧⌘F`)、类方法名称(`⇧⌘O`)搜索。
 
 
 ## Bytecode Viewer
 
-<img src="https://oss.javasec.org/images/image-20201019145310008.png" alt="image-20201019145310008" />
+![img](https://oss.javasec.org/images/image-20201019145310008.png)
 
 `Bytecode Viewer`是一个基于`FernFlower`实现的轻量级，用户友好的Java字节码可视化工具，`Bytecode Viewer`具备了如下强大功能：
 
@@ -222,7 +222,7 @@ IDEA支持class文件名(`⇧⌘F`)、类方法名称(`⇧⌘O`)搜索。
 
 代码搜索功能支持字符串、正则表达式、调用方法和调用字段搜索，如下图：
 
-<img src="https://oss.javasec.org/images/image-20201019154032388.png" alt="image-20201019154032388" />
+![img](https://oss.javasec.org/images/image-20201019154032388.png)
 
 ### 反编译安卓APK
 
@@ -240,7 +240,7 @@ Github：https://github.com/Konloch/bytecode-viewer
 
 反编译示例：`jad TestHelloWorld.class`
 
-<img src="https://oss.javasec.org/images/image-20201019160840290.png" alt="image-20201019160840290" />
+![img](https://oss.javasec.org/images/image-20201019160840290.png)
 
 `JAD`参数如下：
 
@@ -306,19 +306,19 @@ Jad accepts the following options:
 
 添加常量池对象：
 
-<img src="https://oss.javasec.org/images/image-20201019164255758.png" alt="image-20201019164255758" />
+![img](https://oss.javasec.org/images/image-20201019164255758.png)
 
 ### 删除常量池对象
 
-<img src="https://oss.javasec.org/images/image-20201019164424942.png" alt="image-20201019164424942" />
+![img](https://oss.javasec.org/images/image-20201019164424942.png)
 
 ### 删除类成员变量
 
-<img src="https://oss.javasec.org/images/image-20201019164800876.png" alt="image-20201019164800876" />
+![img](https://oss.javasec.org/images/image-20201019164800876.png)
 
 ### 查看字节码
 
-<img src="https://oss.javasec.org/images/image-20201019164619458.png" alt="image-20201019164619458" />
+![img](https://oss.javasec.org/images/image-20201019164619458.png)
 
 ### 编辑字节码
 
@@ -326,7 +326,7 @@ Jad accepts the following options:
 
 ### 删除类方法
 
-<img src="https://oss.javasec.org/images/image-20201019164705299.png" alt="image-20201019164705299" />
+![img](https://oss.javasec.org/images/image-20201019164705299.png)
 
 
 
@@ -360,7 +360,7 @@ Github：https://github.com/ingokegel/jclasslib
 
 ### 字节码可视化
 
-<img src="https://oss.javasec.org/images/image-20201019170935681.png" alt="image-20201019170935681" />
+![img](https://oss.javasec.org/images/image-20201019170935681.png)
 
 **Cafebabe / JByteMod / other比较：**
 
@@ -403,23 +403,23 @@ Github：https://github.com/GraxCode/Cafebabe/
 
 ### 反编译
 
-<img src="https://oss.javasec.org/images/image-20201019173646644.png" alt="image-20201019173646644" />
+![img](https://oss.javasec.org/images/image-20201019173646644.png)
 
 ### 字节码编辑
 
-<img src="https://oss.javasec.org/images/image-20201019173107619.png" alt="image-20201019173107619" />
+![img](https://oss.javasec.org/images/image-20201019173107619.png)
 
 ### 字节码分析
 
-<img src="https://oss.javasec.org/images/image-20201019174255460.png" alt="image-20201019174255460" />
+![img](https://oss.javasec.org/images/image-20201019174255460.png)
 
 ### 方法信息编辑
 
-<img src="https://oss.javasec.org/images/image-20201019173815788.png" alt="image-20201019173815788" />
+![img](https://oss.javasec.org/images/image-20201019173815788.png)
 
 ### 方法添加/编辑
 
-<img src="https://oss.javasec.org/images/image-20201019173247265.png" alt="image-20201019173247265" />
+![img](https://oss.javasec.org/images/image-20201019173247265.png)
 
 
 
