@@ -145,13 +145,21 @@ Struts2 返回结果时，将用户可控的参数拿来解析，就会导致漏
 
 经过了以上配置后，我们再来跟一下访问流程：
 - `StrutsPrepareAndExecuteFilter#doFilter` 方法预处理请求，调用 `PrepareOperations#findActionMapping` ，调用 `ActionMapper#getMapping` 方法处理请求 action。
-  ![img](https://oss.javasec.org/images/1625284296658.png)
+  
+![img](https://oss.javasec.org/images/1625284296658.png)
+
 -  调用 `this.dropExtension` 将 `extensions` 中的扩展后缀也就是 action 剪掉，并将这 action 以键值对的方式储存在 ActionMapping 中，然后还会调用 `parseNameAndNamespace()` 、`handleSpecialParameters()` 、最后使用 `parseActionName()` 处理动态调用的情况
-   ![img](https://oss.javasec.org/images/1625284296659.png)
+   
+![img](https://oss.javasec.org/images/1625284296659.png)
+
 - 处理中间调用流程，在我们的配置中，使用 * 匹配了全部的 action 地址，并返回 `{1}.jsp` ，这些信息放在了 ResultConfig 对象中，最后处理结果时将会进行解析和渲染：
-  ![img](https://oss.javasec.org/images/1625284296661.png)
+  
+![img](https://oss.javasec.org/images/1625284296661.png)
+
 - DefaultActionInvocation 的 executeResult 方法 调用 StrutsResultSupport 的 `execute()` 方法 调用 `conditionalParse()` 最后调用 `TextParseUtil.translateVariables()` 方法解析这个地址。
-  ![img](https://oss.javasec.org/images/1625284296664.png)
+  
+![img](https://oss.javasec.org/images/1625284296664.png)
+
 
 可以看到此漏洞最终触发点实际上与 S2-012 是一致的。
 

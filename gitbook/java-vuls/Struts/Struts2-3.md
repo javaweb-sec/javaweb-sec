@@ -21,28 +21,35 @@ Multipart 处理 Content-Type 出现异常时，将会对异常信息进行 OGNL
 在一次 multipart 请求到 Struts2 时，会在经过 FileUploadInterceptor 拦截器时被处理，我们从头来看一下处理流程：
 
 1. Struts2 使用 `StrutsPrepareFilter#doFilter` 预处理和封装请求，会调用 `org.apache.struts2.dispatcher.Dispatcher#wrapRequest` 方法处理，如果 Content-Type 包含 multipart/form-data 字样，将创建 MultiPartRequestWrapper 对象用来封装 request 对象，这里请注意，判断 Content-Type 使用的是字符串的 contains 方法。
-   ![img](https://oss.javasec.org/images/1625284296510.png)
+   
+![img](https://oss.javasec.org/images/1625284296510.png)
 
 2. Struts2 在 `Dispatcher.multipartHandlerName` 中注入了配置文件中配置的 `struts.multipart.parser`，并使用 `getMultiPartRequest` 方法创建 MultiPartRequest 实例，在默认配置下，是 JakartaMultiPartRequest 对象。
-   ![img](https://oss.javasec.org/images/1625284296512.png)
+   
+![img](https://oss.javasec.org/images/1625284296512.png)
 
 3. 创建 MultiPartRequestWrapper 方法时，会调用 MultiPartRequest 实例的 `parse()` 方法，解析后将 MultiPartRequest 中产生的 errors 取出并放入 wrapper 中的 errors 中，或者在处理过程中抛出的异常，也会放在 errors 中。
-   ![img](https://oss.javasec.org/images/1625284296516.png)
+  
+![img](https://oss.javasec.org/images/1625284296516.png)
 
 4. MultiPartRequest 的 `parse()` 方法，会调用 `this.setLocale()` 和 `this.processUpload()` 方法处理上传请求，在处理过程中产生的异常捕获后会经过 `buildErrorMessage()` 处理后添加到 this.errors 中。
-   ![img](https://oss.javasec.org/images/1625284296520.png)
+   
+![img](https://oss.javasec.org/images/1625284296520.png)
 
 5. 预处理结束后，将会调用拦截器栈依次处理请求，当经过 FileUploadInterceptor 时，会对 multipart 请求进行相关处理：判断当前请求 request 对象是否为 MultiPartRequestWrapper 实例，如果不是将会 return，也就是说判断当前请求是不是一次 multipart 请求。
-   ![img](https://oss.javasec.org/images/1625284296524.png)
+   
+![img](https://oss.javasec.org/images/1625284296524.png)
 
 6. 将 request 强转为 MultiPartRequestWrapper 对象，使用 `hasErrors()` 判断这个 request 对象中是否含有报错信息，如果有的话，将使用 `LocalizedTextUtil.findText()` 对错误信息进行国际化处理，并添加到 action 对象中。
-   ![img](https://oss.javasec.org/images/1625284296527.png)
+   
+![img](https://oss.javasec.org/images/1625284296527.png)
 
 7. 处理这次文件上传的内容，从下面代码可以看出，对于 Struts2 来说，如果一个文件域名为 xxx，那么对应的 action 需要使用三个属性来封装文件域的信息。
    - 类型为 File 的 xxx 属性封装了该文件域对应的文件内容；
    - 类型为 String 的 xxxFileName 属性封装了该文件域对应的文件的文件名；
    - 类型为 String 的 xxxContentType 属性封装了该文件域对应的文件的文件类型。
-     ![img](https://oss.javasec.org/images/1625284296529.png)
+     
+   ![img](https://oss.javasec.org/images/1625284296529.png)
      这些属性处理完将会以 File 对象存放在 ActionContext 中的 parameters 中。
 
 8. 拦截器处理完之后将会继续处理流程，调用 action 处理相关的信息等。
@@ -111,13 +118,16 @@ Content-Type: -multipart/form-data-%{#_memberAccess=@ognl.OgnlContext@DEFAULT_ME
 1. 由 `StrutsPrepareFilter#doFilter` 方法处理，使用 `this.prepare.createActionContext(request, response)` 创建了本次请求的 ActionContext 对象。
 
 2. 从 dispatcher 中获取 Container 使用 getInstance 获取 ValueStackFactory，并使用 createValueStack 创建 OgnlValueStack 对象，使用 container 进行对象的注入，并将 container 放入 context 中。
-   ![img](https://oss.javasec.org/images/1625284296546.png)
+   
+![img](https://oss.javasec.org/images/1625284296546.png)
 
 3. 创建 OgnlValueStack 对象时，使用其构造方法，将会调用 setRoot 方法初始化它的各种属性，如 root、securityMemberAccess、context 等，在初始化 context 对象时，将调用 `Ognl.createDefaultContext()` 方法，然后将 OgnlValueStack 中的一些对象放在 context 中，这其中就包括了 securityMemberAccess。调用 `OgnlContext#setMemberAccess` 将 OgnlValueStack.securityMemberAccess 设置到 OgnlContext._memberAccess 中。
-   ![img](https://oss.javasec.org/images/1625284296548.png)
+  
+![img](https://oss.javasec.org/images/1625284296548.png)
 
 4. 注入时调用 `OgnlValueStack#setOgnlUtil` 方法，将 ognlUtil 中的 excludedClasses、excludedPackageNamePatterns、excludedPackageNames 设置给了 ValueStack 中的 securityMemberAccess 属性，这里我们可以看到，直接使用了 “=” 赋值，是引用对象的方式。
-   ![img](https://oss.javasec.org/images/1625284296551.png)
+   
+![img](https://oss.javasec.org/images/1625284296551.png)
 
 在明白了上述逻辑之后，绕过的方式就变得清晰了，我们想改 OgnlValueStack.securityMemberAccess，可以改 OgnlContext._memberAccess，想改 securityMemberAccess 里面的 excludedClasses 等属性，可以改 OgnlUtil 里面的 excludedClasses 等属性。
 
