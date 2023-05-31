@@ -78,13 +78,14 @@
     * [Tomcat AJP协议](java-web-container/Tomcat/TomcatAJP.md)
 * [服务安全](java-service/README.md)
   * [Web Service](java-service/web-service/README.md)
-  *
   * [OSGi](java-service/osgi/README.md)
 * [代码审计基础](java-source-code-audit/README.md)
   * [\[IntelliJ IDEA技巧\](java-source-code-audit/IntelliJ IDEA.md)](java-source-code-audit/intellij-idea-ji-qiao-javasourcecodeauditintellij-idea.md.md)
   * [IntelliJ IDEA Java程序调试](java-source-code-audit/IDEA-Debug.md)
-* [Java RASP技术](java-rasp/README.md)
+* [RASP技术](java-rasp/README.md)
   * [Hook机制](java-rasp/Hook.md)
   * [RASP动态防御案例](java-rasp/RASP-Protection-Demo.md)
   * [RASP Context](java-rasp/Context.md)
-*
+* [IAST技术](java-iast/README.md)
+  * [浅谈被动式IAST产品与技术实现-基础篇](java-iast/IAST-Basic.md)
+  * [浅谈被动式IAST产品与技术实现-代码实现Demo篇](java-iast/IAST-Demo.md)

@@ -1,4 +1,4 @@
-# Java RASP技术
+# RASP技术
 
 运行时应用程序自我保护（`Runtime application self-protection`，简称`RASP`）使用Java Agent技术在应用程序运行时候动态编辑类字节码，将自身防御逻辑注入到Java底层API和Web应用程序当中，从而与应用程序融为一体，能实时分析和检测Web攻击，使应用程序具备自我保护能力。
 
