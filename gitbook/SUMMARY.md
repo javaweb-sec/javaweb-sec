@@ -80,7 +80,7 @@
   * [Web Service](java-service/web-service/README.md)
   * [OSGi](java-service/osgi/README.md)
 * [代码审计基础](java-source-code-audit/README.md)
-  * [\[IntelliJ IDEA技巧\](java-source-code-audit/IntelliJ IDEA.md)](java-source-code-audit/intellij-idea-ji-qiao-javasourcecodeauditintellij-idea.md.md)
+  * [IntelliJ IDEA技巧](java-source-code-audit/IntelliJ IDEA.md)
   * [IntelliJ IDEA Java程序调试](java-source-code-audit/IDEA-Debug.md)
 * [RASP技术](java-rasp/README.md)
   * [Hook机制](java-rasp/Hook.md)

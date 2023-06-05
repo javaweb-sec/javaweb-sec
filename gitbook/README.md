@@ -10,7 +10,7 @@
 
 @Github [javaweb-sec](https://github.com/javaweb-sec/javaweb-sec)
 
-@GitBook: [javasec.org](https://javasec.org/)
+@GitBook: [javasec.org](https://www.javasec.org/)
 
 @Date 2019-12-01
 
