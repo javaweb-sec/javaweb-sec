@@ -67,7 +67,7 @@ Java类加载方式分为`显式`和`隐式`,`显式`即我们通常使用`Java�
 Class.forName("com.anbai.sec.classloader.TestHelloWorld");
 
 // ClassLoader加载TestHelloWorld示例
-        this.getClass().getClassLoader().loadClass("com.anbai.sec.classloader.TestHelloWorld");
+this.getClass().getClassLoader().loadClass("com.anbai.sec.classloader.TestHelloWorld");
 ```
 
 `Class.forName("类名")`默认会初始化被加载类的静态属性和方法，如果不希望初始化类可以使用`Class.forName("类名", 是否初始化类, 类加载器)`，而`ClassLoader.loadClass`默认不会初始化类方法。
@@ -78,7 +78,7 @@ Class.forName("com.anbai.sec.classloader.TestHelloWorld");
 
 理解Java类加载机制并非易事，这里我们以一个Java的HelloWorld来学习`ClassLoader`。
 
-`ClassLoader`加载`com.anbai.sec.classloader.TestHelloWorld`类重要流程如下：
+`ClassLoader`加载`com.anbai.sec.classloader.TestHelloWorld`类`loadClass`重要流程如下：
 
 1. `ClassLoader`会调用`public Class<?> loadClass(String name)`方法加载`com.anbai.sec.classloader.TestHelloWorld`类。
 2. 调用`findLoadedClass`方法检查`TestHelloWorld`类是否已经初始化，如果JVM已初始化过该类则直接返回类对象。
@@ -87,6 +87,12 @@ Class.forName("com.anbai.sec.classloader.TestHelloWorld");
 5. 如果当前的`ClassLoader`没有重写了`findClass`方法，那么直接返回类加载失败异常。如果当前类重写了`findClass`方法并通过传入的`com.anbai.sec.classloader.TestHelloWorld`类名找到了对应的类字节码，那么应该调用`defineClass`方法去JVM中注册该类。
 6. 如果调用loadClass的时候传入的`resolve`参数为true，那么还需要调用`resolveClass`方法链接类，默认为false。
 7. 返回一个被JVM加载后的`java.lang.Class`类对象。
+
+
+
+**示例 - ClassLoader#loadClass：**
+
+![20230612144647](https://oss.javasec.org/images/20230612144647.png)
 
 
 
