@@ -36,7 +36,7 @@ Class  runtimeClass3 = ClassLoader.getSystemClassLoader().loadClass(className);
 
 ```java
 // 输出命令执行结果
-System.out.println(IOUtils.toString(Runtime.getRuntime().exec("whoami").getInputStream(), "UTF-8"));
+System.out.println(org.apache.commons.io.IOUtils.toString(Runtime.getRuntime().exec("whoami").getInputStream(), "UTF-8"));
 ```
 
 如上可以看到，我们可以使用一行代码完成本地命令执行操作，但是如果使用反射就会比较麻烦了，我们不得不需要间接性的调用`Runtime`的`exec`方法。
@@ -64,7 +64,7 @@ Process process = (Process) runtimeMethod.invoke(runtimeInstance, cmd);
 InputStream in = process.getInputStream();
 
 // 输出命令执行结果
-System.out.println(IOUtils.toString(in, "UTF-8"));
+System.out.println(org.apache.commons.io.IOUtils.toString(in, "UTF-8"));
 ```
 
 反射调用`Runtime`实现本地命令执行的流程如下：
