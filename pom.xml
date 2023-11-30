@@ -20,7 +20,7 @@
         <jsoup.version>1.12.2</jsoup.version>
         <xerces.version>2.4.0</xerces.version>
         <jsp-api.version>2.2</jsp-api.version>
-        <tomcat.version>8.5.31</tomcat.version>
+        <tomcat.version>8.5.96</tomcat.version>
         <logback.version>1.2.3</logback.version>
         <okhttp3.version>4.4.1</okhttp3.version>
         <jackson.version>2.8.0</jackson.version>
