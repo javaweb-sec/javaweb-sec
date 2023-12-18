@@ -16,7 +16,7 @@
         <bcel.version>5.2</bcel.version>
         <xalan.version>2.7.2</xalan.version>
         <dom4j.version>1.6.1</dom4j.version>
-        <druid.version>1.1.24</druid.version>
+        <druid.version>1.2.20</druid.version>
         <jsoup.version>1.12.2</jsoup.version>
         <xerces.version>2.4.0</xerces.version>
         <jsp-api.version>2.2</jsp-api.version>
