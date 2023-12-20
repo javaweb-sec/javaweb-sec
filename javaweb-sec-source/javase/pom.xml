@@ -16,7 +16,7 @@
     <properties>
         <jsp-api.version>2.3.3</jsp-api.version>
         <fastjson.version>1.2.23</fastjson.version>
-        <unboundid.version>7.3.0.0</unboundid.version>
+        <unboundid.version>10.0.0.0</unboundid.version>
     </properties>
 
     <dependencies>
