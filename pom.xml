@@ -23,7 +23,7 @@
         <tomcat.version>8.5.31</tomcat.version>
         <logback.version>1.2.3</logback.version>
         <okhttp3.version>4.4.1</okhttp3.version>
-        <jackson.version>2.8.0</jackson.version>
+        <jackson.version>2.16.1</jackson.version>
         <javaweb.version>2.0.3</javaweb.version>
         <mvel2.version>2.4.0.Final</mvel2.version>
         <fastjson.version>1.2.47</fastjson.version>
