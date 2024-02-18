@@ -40,7 +40,7 @@
         <commons-beanutils.version>1.9.2</commons-beanutils.version>
         <commons-fileupload.version>1.4</commons-fileupload.version>
         <javaweb-javassist.version>3.28.01</javaweb-javassist.version>
-        <springframework.version>5.2.8.RELEASE</springframework.version>
+        <springframework.version>5.3.31</springframework.version>
         <commons-collections.version>3.2.1</commons-collections.version>
         <spring-data-jpa.version>2.3.4.RELEASE</spring-data-jpa.version>
         <spring-data-rest.version>3.3.4.RELEASE</spring-data-rest.version>
