@@ -14,7 +14,7 @@
 
     <properties>
         <java.version>1.7</java.version>
-        <springframework.version>4.2.3.RELEASE</springframework.version>
+        <springframework.version>5.3.33</springframework.version>
     </properties>
 
     <dependencies>
