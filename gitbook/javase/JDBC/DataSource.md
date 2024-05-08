@@ -223,7 +223,7 @@ spring.datasource.driver-class-name=com.mysql.jdbc.Driver
 
 **读取数据源信息和执行SQL语句效果:**
 
-![image-20191209230840464](https://oss.javasec.org/images/image-20191209230840464.png)
+![image-20191209230840464](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191209230840464.png)
 
 上面的代码不需要手动去配置文件中寻找任何信息就可以直接读取出数据库配置信息甚至是执行SQL语句，其实是利用了Spring的`ApplicationContext`遍历了当前Web应用中Spring管理的所有的Bean，然后找出所有`DataSource`的对象，通过反射读取出`C3P0`、`DBCP`、`Druid`这三类数据源的数据库配置信息，最后还利用了`DataSource`获取了`Connection`对象实现了数据库查询功能。
 

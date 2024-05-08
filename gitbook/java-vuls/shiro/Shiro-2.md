@@ -36,13 +36,13 @@ Shiro 从 0.9 版本开始设计了 RememberMe 的功能，用来提供在应用
 
 在其初始化时，会创建 `DefaultSerializer` 作为序列化器，`AesCipherService` 作为加解密实现类，`DEFAULT_CIPHER_KEY_BYTES` 作为加解密的 key。
 
-![](https://oss.javasec.org/images/1641828187473.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641828187473.png)
 
 ### CookieRememberMeManager
 
 在 shiro-web 包中提供了具体的实现类 CookieRememberMeManager，实现了在 HTTP 无状态协议中使用 cookie 记录用户信息的相关能力。其中一个比较重要的方法是 `getRememberedSerializedIdentity`，具体逻辑如下图：
 
-![](https://oss.javasec.org/images/1641829786315.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641829786315.png)
 
 简单来说就是获取 Cookie 中的内容并 Base64 解码返回 byte 数组。
 
@@ -65,25 +65,25 @@ AbstractShiroFilter.doFilterInternal()
 
 创建 Subject 对象后，会试图从利用当前的上下文中的信息来解析当前用户的身份，将会调用 `DefaultSecurityManager#resolvePrincipals` 方法，继续调用 `AbstractRememberMeManager#getRememberedPrincipals` 方法，如下图：
 
-![](https://oss.javasec.org/images/1641871528206.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641871528206.png)
 
 这个方法就是将 SubjectContext 中的信息转为 PrincipalCollection 的关键方法，也是漏洞触发点。在 try 语句块中共有两个方法，分别是 `getRememberedSerializedIdentity` 和 `convertBytesToPrincipals` 方法。
 
 刚才提到，CookieRememberMeManager 对 `getRememberedSerializedIdentity` 的实现是获取 Cookie 并 Base64 解码，并将解码后的 byte 数组穿入 `convertBytesToPrincipals` 处理，这个方法执行了两个操作：`decrypt` 和 `deserialize`。
 
-![](https://oss.javasec.org/images/1641872054477.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641872054477.png)
 
 `decrypt` 是使用 AesCipherService 进行解密。
 
-![](https://oss.javasec.org/images/1641872619037.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641872619037.png)
 
 `deserialize` 调用 `this.serializer#deserialize` 方法反序列化解密后的数据。
 
-![](https://oss.javasec.org/images/1641873260434.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641873260434.png)
 
 在 Shiro 中，序列化器的默认实现是 DefaultSerializer，可以看到其 `deserialize` 方法使用 Java 原生反序列化，使用 ByteArrayInputStream 将 byte 转为 ObjectInputStream ，并调用 `readObject` 方法执行反序列化操作。
 
-![](https://oss.javasec.org/images/1641873404829.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641873404829.png)
 
 反序列化得到的 PrincipalCollection 会被 set 到 SubjectContext 供后续的校验调用。
 
@@ -97,7 +97,7 @@ AbstractShiroFilter.doFilterInternal()
 
 Shiro 使用 `ClassResolvingObjectInputStream` 执行反序列化的操作，这个类重写了 `resolveClass` ，实际使用 `ClassLoader.loadClass()` 方式而非 ObjectInputStream 中的 `Class.forName()` 的方式。而 `forName` 的方式可以加载任意的数组类型，`loadClass` 只能加载原生的类型的 Object Array。
 
-![](https://oss.javasec.org/images/1641886176410.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641886176410.png)
 
 
 在代码审计知识星球中的《Java安全漫谈 - 15.TemplatesImpl在Shiro中的利用.pdf》 及 《Shiro-1-2-4-RememberMe反序列化漏洞分析-CVE-2016-4437.pdf》两篇文章中针对此问题进行了讨论和调试。
@@ -122,11 +122,11 @@ Shiro 在 1.2.5 的更新 [Commit-4d5bb00](https://github.com/apache/shiro/commi
 
 也就是说，应用程序需要用户手动配置一个 cipherKey，如果不设置，将会生成一个新 key。
 
-![](https://oss.javasec.org/images/1641782550351.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641782550351.png)
 
 通过代码更新可以看出，Shiro 移除了 AbstractRememberMeManager 中的硬编码 key 成员变量 `DEFAULT_CIPHER_KEY_BYTES`，在程序初始化时使用了 `AesCipherService` 生成了新的 key。
 
-![](https://oss.javasec.org/images/1641781375161.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641781375161.png)
 
 这一更新就缓解了硬编码的问题，但是并不代表程序完全安全，因为反序列化流程没变，如果用户自己将  cipherKey 设置为原本硬编码的key，或者比较常见的 key，那程序还是会受到攻击。
 
@@ -150,17 +150,17 @@ Shiro 在 1.2.5 的更新 [Commit-4d5bb00](https://github.com/apache/shiro/commi
 
 之前提到，Shiro 调用 `WebUtils.getPathWithinApplication()` 方法获取请求路径。逻辑如下：
 
-![](https://oss.javasec.org/images/1641896326919.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641896326919.png)
 
 其中调用 `WebUtils.getContextPath()` 方法，获取 `javax.servlet.include.context_path` 属性或调用 `request.getContextPath()` 获取 Context 值。并调用 `decodeRequestString` 进行 URLDecode。
 
-![](https://oss.javasec.org/images/1641896100340.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641896100340.png)
 
 由于获取的 Context Path 没有标准化处理，如果是非常规的路径，例如 CVE-2010-3863 中出现过的 `/./`，或者跳跃路径 `/su18/../`，都会导致在 `StringUtils.startsWithIgnoreCase()`  方法判断时失效，直接返回完整的 Request URI 。
 
 这样 Shiro 匹配不到配置路径，就会在某些配置下发生绕过，如下图：
 
-![](https://oss.javasec.org/images/1641897127144.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641897127144.png)
 
 ### ContextPath
 
@@ -170,11 +170,11 @@ Shiro 在 1.2.5 的更新 [Commit-4d5bb00](https://github.com/apache/shiro/commi
 
 方法从 ServletContext 中获取 ContextPath，然后获取 RequestURI。
 
-![](https://oss.javasec.org/images/1641905295203.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641905295203.png)
 
 然后从第二个 "/" 开始，每次截取到下一个 "/"，做路径标准化，对比 ContextPath，直到两者相等，则 substring 到指定位置后返回。
 
-![](https://oss.javasec.org/images/1641905649358.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641905649358.png)
 
 例如，访问 "/su18/../shiro/admin"，而 context path 是 "/shiro"，就会有如下的过程：
 - "/su18/" 标准化为-> "/su18"  匹配 "/shiro" 失败；
@@ -187,13 +187,13 @@ Shiro 在 1.2.5 的更新 [Commit-4d5bb00](https://github.com/apache/shiro/commi
 
 Shiro 在 1.3.2 版本的更新 [Commit-b15ab92](https://github.com/apache/shiro/commit/b15ab927709ca18ea4a02538be01919a19ab65af) 中针对此漏洞进行了修复。
 
-![](https://oss.javasec.org/images/1641898046270.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641898046270.png)
 
 通过代码可以看出，在 `WebUtils.getContextPath` 方法进行了更新，使用了修复 CVE-2010-3863 时更新的路径标准化方法 `normalize` 来处理 Context Path 之后再返回。
 
 本次更新还附带相关的测试文件，里面提供了很多的案例，其实可以用作 fuzz 思路。
 
-![](https://oss.javasec.org/images/1641898830527.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641898830527.png)
 
 但这里提出几个思考:
 - shiro 用 `request.getContextPath()` 获取之后自己做标准化，为什么不直接 `request.getServletContext().getContextPath()`？
@@ -257,7 +257,7 @@ Padding Oracle Attack 就是针对 CBC 模式分组加密算法的一种攻击�
 
 Padding Oracle Attack 就是利用了<font color="red">异或的魅力</font>以及 PKCS5Padding 规范的可穷举性进行的攻击，wikipedia 中给出解释：
 
-![](https://oss.javasec.org/images/1641986191136.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641986191136.png)
 
 这个攻击逻辑我想了小一天，看了 fynch3r 师傅的博客，又咨询了下，最后想通了，这里用比较清晰的话描述出来，供跟我一样密码学和数学基础较差的朋友理解：
 - 攻击者修改倒数第二组密文的最后一个字节，发送到服务器，服务器解密后得到 MediumValue，将其与攻击者修改后的倒数第二组密文异或，得到 PlainText，然后对其进行 Padding 校验，此时校验大概率会失败，因为修改过的密文与  MediumValue 异或后不是原本的 Padding 了。
@@ -296,7 +296,7 @@ Padding Oracle Attack 就是利用了<font color="red">异或的魅力</font>以
 
 关注点依旧从 `AbstractRememberMeManager#getRememberedPrincipals` 中开始，
 
-![](https://oss.javasec.org/images/1642044924238.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642044924238.png)
 
 负责解密的 `convertBytesToPrincipals`  方法会调用 CipherService 的 decrypt 方法，接下来的调用链大概如下：
 
@@ -312,31 +312,31 @@ org.apache.shiro.crypto.JcaCipherService#decrypt()
 
 其中 `PKCS5Padding#unpad` 方法中会判断数据是否符合填充格式，如果不符合，将会返回 -1。
 
-![](https://oss.javasec.org/images/1642046772247.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642046772247.png)
 
 `CipherCore#doFinal` 方法根据返回结果抛出 BadPaddingException 异常。
 
-![](https://oss.javasec.org/images/1642046670076.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642046670076.png)
 
 被 `JcaCipherService#crypt` 方法 catch 住并抛出 CryptoException 异常。
 
-![](https://oss.javasec.org/images/1642046657083.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642046657083.png)
 
 被 `AbstractRememberMeManager#getRememberedPrincipals` 方法 catch 住，并调用 `onRememberedPrincipalFailure` 处理。
 
-![](https://oss.javasec.org/images/1642046641789.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642046641789.png)
 
 解析身份信息失败，将会调用 forgetIdentity 方法移除 rememberMe cookie。
 
-![](https://oss.javasec.org/images/1642047483574.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642047483574.png)
 
 并为响应 header 添加 deleteMe 头部。
 
-![](https://oss.javasec.org/images/1642046617359.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642046617359.png)
 
 具体逻辑如下：
 
-![](https://oss.javasec.org/images/1642046624928.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642046624928.png)
 
 由此可见，只要 padding 错误，服务端就会返回一个 cookie: `rememberMe=deleteMe;`，攻击者可以借由此特征进行 Padding Oracle Attack。
 
@@ -352,11 +352,11 @@ org.apache.shiro.crypto.JcaCipherService#decrypt()
 
 将生成的 payload 放在 rememberMe 中发送至服务器。
 
-![](https://oss.javasec.org/images/1642002061355.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642002061355.png)
 
 服务端成功解密并反序列化数据。
 
-![](https://oss.javasec.org/images/1642001733919.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642001733919.png)
 
 反序列化的执行逻辑与 SHIRO-550 一致，这里不再重复。
 
@@ -371,7 +371,7 @@ org.apache.shiro.crypto.JcaCipherService#decrypt()
 
 在测试时，使用 URLDNS 进行测试，根据 payload 长度，共分了 21 个数据分组，生成篡改包共发送了 42051 个请求包，如下图。
 
-![](https://oss.javasec.org/images/1642000010128.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642000010128.png)
 
 如果是使用 CC6 配合 TemplatesImpl 的 gadget，需要爆破的密文组将达到惊人的 150 个，按平均每组发送 2000 个爆破包来算（非常保守的估计），想要成功执行一次反序列化，需要发送 30W 个请求！
 
@@ -382,9 +382,9 @@ org.apache.shiro.crypto.JcaCipherService#decrypt()
 
 在 1.4.2 版本的更新 [Commit-a801878](https://github.com/apache/shiro/commit/a8018783373ff5e5210225069c9919e071597d5e)  中针对此漏洞进行了修复 ，在父级类 JcaCipherService 中抽象出了一个 `createParameterSpec()` 方法返回加密算法对应的类。
 
-![](https://oss.javasec.org/images/1641954457087.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641954457087.png)
 
 并在 AesCipherService 中重写了这个方法，默认使用 GCM 加密模式，避免此类攻击。
 
-![](https://oss.javasec.org/images/1641954465546.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641954465546.png)
 

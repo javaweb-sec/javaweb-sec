@@ -35,13 +35,13 @@
 
 早在 2013 年，国际大站 p2j 就发布了这种特性的一种使用方法：
 
-![img](https://oss.javasec.org/images/1623378669097.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623378669097.png)
 
 Servlet、Listener、Filter 由 `javax.servlet.ServletContext` 去加载，无论是使用 xml 配置文件还是使用 Annotation 注解配置，均由 Web 容器进行初始化，读取其中的配置属性，然后向容器中进行注册。
 
 Servlet 3.0 API 允许使 ServletContext 用动态进行注册，在 Web 容器初始化的时候（即建立ServletContext 对象的时候）进行动态注册。可以看到 ServletContext 提供了 add*/create* 方法来实现动态注册的功能。
 
-![img](https://oss.javasec.org/images/1623383074795.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623383074795.png)
 
 在不同的容器中，实现有所不同，这里仅以 Tomcat 为例调试，其他中间件在代码中有部分实现，请师傅自行观看。
 
@@ -56,7 +56,7 @@ Filter 我们称之为过滤器，是 Java 中最常见也最实用的技术之�
 
 本节只讨论使用 ServletContext 添加 Filter 内存马的方法。首先来看一下 `createFilter` 方法，按照注释，这个类用来在调用 `addFilter` 向 ServletContext 实例化一个指定的 Filter 类。
 
-![img](https://oss.javasec.org/images/1623412713625.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623412713625.png)
 
 这个类还约定了一个事情，那就是如果这个 ServletContext 传递给 ServletContextListener 的 ServletContextListener.contextInitialized 方法，该方法既未在 web.xml 或 web-fragment.xml 中声明，也未使用 javax.servlet.annotation.WebListener 进行注释，则会抛出 UnsupportedOperationException 异常，这个约定其实是非常重要的一点。
 
@@ -66,7 +66,7 @@ Filter 我们称之为过滤器，是 Java 中最常见也最实用的技术之�
 
 由于 Servlet API 只是提供接口定义，具体的实现还要看具体的容器，那我们首先以 Tomcat 7.0.96 为例，看一下具体的实现细节。相关实现方法在 `org.apache.catalina.core.ApplicationContext#addFilter` 中。
 
-![img](https://oss.javasec.org/images/1623553440934.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623553440934.png)
 
 可以看到，这个方法创建了一个 FilterDef 对象，将 filterName、filterClass、filter 对象初始化进去，使用 StandardContext 的 `addFilterDef` 方法将创建的 FilterDef 储存在了 StandardContext 中的一个 Hashmap filterDefs 中，然后 new 了一个 ApplicationFilterRegistration 对象并且返回，并没有将这个 Filter 放到 FilterChain 中，单纯调用这个方法不会完成自定义 Filter 的注册。并且这个方法判断了一个状态标记，如果程序以及处于运行状态中，则不能添加 Filter。
 
@@ -85,11 +85,11 @@ Filter 我们称之为过滤器，是 Java 中最常见也最实用的技术之�
 
 在 StandardContext 的 `filterStart` 方法中生成了 filterConfigs。
 
-![img](https://oss.javasec.org/images/1623566822352.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623566822352.png)
 
 在 ApplicationFilterRegistration 的 `addMappingForUrlPatterns` 中生成了 filterMaps。
 
-![img](https://oss.javasec.org/images/1623566974104.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623566974104.png)
 
 而这两者的信息都是从 filterDefs 中的对象获取的。
 
@@ -104,21 +104,21 @@ Filter 我们称之为过滤器，是 Java 中最常见也最实用的技术之�
 
 写一个 demo 模拟一下动态添加一个 filter 的过程。首先我们有一个 IndexServlet，如果请求参数有 id 的话，则打印在页面上。
 
-![img](https://oss.javasec.org/images/1623559164607.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623559164607.png)
 
 现在我们想实现在程序运行过程中动态添加一个 filter ，提供将 id 参数的数字值 + 3 的功能（随便瞎想的功能。）具体代码放在了 `org.su18.memshell.web.servlet.AddTomcatFilterServlet` 中，这里由于篇幅原因就不贴了。
 
 普通访问时，会将 id 的值打印出来。
 
-![img](https://oss.javasec.org/images/1623565922927.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623565922927.png)
 
 访问添加 filter。
 
-![img](https://oss.javasec.org/images/1623565973421.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623565973421.png)
 
 再次访问，id 参数会被加三。
 
-![img](https://oss.javasec.org/images/1623566012255.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623566012255.png)
 
 ### Servlet 内存马
 
@@ -126,7 +126,7 @@ Servlet 是 Server Applet（服务器端小程序）的缩写，用来读取客�
 
 与 Filter 相同，本小节也仅仅讨论使用 ServletContext 的相关方法添加 Servlet。还是首先来看一下实现类 ApplicationContext 的 `addServlet` 方法。
 
-![img](https://oss.javasec.org/images/1623571128390.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623571128390.png)
 
 与上一小节看到的 `addFilter` 方法十分类似。那么我们面临同样的问题，在一次访问到达 Tomcat 时，是如何匹配到具体的 Servlet 的？这个过程简单一点，只有两部走：
 
@@ -135,11 +135,11 @@ Servlet 是 Server Applet（服务器端小程序）的缩写，用来读取客�
 
 这里直接调用相关方法进行添加，当然是用反射直接写入也可以，有一些逻辑较为复杂。测试代码在 `org.su18.memshell.web.servlet.AddTomcatServlet` 中，访问这个 servlet 会在程序中生成一个新的 Servlet :`/su18`。
 
-![img](https://oss.javasec.org/images/1623575000562.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623575000562.png)
 
 看一下效果。
 
-![img](https://oss.javasec.org/images/1623574985705.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623574985705.png)
 
 ### Listener 内存马
 
@@ -147,7 +147,7 @@ Servlet 和 Filter 是程序员常接触的两个技术，所以在网络上对�
 
 Listener 可以译为监听器，监听器用来监听对象或者流程的创建与销毁，通过 Listener，可以自动触发一些操作，因此依靠它也可以完成内存马的实现。先来了解一下 Listener 是干什么的，看一下 Servlet API 中的注释。
 
-![img](https://oss.javasec.org/images/1623576978964.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623576978964.png)
 
 在应用中可能调用的监听器如下：
 
@@ -160,27 +160,27 @@ Listener 可以译为监听器，监听器用来监听对象或者流程的创�
 
 可以看到 Listener 也是为一次访问的请求或生命周期进行服务的，在上述每个不同的接口中，都提供了不同的方法，用来在监听的对象发生改变时进行触发。而这些类接口，实际上都是 `java.util.EventListener` 的子接口。这里我们看到，在 ServletRequestListener 接口中，提供了两个方法在 request 请求创建和销毁时进行处理，比较适合我们用来做内存马。
 
-![img](https://oss.javasec.org/images/1623578410672.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623578410672.png)
 
 而除了这个 Listener，其他的 Listener 在某些情况下也可以触发作为内存马的实现，本篇文章里不会对每个都进行触发测试，感兴趣的师傅可以自测。
 
 ServletRequestListener 提供两个方法：`requestInitialized` 和 `requestDestroyed`，两个方法均接收 ServletRequestEvent 作为参数，ServletRequestEvent 中又储存了 ServletContext 对象和 ServletRequest 对象，因此在访问请求过程中我们可以在 request 创建和销毁时实现自己的恶意代码，完成内存马的实现。
 
-![img](https://oss.javasec.org/images/1623640456652.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623640456652.png)
 
 Tomcat 中 EventListeners 存放在 StandardContext 的 applicationEventListenersObjects 属性中，同样可以使用 StandardContext 的相关 add 方法添加。
 
 我们还是实现一个简单的功能，在 requestDestroyed 方法中获取 response 对象，向页面原本输出多写出一个字符串。正常访问时：
 
-![img](https://oss.javasec.org/images/1623641922533.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623641922533.png)
 
 添加 Listener，可以看到，由于我们是在 requestDestroyed 中植入恶意逻辑，那么在本次请求中就已经生效了：
 
-![img](https://oss.javasec.org/images/1623641951941.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623641951941.png)
 
 访问之前的路径也生效了：
 
-![img](https://oss.javasec.org/images/1623642002784.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623642002784.png)
 
 除了 EventListener，Tomcat 还存在了一个 LifecycleListener ，当然也肯定有可以用来触发的实现类，但是用起来一定是不如 ServletRequestListener ，但是也可以关注一下。这里将不会进行演示。
 
@@ -218,35 +218,35 @@ SpringMVC 初始化时，在每个容器的 bean 构造方法、属性设置之�
 
 它的 `afterPropertiesSet` 方法初始化了 RequestMappingInfo.BuilderConfiguration 这个配置类，然后调用了其父类 AbstractHandlerMethodMapping 的 `afterPropertiesSet` 方法。
 
-![img](https://oss.javasec.org/images/1623734468541.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623734468541.png)
 
 这个方法调用了 initHandlerMethods 方法，首先获取了 Spring 中注册的 Bean，然后循环遍历，调用 `processCandidateBean` 方法处理 Bean。
 
-![img](https://oss.javasec.org/images/1623735423292.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623735423292.png)
 
 `processCandidateBean` 方法
 
-![img](https://oss.javasec.org/images/1623735638214.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623735638214.png)
 
 `isHandler` 方法判断当前 bean 定义是否带有 Controller 或 RequestMapping 注解。
 
-![img](https://oss.javasec.org/images/1623735310283.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623735310283.png)
 
 `detectHandlerMethods` 查找 handler methods 并注册。
 
-![img](https://oss.javasec.org/images/1623735988861.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623735988861.png)
 
 这部分有两个关键功能，一个是 `getMappingForMethod` 方法根据 handler method 创建RequestMappingInfo 对象，一个是 `registerHandlerMethod` 方法将 handler method 与访问的 创建 RequestMappingInfo 进行相关映射。
 
-![img](https://oss.javasec.org/images/1623736666146.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623736666146.png)
 
 这里我们看到，是调用了 MappingRegistry 的 register 方法，这个方法将一些关键信息进行包装、处理和储存。
 
-![img](https://oss.javasec.org/images/1623736616923.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623736616923.png)
 
 关键信息储存位置如下：
 
-![img](https://oss.javasec.org/images/1623736988351.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623736988351.png)
 
 以上就是整个注册流程，那当一次请求进来时的查找流程呢？在 AbstractHandlerMethodMapping 的 lookupHandlerMethod 方法：
 
@@ -264,15 +264,15 @@ SpringMVC 初始化时，在每个容器的 bean 构造方法、属性设置之�
 
 正常访问 indexController
 
-![img](https://oss.javasec.org/images/1623757300676.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623757300676.png)
 
 动态添加 Controller
 
-![img](https://oss.javasec.org/images/1623757305546.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623757305546.png)
 
 访问添加的 Controller
 
-![img](https://oss.javasec.org/images/1623757310626.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623757310626.png)
 
 这里注意的是，在不同版本中，参数名、调用细节都有不同。
 
@@ -291,15 +291,15 @@ Intercepor 是在什么时候调用的呢？又配置储存在哪呢？这部分
 
 正常访问
 
-![img](https://oss.javasec.org/images/1623808912048.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623808912048.png)
 
 添加拦截器
 
-![img](https://oss.javasec.org/images/1623808919546.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623808919546.png)
 
 再次访问
 
-![img](https://oss.javasec.org/images/1623808925115.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623808925115.png)
 
 ### Tomcat Valve 内存马
 
@@ -307,43 +307,43 @@ Tomcat 在处理一个请求调用逻辑时，是如何处理和传递 Request �
 
 Pipeline 中会有一个最基础的 Valve（basic），它始终位于末端（最后执行），封装了具体的请求处理和输出响应的过程。Pipeline 提供了 `addValve` 方法，可以添加新 Valve 在 basic 之前，并按照添加顺序执行。
 
-![img](https://oss.javasec.org/images/1623645442719.jpg)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623645442719.jpg)
 
 Tomcat 每个层级的容器（Engine、Host、Context、Wrapper），都有基础的 Valve 实现（StandardEngineValve、StandardHostValve、StandardContextValve、StandardWrapperValve），他们同时维护了一个 Pipeline 实例（StandardPipeline），也就是说，我们可以在任何层级的容器上针对请求处理进行扩展。这四个 Valve 的基础实现都继承了 ValveBase。这个类帮我们实现了生命接口及MBean 接口，使我们只需专注阀门的逻辑处理即可。
 
 先来简单看一下接口的定义，`org.apache.catalina.Pipeline` 的定义如下：
 
-![img](https://oss.javasec.org/images/1623646288477.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623646288477.png)
 
 `org.apache.catalina.Valve` 的定义如下：
 
-![img](https://oss.javasec.org/images/1623646342704.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623646342704.png)
 
 具体实现的代码逻辑在[这篇文章](https://www.cnblogs.com/coldridgeValley/p/5816414.html)描述的比较好。
 
 Tomcat 中 Pipeline 仅有一个实现 StandardPipeline，存放在 ContainerBase 的 pipeline 属性中，并且 ContainerBase 提供 `addValve` 方法调用 StandardPipeline 的 addValve 方法添加。
 
-![img](https://oss.javasec.org/images/1623647163683.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623647163683.png)
 
 Tomcat 中四个层级的容器都继承了 ContainerBase ，所以在哪个层级的容器的标准实现上添加自定义的 Valve 均可。
 
 添加后，将会在 `org.apache.catalina.connector.CoyoteAdapter` 的 `service` 方法中调用 Valve 的 `invoke` 方法。
 
-![img](https://oss.javasec.org/images/1623648233517.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623648233517.png)
 
 这里我们只要自己写一个 Valve 的实现类，为了方便也可以直接使用 ValveBase 实现类。里面的 `invoke` 方法加入我们的恶意代码，由于可以拿到 Request 和 Response 方法，所以也可以做一些参数上的处理或者回显。然后使用 StandardContext 中的 pipeline 属性的 addValve 方法进行注册。
 
 首先正常访问：
 
-![img](https://oss.javasec.org/images/1623649463332.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623649463332.png)
 
 动态添加自定义恶意 Valve，会先调用 response 写入字符串
 
-![img](https://oss.javasec.org/images/1623649411692.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623649411692.png)
 
 再次访问出现效果：
 
-![img](https://oss.javasec.org/images/1623649401840.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623649401840.png)
 
 如果对管道和阀的定义理解困难的话，按照 FilterChain 和 Filter 的关系来理解也可。
 
@@ -353,7 +353,7 @@ GlassFish 使用 grizzly 组件来完成 NIO 的工作，类似 Tomcat 中的 co
 
 中间的实现过程有较多难点和细节，这里不占篇幅分析，感兴趣的师傅自行观看代码实现。我们直接来看一下效果，添加之后随便访问页面，发现结果被成功写回：
 
-![img](https://oss.javasec.org/images/1624019245038.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1624019245038.png)
 
 ## 基于字节码修改的字节码
 
@@ -365,25 +365,25 @@ Java Agent 技术我这里不再介绍，我写过一篇[学习笔记](https://s
 
 首先是冰蝎作者 rebeyond 师傅，[他的项目](https://github.com/rebeyond/memShell)提出了这种想法，在这个项目中，他 hook 了 Tomcat 的 ApplicationFilterChain 的 `internalDoFilter`方法。
 
-![img](https://oss.javasec.org/images/1623823221923.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623823221923.png)
 
 使用 javassist 在其中插入了自己的判断逻辑，也就是项目的 ReadMe 中 usage 中提供的一些逻辑，
 
-![img](https://oss.javasec.org/images/1623824044934.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623824044934.png)
 
 也就是说在 Tomcat 调用 ApplicationFilterChain 对请求调用 filter 链处理之前加入恶意逻辑。
 
 师傅在冰蝎中同样加入了内存马的功能的实现，调用代码位置 `net.rebeyond.behinder.payload.java.MemShell`，目前对于 Servlet 和 Filter 还是空实现，可能是后续要加的功能？
 
-![img](https://oss.javasec.org/images/1623829223756.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623829223756.png)
 
 agent 端在 net/rebeyond/behinder/resource/tools 中，应该是根据不同的类型会上传不同的注入包。
 
-![img](https://oss.javasec.org/images/1623826322201.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623826322201.png)
 
 但是这次不再 Hook Tomcat 的方法，而是选择 Hook 了 Servlet-API 中更具有通用性的 `javax.servlet.http.HttpServlet` 的 `service` 方法，如果检测出是 Weblogic，则选择 Hook `weblogic.servlet.internal.ServletStubImpl` 方法。
 
-![img](https://oss.javasec.org/images/1623828945298.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623828945298.png)
 
 那么说到这里，使用插桩技术的 RASP、IAST 的使用者一下就可以明白：如果都能做到这一步了，能玩的就太多了。能下的 Hook 点太多，能玩的姿势也太多了。
 
@@ -391,15 +391,15 @@ agent 端在 net/rebeyond/behinder/resource/tools 中，应该是根据不同的
 
 正常访问，页面获取当前请求的 QueryString 并打印：
 
-![img](https://oss.javasec.org/images/1623933746321.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623933746321.png)
 
 attach 测试使用的 agent：
 
-![img](https://oss.javasec.org/images/1623933780013.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623933780013.png)
 
 再次访问：
 
-![img](https://oss.javasec.org/images/1623933791544.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1623933791544.png)
 
 只能说，将这种功能提供给渗透人员，师傅胆子是真的大，用冰蝎的大多数人还是不清楚原理的，但是小手一点，不知道有授权还是没有的站，JVM 里的字节码就被改了。等各种魔改版冰蝎泛滥后，一些安全防御能力较弱的站将会被 agent 改的体无完肤，再配合加持的持久化技术，不知道会被玩成什么样。
 
@@ -409,15 +409,15 @@ attach 测试使用的 agent：
 
 可以看到是提供了两种内存马的写入，一种是写入 Servlet，一种是写入 Listener。
 
-![img](https://oss.javasec.org/images/1624411677855.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1624411677855.png)
 
-![img](https://oss.javasec.org/images/1624411684573.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1624411684573.png)
 
 但是两种写入方式都是针对 Tomcat 的，并不具有通用性，我并没有用过这款工具，只是简单翻了一下代码，没有找到其他发现，如果有，请联系我修改文章。
 
 补充2：再来看下 SpringBoot 持久化 WebShell [ZhouYu](https://github.com/threedr3am/ZhouYu)，在 `zhouyu.core.init.WriteShellTransformer` 中，可以看到是选择了 hook `org.springframework.web.servlet.DispatcherServlet` 的 `doService` 方法。
 
-![img](https://oss.javasec.org/images/1624522943976.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1624522943976.png)
 
 此项目中涉及到 jar 包中的 class 替换，以及清空后续的 ClassFileTransformer 的持久化思路。
 
@@ -508,7 +508,7 @@ LandGrey 师傅的项目 [copagent](https://github.com/LandGrey/copagent) 使用
 
 以下为测试过程[录屏](https://youtu.be/tTFv15uCNjQ)。
 
-[![Memory Shell Test](https://oss.javasec.org/images/youtube--tTFv15uCNjQ-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://youtu.be/tTFv15uCNjQ)
+[![Memory Shell Test](https://javasec.oss-cn-hongkong.aliyuncs.com/images/youtube--tTFv15uCNjQ-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://youtu.be/tTFv15uCNjQ)
 
 # 广告
 

@@ -16,15 +16,15 @@ Struts2 是一个基于 MVC 设计模式的Web应用框架，它的本质就相�
 
 对于一次请求，Struts2 的执行流程如下：
 1. Filter：首先经过核心的过滤器，也就是通常在 `web.xml` 中配置的 filter 及 filter-mapping，这部分通常会配置 `/*` 全部的路由交给 struts2 来处理。
-![img](https://oss.javasec.org/images/1625284287149.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284287149.png)
 
 2. Interceptor-stack：执行拦截器，应用程序通常会在拦截器中实现一部分功能。也包括在 struts-core 包中 `struts-default.xml` 文件配置的默认的一些拦截器。
 
- ![img](https://oss.javasec.org/images/1625284293214.png)
+ ![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284293214.png)
 
 3. Action：根据访问路径，找到处理这个请求对应的 Action 控制类，通常配置在 `struts.xml` 中的 package 中。
   
-![img](https://oss.javasec.org/images/1625284296350.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296350.png)
 
 4. Result：最后由 Action 控制类执行请求的处理，执行结果可能是视图文件，可能是去访问另一个 Action，结果通过 HTTPServletResponse 响应。
 
@@ -38,7 +38,7 @@ Struts2 是一个基于 MVC 设计模式的Web应用框架，它的本质就相�
 
 ## struts2 执行流程图
 
-![img](https://oss.javasec.org/images/1625284296353.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296353.png)
 
 
 ## OGNL 表达式
@@ -61,7 +61,7 @@ Object result     = Ognl.getValue(expression,上下文,根);
 
 OGNL 上下文对象位于 `ognl.OgnlContext`，上下文实际上是就一个 Map 对象，可以由我们自己创建，通过 `put()` 方法在上下文环境中放元素。
 
-![img](https://oss.javasec.org/images/1625284296355.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296355.png)
 
 在这个上下文环境中，有两种对象：根对象和普通对象。可以使用 `setRoot()` 方法设置根对象。根对象只能有一个，而普通对象则可以有多个。即：OgnlContext = 根对象(1个)+非根对象(n个)。
 
@@ -100,11 +100,11 @@ OGNL 还支持 Lambda 表达式：`:[ ... ]`，例如计算阶乘 `#f = :[#this=
 
 在 Struts2 中，OGNL 上下文即为 ActionContext ，而实际上存放内容是其中的 context，ActionContext 中的 `get()/put()` 方法实际上都在操作 ActionContext 中的 context。
 
-![img](https://oss.javasec.org/images/1625284296356.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296356.png)
 
 ActionContext 是 action 的上下文，也可以叫做 action 的数据中心，本质是一个 map，所有数据都存放在这里。
 
-![img](https://oss.javasec.org/images/1625284296359.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296359.png)
 
 这里面存了一些属性，我们先来了解一下：
 
@@ -165,11 +165,11 @@ Struts2 对 OGNL 表达式的解析使用了开源组件 `opensymphony.xwork 2.0
 
 而这个漏洞的触发点，就从 `doEndTag()` 开始，这个方法调用组件 `org.apache.struts2.components.UIBean` 的`end()` 方法，随后调用 `evaluateParams()` 方法，这个方法判断了 altSyntax 是否开启，并调用 `findValue()` 方法寻找参数值：
 
-![img](https://oss.javasec.org/images/1625284296361.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296361.png)
 
 `findValue()` 方法调用了 `com.opensymphony.xwork2.util.TextParseUtil#translateVariables` 来解析和处理
 
-![img](https://oss.javasec.org/images/1625284296363.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296363.png)
 
 这个方法实际上就是真正的漏洞点，由于篇幅有限，这里不贴代码，用文字来描述一下逻辑：
 1. 对要解析的表达式寻找最外层的 `%{}`，至于为什么是 `%{}`，是在之前提到的 `evaluateParams()` 中定义的，并去除掉。
@@ -194,15 +194,15 @@ Struts2 在解析参数时，将所有参数名都使用了 OGNL 来解析，构
 
 在拦截器的 `doIntercept()` 方法中，初始化的过程中将 `DENY_METHOD_EXECUTION` 设置为 true。
 
-![img](https://oss.javasec.org/images/1625284296365.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296365.png)
 
 然后调用 `setParameters()` 方法，循环参数 Map，首先调用 `this.acceptableName(name)` 来校验参数名是否非法，在较低版本中是判断是否包含 `#,=:`
 
-![img](https://oss.javasec.org/images/1625284296367.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296367.png)
 
 在高一点的版本中是使用正则来匹配
 
-![img](https://oss.javasec.org/images/1625284296370.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296370.png)
 
 如果校验通过则调用 `stack.setValue(name, value)` 方法，这个方法会将待解析的表达式以 “conversion.property.fullName” 的值放在 context 里，然后调用 `OgnlUtil.setValue()` 方法。
 
@@ -210,13 +210,13 @@ Struts2 在解析参数时，将所有参数名都使用了 OGNL 来解析，构
 
 在 OGNL 中，有一些不同类型的语法树，这些在在解析表达式的过程中，根据表达式的不同将会使用不同的构造树来进行处理，比如如果表达式为 `user.name`，就会生成 ASTChain，因为采用了链式结构来访问 user 对象中的 name 属性。
 
-![img](https://oss.javasec.org/images/1625284296372.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296372.png)
 
 这些树都是 SimpleNode 的子类中，且各子类都根据自己的特性需求对父类的部分方法进行了重写，这些特性可能导致表达式最终执行结果受到影响。这些树对应的表现形式以及重写的方法可以参考 [这篇文章](https://xz.aliyun.com/t/111)。
 
 而本次漏洞触发形式就在于 `(one)(two)` 这种表达形式，属于 `ASTEval` 类型。
 
-![img](https://oss.javasec.org/images/1625284296373.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296373.png)
 
 看一下解析执行流程：
 1. 取第一个节点，也就是 one，调用其 `getValue()` 方法计算其值，放入 expr 中；
@@ -250,13 +250,13 @@ Struts2 在解析参数时，将所有参数名都使用了 OGNL 来解析，构
 ```
 这些写法都不影响最终 one 表达式的执行，如下图均可以成功弹出计算器：
 
-![img](https://oss.javasec.org/images/1625284296375.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296375.png)
 
 以上是使用`Ognl.parseExpression()`  加 `Ognl.getValue()` 来执行的，与 `OgnlUtil.getValue()` 一致。
 
 那使用 `OgnlUtil.setValue()`，调用会一致吗？答案是否定的。
 
-![img](https://oss.javasec.org/images/1625284296377.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296377.png)
 
 如上图，我们的 payload 报错了，为什么呢？`OgnlUtil.setValue()` 的调用链为：`OgnlUtil.setValue()`-> `OgnlUtils.compile()` ->`Ognl.setValue()` -> `Node.setValue()` -> `SimpleNode.evaluateSetValueBody()` ->`ASTEval.setValueBody()`。
 
@@ -264,7 +264,7 @@ Struts2 在解析参数时，将所有参数名都使用了 OGNL 来解析，构
 
 也就是说，在使用 `OgnlUtil.setValue()` 执行恶意表达式时，要比 `OgnlUtil.getValue()` 多出一步取节点并执行的步骤，如下图两种方法都可以弹出计算器：
 
-![img](https://oss.javasec.org/images/1625284296383.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296383.png)
 
 上面讨论了调用静态方法的表达式，那如果想要修改 context 里的值呢？根据官方文档的描述和测试的结果，以下的方式都可以：
 
@@ -276,11 +276,11 @@ Struts2 在解析参数时，将所有参数名都使用了 OGNL 来解析，构
 
 还有关键的一点是：在对表达式进行解析时，由于在 `OgnlParserTokenManager` 方法中使用了 `ognl.JavaCharStream#readChar()` 方法，在读到 `\\u` 的情况下，会继续读入 4 个字符，并将它们转换为 char，因此 OGNL 表达式实际上支持了 unicode 编码，这就绕过了之前正则或者字符串判断的限制。
 
-![img](https://oss.javasec.org/images/1625284296384.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296384.png)
 
 在解析完表达式执行方法的时候，会调用 `MethodAccessor#callMethod/callStaticMethod` 方法，在调用之前会在 context 中取 `xwork.MethodAccessor.denyMethodExecution` 的值转为布尔型进行判断，如果是 true 则不会调用方法，只有为 false 才会进行调用。
 
-![img](https://oss.javasec.org/images/1625284296384.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296384.png)
 
 因此，这个漏洞的触发流程就明确了，攻击者在参数名处传入恶意表达式：
 - 使用 unicode 编码特殊字符绕过对关键字符黑名单的判断；
@@ -299,7 +299,7 @@ Struts2 在解析参数时，将所有参数名都使用了 OGNL 来解析，构
 
 当然也可以根据上面的分析随意改成自己喜欢的样子。这里有一点要注意的是，可以看到第二个 payload 没有直接使用 @ 调用静态方法的方式，而是使用了 `#su=` 进行了赋值，这是因为在 OGNL 对参数解析时，静态方法的解析会排在其他方式的前面，这就导致了还没修改 context 里的值，导致无法执行，所以先进行了赋值。主要的原因是 `TreeMap` 的默认排序是按照 key 的字典顺序排序即升序。
 
-![img](https://oss.javasec.org/images/1625284296387.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296387.png)
 
 
 ## S2-005
@@ -312,15 +312,15 @@ Struts2 在解析参数时，将所有参数名都使用了 OGNL 来解析，构
 
 先来 diff 一下更新，在 `ParametersInterceptor#setParameters` 方法，使用了 ValueStackFactory 为当前值栈重新初始化 ValueStack，不再使用原有的 ValueStack，并为其设置了相关属性，包括新增的 `acceptParams` 和 `excludeParams` 是接收访问的参数名白名单和黑名单。
 
-![img](https://oss.javasec.org/images/1625284296389.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296389.png)
 
 新增了 MemberAccessValueStack 和 ClearableValueStack 接口，由 OgnlValueStack 实现，用来配置额外的属性和清除 context 中的内容，并为 OgnlValueStack 添加了新的 allowStaticMethodAccess 和 securityMemberAccess 属性，用来限制静态方法的调用。
 
-![img](https://oss.javasec.org/images/1625284296393.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296393.png)
 
 在为 ValueStack 设置 root 时，会创建 `SecurityMemberAccess` 对象，并调用 `Ognl.createDefaultContext()` 方法将其放在 Context 里，key 为 `OgnlContext.MEMBER_ACCESS_CONTEXT_KEY`，也就是 `_memberAccess`。
 
-![img](https://oss.javasec.org/images/1625284296395.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296395.png)
 
 在 OGNL 解析完表达式，试图调用方法时，会调用 MemberAccess 的 `isAccessible()` 方法来判断是否允许调用，xwork 创建了 `SecurityMemberAccess` 对象继承自 DefaultMemberAccess 并重写了这个方法，因此，我们需要让这个方法返回 true，才能执行最终的方法。
 
@@ -328,7 +328,7 @@ Struts2 在解析参数时，将所有参数名都使用了 OGNL 来解析，构
 
 首先在`ParametersInterceptor#setParameters` 方法创建新的 ValueStack，里面 securityMemberAccess 的 allowStaticMethodAccess 默认为 true，excludeProperties 里有一个数据，是在配置文件中读出来的参数名的黑名单，acceptProperties 中没有数据。
 
-![img](https://oss.javasec.org/images/1625284296396.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296396.png)
 
 在 payload 的第一步设置 denyMethodExecution 为 false 没有问题，第二步调用方法前执行 `isAccessible()` 判断，由于 allowStaticMethodAccess 为 true ，所以 `!getAllowStaticMethodAccess()` 返回false，程序调用父类 DefaultMemberAccess 的 `isAccessible()` 方法判断调用的类是不是 public 属性，由于我们调用的 `Runtime.getRuntime()` 没有问题，所以这步判断也直接过了，接下来程序会调用到 `isAcceptableProperty()` ，会进行两个判断：`isAccepted()` 和 `isExcluded()` ：
 - `isAccepted()`：判断参数名是否在白名单中，如果白名单为空，则返回 true；如果白名单不为空，则进行匹配，匹配到了就返回 true，匹配不到就返回 false；
@@ -338,7 +338,7 @@ Struts2 在解析参数时，将所有参数名都使用了 OGNL 来解析，构
 
 由于 `MethodAccessor#callMethod/callStaticMethod` 时传入的 propertyName 为 null，所以进行判断的参数  paramName 为 null，会触发空指针异常，中断调用流程。
 
-![img](https://oss.javasec.org/images/1625284296398.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296398.png)
 
 所以我们需要将 excludeProperties 设置为空集，绕开判断，其他不变，与 S2-003 保持一致。最好的 payload 是再将 acceptProperties 设为空集，allowStaticMethodAccess 设置为 true，用来兼容多种情况。因此，最终的 payload 为：
 ```
@@ -367,15 +367,15 @@ Struts2 在解析参数时，将所有参数名都使用了 OGNL 来解析，构
 ```
 此时如果输入不正确的数据类型，会校验失败并提示：
 
-![img](https://oss.javasec.org/images/1625284296400.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296400.png)
 
 此时程序会进入 struts 拦截器栈中的 `ConversionErrorInterceptor#intercept()` 方法，这个方法从 context 中获取类型转换错误的字段键值对
 
-![img](https://oss.javasec.org/images/1625284296402.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296402.png)
 
 拿出这些类型转换错误的键值对，创建了一个新的 HashMap fakie，并将其储存进去，储存之前对参数值进行了处理，调用了 `getOverrideExpr()` 方法在参数值前后加了引号。
 
-![img](https://oss.javasec.org/images/1625284296404.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296404.png)
 
 把 fakie 放在了 context 中的 `original.property.override` 中，创建了一个 PreResultListener，在 Action 完成控制处理之后，将 fakie 取出放入 stack 的 overrides 中，在后面 `findValue()` 时，会取出其中的值并解析。
 
@@ -383,11 +383,11 @@ Struts2 在解析参数时，将所有参数名都使用了 OGNL 来解析，构
 
 就是上面提到的 overrides，程序将用户输入前后添加单引号处理成字符串，然后放在 context 和 stack 对象中，在  `doEndTag()`  解析对应的参数 `%{age}` 时，会调用 `lookupForOverrides()` 方法在 stack 中取回用户输入。
 
-![img](https://oss.javasec.org/images/1625284296406.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296406.png)
 
 然后调用 `getValue()` 方法实际上就是 `Ognl.getValue()` 方法解析字符串。
 
-![img](https://oss.javasec.org/images/1625284296408.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296408.png)
 
 因此我们只需要闭合 `getOverrideExpr()` 方法添加的单引号，即可构成 OGNL 注入，由于这个方法使用了字符串拼接的方式，所以最终的 payload 为：
 ```
@@ -414,11 +414,11 @@ S2-008 还是对 S2-003 的绕过。
 
 接下来跟一下 CookieInterceptor 的逻辑：
 
-![img](https://oss.javasec.org/images/1625284296410.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296410.png)
 
 从 ServletActionContext 获取当前的 request 对象，并获取当前请求的 Cookie 对象数组，循环这个数组，在里面取得 name 和 value，调用 `populateCookieValueIntoStack()` 方法，顾名思义，将 cookie 值放入值栈中，最终调用 `stack.setValue()` 方法。
 
-![img](https://oss.javasec.org/images/1625284296413.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296413.png)
 
 由于 CookieInterceptor 不在默认拦截器栈中，因此需要我们进行配置：
 
@@ -451,31 +451,31 @@ name=/tmp/1.txt&su18[new+java.io.FileWriter(name)]=1
 
 开启之后，会成功进入 `DebuggingInterceptor#intercept` 的相关逻辑，首先取得 request 中的参数 "debug"，这个参数可以有 4 种值，分别对应了 DebuggingInterceptor 提供的四种功能。
 
-![img](https://oss.javasec.org/images/1625284296415.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296415.png)
 
 -  `debug=xml` ：从 ServletActionContext 中获取 response 对象，把一些 context 中的内容以 xml 的格式打印出来。
 
-![img](https://oss.javasec.org/images/1625284296419.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296419.png)
 
 - `debug=command&expression=`：非常清晰的漏洞调用点，如果参数 debug 是 command ，取参数 expression 的值，并调用 `stack.findValue()` 进行解析。
 
-![img](https://oss.javasec.org/images/1625284296421.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296421.png)
 
 - `debug=console`：如果参数 debug 是 console，struts2 调用 freemarker 跳转了 `org/apache/struts2/interceptor/debugging/console.ftl` 的 html 模板。
 
-![img](https://oss.javasec.org/images/1625284296423.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296423.png)
 
 模板引入了 struts/webconsole.html ，我们也可以直接访问这个路径来访问这个页面
 
-![img](https://oss.javasec.org/images/1625284296426.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296426.png)
 
-![img](https://oss.javasec.org/images/1625284296428.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296428.png)
 
 这个页面提供了一个黑色的交互页面，可以输入 ognl 表达式，解析结果会返回在页面上，而这个功能的实现实际上是使用了 `debug=command&expression=` 的功能。
 
 - `debug=browser&object=`：如果参数 debug 是 browser，取参数 object 的值，如果没有默认为 `#context`，并调用 `stack.findValue()` 进行解析，结果也是使用了 freemarker 的 `/org/apache/struts2/interceptor/debugging/browser.ftl` 进行展示。
 
-![img](https://oss.javasec.org/images/1625284296429.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296429.png)
 
 由上可知，开启 debug 模式后将会有两个 RCE 的点。
 
@@ -501,13 +501,13 @@ param=(#context["xwork.MethodAccessor.denyMethodExecution"]=new java.lang.Boolea
 
 在有些文章中使用了payload：`one[(two)(three)]`，在 OGNL 解析这个表达式时，他本身是 ASTChain，首先会解析成为两个 ASTProperty ：`one` 和 `[(two)(three)]`，然后分别调用他们的 `ASTProperty#setValue` 方法，经过一系列的调用，最后调用 `getProperty()` 方法获取值，并调用 `OgnlRuntime.getProperty()` 获取对应的属性，对于 `[(two)(three)]` 来说，解析成为 ASTEval 之后的过程与之前分析的无异，会将 three 中内容作为 two 的 root 对象来执行。
 
-![img](https://oss.javasec.org/images/1625284296431.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296431.png)
 
 简单来说使用 `one[(two)(three)]` 表达式，会对 two 进行二次解析。
 
 因此构造如下，或者类似 `"su17[('@java.lang.Runtime@getRuntime().exec(#su19)')(#su19='open -a Calculator.app')]"` ，即可弹出计算器。
 
-![img](https://oss.javasec.org/images/1625284296434.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296434.png)
 
 除了使用之前熟悉的 ASTEval 的 payload ，官方通报了一种新的表达式执行方式： `top['foo'](0) `，在上下文中，可以用 top 来访问 Action 中的成员变量，这种方式会对 foo 进行二次解析。
 
@@ -515,11 +515,11 @@ param=(#context["xwork.MethodAccessor.denyMethodExecution"]=new java.lang.Boolea
 
 那为什么 top 可以访问呢？来调试研究一下，首先 `top['foo'](0)` 会被解析成 `(top['foo'])(0)` 这个 ASTEval 的形式，并分隔成为两段，其中 `top['foo']` 是 ASTChain 对象。
 
-![img](https://oss.javasec.org/images/1625284296436.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296436.png)
 
 这个对象又会被解析成 `top` 和 `['foo']` 两个 ASTProperty 对象，会调用 `OgnlRuntime.getProperty()` 获取其值，取值的方式是调用 PropertyAccessor 的实现类的 `getProperty()` 方法，对于目前的情况下，是 CompoundRootAccessor，在这个实现类中，判断如果名称是 top 的情况下，会返回 root 中的第一个对象。
 
-![img](https://oss.javasec.org/images/1625284296438.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1625284296438.png)
 
 而第一个对象就是 Action 对象，里面存放了参数信息，可以直接调用到，所以在这里 payload 也可以为
 

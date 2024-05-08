@@ -16,7 +16,7 @@ IAST是AST其中的一个类别，AST是Application Security Testing的简称，
 
 
 比较有意思的一点是，大家好像都在说IAST是Gartner2012年提出来的术语，但是我查了Gartner的术语表，并没有找到IAST相关的定义，但是在Gartner推荐的服务商找到了IAST相关的标签和简单的介绍（可能由于Gartner之前改版，导致这个术语丢失？）
-![](https://oss.javasec.org/images/16393856801258.jpg)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393856801258.jpg)
 
 好了，回到正题，IAST呢，又细分为好几种，大家可以看下 https://www.freebuf.com/sectool/290671.html 这篇文章，对IAST的分类有比较清晰的描述。本文以及后面的文章主要是介绍其中的被动式IAST.
 
@@ -54,10 +54,10 @@ IAST是AST其中的一个类别，AST是Application Security Testing的简称，
 - Sink（最终漏洞触发点）
 
 我本地搭建了个洞态的服务，在后台看到了不少规则信息，
-![](https://oss.javasec.org/images/16393856801282.jpg)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393856801282.jpg)
 
 可以看到预定义的各种规则覆盖了不少，因此可以对于在展示漏洞的时候，将其相关的调用传播堆栈信息展示出来。
-![](https://oss.javasec.org/images/16393856801294.jpg)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393856801294.jpg)
 
 但是洞态对于整条链路中所涉及到的souce的传播以及到最后危险函数到达的部分，是没直观的看到其在传播中变量的整个传播变化结果，仅有一个source获取攻击参数的展示，这样可能对后续报告中的体现，以及推动研发修改这个漏洞有一些暗坑。
 
@@ -68,24 +68,24 @@ IAST是AST其中的一个类别，AST是Application Security Testing的简称，
 Contrast提供免费的使用，因为对agent的代码进行了混淆，所以我没有对其到底如何实现进行深入的了解，有兴趣的朋友可以了解看看。
 通过对agent的使用以及控制台的展示内容来看，我个人感觉Contrast的IAST更像RASP（Contrast也提供RASP功能，可能我没玩明白..）,所以到底是IAST，还是RASP换一种方式去展现，这个就需要大家自己去深入了解了。
 
-![](https://oss.javasec.org/images/16393856801306.jpg)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393856801306.jpg)
 
-![](https://oss.javasec.org/images/16393856801323.jpg)
-![](https://oss.javasec.org/images/16393856801349.jpg)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393856801323.jpg)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393856801349.jpg)
 
 
 ### Checkmarx
 
 Checkmarx是基于AspectJ对关键的类进行切片埋点，因为我拿到Checkmarx的Agent是没办法直接运行起来的，只有jar，所以只是简单的看了下逻辑，在Checkmarx的代码中，可以看到其埋点的数据都在`com.checkmarx.iast.agent.aspects.original`包里面，
-![](https://oss.javasec.org/images/16393856801371.jpg)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393856801371.jpg)
 
 而且是完全依赖AspectJ对关键的类以及方法进行处理,从而达到埋点的效果。对于真正运行起来的效果，笔者这边环境有限，暂未深入研究。
 
 ### 安全玻璃盒
 
 机缘巧合的情况下，某匿名好心人听说我在研究IAST,所以将他们购买的一套IAST让我远程看了下。
-![](https://oss.javasec.org/images/16393856801399.jpg)
-![](https://oss.javasec.org/images/16393856801426.jpg)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393856801399.jpg)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393856801426.jpg)
 通过对系统的查看，我发现这个系统和我上面说到的Contrast有点类似，并没有对于中间的传播点进行覆盖，仅仅是对于source以及sink点进行了埋点。
 由于安全玻璃盒也对agent进行了混淆处理，所以没有办法直观的看到其内部运行的逻辑。
 抛开其IAST的技术实现逻辑，在整体界面上，以及使用情况下，安全玻璃盒可能更符合国人的习惯。

@@ -38,7 +38,7 @@ visit
 
 **ClassVisitor类图：**
 
-![img](https://oss.javasec.org/images/image-20201020185201582.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201020185201582.png)
 
 
 
@@ -247,7 +247,7 @@ public class ASMClassWriterTest {
 
 修改成功后将会生成一个名为`JavaSecTestHelloWorld.class`的新的class文件，反编译`JavaSecTestHelloWorld`类会发现该类的`hello`方法也已被修改为了`hi`，修饰符已被改为`private`，如下图：
 
-![img](https://oss.javasec.org/images/image-20201021103823611.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201021103823611.png)
 
 ## 修改类方法字节码
 
@@ -389,11 +389,11 @@ public class ASMMethodVisitorTest {
 
 程序执行后会在`com.anbai.sec.bytecode`包下创建一个`TestHelloWorld.class`文件：
 
-![img](https://oss.javasec.org/images/image-20201021174318013.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201021174318013.png)
 
 命令行运行`TestHelloWorld`类，可以看到程序执行的逻辑已经被成功修改，输出结果如下：
 
-![img](https://oss.javasec.org/images/image-20201021174453163.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201021174453163.png)
 
 
 
@@ -546,7 +546,7 @@ hello方法执行结果：Hello World~
 
 程序执行后会在`TestASMHelloWorldDump`类同级的包下生成一个`TestASMHelloWorld`类，如下图：
 
-![img](https://oss.javasec.org/images/image-20201021163840625.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201021163840625.png)
 
 ## IDEA/Eclipse插件
 
@@ -558,11 +558,11 @@ hello方法执行结果：Hello World~
 
 在IDEA中插件中心搜索：`ASM Bytecode Outline`，就可以找到ASM字节码插件，如下图：
 
-![img](https://oss.javasec.org/images/image-20201021193710065.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201021193710065.png)
 
 安装完`ASM Bytecode Outline`后选择任意Java类，右键菜单中会出现`Show Bytecode outline`选项，点击之后就可以看到该类对应的ASM和Bytecode代码，如下图：
 
-![img](https://oss.javasec.org/images/image-20201021194226711.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201021194226711.png)
 
 
 
@@ -574,19 +574,19 @@ Eclipse同IDEA，在插件中心搜索bytecode就可以找到`Bytecode Outline`�
 
 如果您使用的Eclipse版本相对较低（低版本的Eclipse自带了ASM依赖，如`Eclipse Photon Release (4.8.0)`）可直接在插件中心安装`Bytecode Outline`，否则需要先安装ASM依赖，点击`Help`->`Eclipse Marketplace...`，如下图：
 
-![img](https://oss.javasec.org/images/image-20201021195157340.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201021195157340.png)
 
 然后搜索`bytecode`，找到`Bytecode Outline`，如下图：
 
-![img](https://oss.javasec.org/images/image-20201021195157340.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201021195157340.png)
 
 点击`Instal`->`I accept the terms of the license agreement`->`Finish`：
 
-![img](https://oss.javasec.org/images/image-20201021195253390.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201021195253390.png)
 
 提示安全警告，直接点击`Install anyway`：
 
-![img](https://oss.javasec.org/images/image-20201021195347822.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201021195347822.png)
 
 
 
@@ -598,40 +598,40 @@ Eclipse同IDEA，在插件中心搜索bytecode就可以找到`Bytecode Outline`�
 
 点击`Help`->`Install New Software...`
 
-![img](https://oss.javasec.org/images/image-20201021201200390.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201021201200390.png)
 
 然后在https://download.eclipse.org/tools/orbit/downloads/drops/选择对应的Eclipse版本：
 
-![img](https://oss.javasec.org/images/image-20201021201957013.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201021201957013.png)
 
 复制仓库地址：
 
-![img](https://oss.javasec.org/images/image-20201021202053530.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201021202053530.png)
 
 然后在`Work with`输入框中输入：`https://download.eclipse.org/tools/orbit/downloads/drops/I20200904215518/repository`，点击`Add..`，填入仓库名字，如下图：
 
-![img](https://oss.javasec.org/images/image-20201021200357368.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201021200357368.png)
 
 选择`All Bundles`或者找到`ASM`相关依赖，并按照提示完成依赖安装，如下图：
 
-![img](https://oss.javasec.org/images/image-20201021200428572.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201021200428572.png)
 
 ### Bytecode Outline配置
 
 安装好`Bytecode Outline`插件以后默认没有`Bytecode`窗体，需要再视图中添加`Bytecode`，点击`Window`->`Show View`->`Other`，如下图：
 
-![img](https://oss.javasec.org/images/image-20201021203041991.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201021203041991.png)
 
 然后在弹出的视图窗体中输入`bytecode`后点击`open`，如下图：
 
-![img](https://oss.javasec.org/images/image-20201021203116896.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201021203116896.png)
 
 随便写一个测试类，在`Bytecode`窗体中可以看到对应的`Bytecode`，如果需要看ASM代码，点击右侧菜单的`ASM图标`即可，如下图：
 
-![img](https://oss.javasec.org/images/image-20201021203256732.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201021203256732.png)
 
 如果想对照查看Java和ASM代码，只需点击对应的Java代码就会自动高亮ASM部分的代码，如下图：
 
-![img](https://oss.javasec.org/images/image-20201021203526682.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201021203526682.png)
 
 我们可以借助`Bytecode Outline`插件学习ASM，也可以直接使用`Bytecode Outline`生成的ASM代码来实现字节码编辑。

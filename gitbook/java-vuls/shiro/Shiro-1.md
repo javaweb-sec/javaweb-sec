@@ -28,7 +28,7 @@ Shiro 是这一阶段比较火的攻击点，由于其适用范围广泛，每�
 
 Shiro 为 SecurityManager 提供了一个包含了上述所有功能的默认实现类 `org.apache.shiro.mgt.DefaultSecurityManager`，中间继承了很多中间类，并逐层实现了相关的方法，继承关系如下图。
 
-![](https://oss.javasec.org/images/1640939549511.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1640939549511.png)
 
 DefaultSecurityManager 中包含以下属性:
 - `subjectFactory`：默认使用 DefaultSubjectFactory，用来创建具体 Subject 实现类。
@@ -52,7 +52,7 @@ Subject 接口同样提供了认证（login/logout）、授权（访问控制 ha
 
 DelegatingSubject 中保存了一个 transient 修饰的  SecurityManager  成员变量，在使用具体的校验方法时，实际上委托 SecurityManager 进行处理，如下图：
 
-![](https://oss.javasec.org/images/1641263548553.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641263548553.png)
 
 DelegatingSubject 中不会保存和维持一个用户的“状态（角色/权限）”，恰恰相反，每次它都依赖于底层的实现组件 SecurityManager 进行检查和校验，因此通常会要求 SecurityManager 的实现类来提供一些缓存机制。所以本质上，Subject 也是一种“无状态”的实现。
 
@@ -66,7 +66,7 @@ Realm 翻译过来是“领域、王国”，这里可以将其理解以为一�
 
 在使用中，开发人员通常不会直接实现 Realm 接口，而是实现 Shiro 提供了一些相关功能的抽象类 AuthenticatingRealm/AuthorizingRealm，或者使用针对特定数据源提供的实现类如 JndiLdapRealm/JdbcRealm/PropertiesRealm/TextConfigurationRealm/IniRealm 等等。继承关系大概如下：
 
-![](https://oss.javasec.org/images/1641266951968.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641266951968.png)
 
 较多情况下，开发人员会自行实现 `AuthorizingRealm` 类，并重写 `doGetAuthorizationInfo`/`doGetAuthenticationInfo` 方法来自行实现自身的认证和授权逻辑。
 
@@ -121,19 +121,19 @@ Realm 翻译过来是“领域、王国”，这里可以将其理解以为一�
 
 官方更推荐直接使用 `ShiroFilter` 类进行处理，并为 Web 应用程序配置了一个 Listener： `EnvironmentLoaderListener`。这是一个  `ServletContextListener` 的子类，会在初始化时将 WebEnvironment 的实现类注入到 ServletContext 中。
 
-![](https://oss.javasec.org/images/1641279281419.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641279281419.png)
 
 ShiroFilter 则使用 WebEnvironment 中的 WebSecurityManager 来作为当前 Shiro 上下文中的 SecurityManager。
 
-![](https://oss.javasec.org/images/1641279406501.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641279406501.png)
 
 在 Filter 处理流程中，ShiroFilter 继承的 `doFilter` 调用 `AbstractShiroFilter#doFilterInternal` 方法，会使用保存的 SecurityManager 创建 Subject 对象。
 
-![](https://oss.javasec.org/images/1641281248580.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641281248580.png)
 
 并调用其 execute 方法执行后续的校验逻辑。
 
-![](https://oss.javasec.org/images/1641280684013.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641280684013.png)
 
 默认情况下，`EnvironmentLoaderListener` 创建的 WebEnvironment 的实例是 IniWebEnvironment，是基于 INI 格式的配置文件，如果不想使用这个格式，可以通过自实现一个 IniWebEnvironment 的子类，用来处理自己定义的配置文件格式，并在 `web.xml` 中进行如下配置：
 
@@ -178,11 +178,11 @@ Shiro 默认提供了一些 Filter，名称及对应处理类如下表格，如�
 
 在请求访问到达 ShiroFilter 后，会根据 request 的信息，调用 `org.apache.shiro.web.filter.mgt.PathMatchingFilterChainResolver#getChain` 方法匹配配置的 pathPattern 以及 requestURI，如果有匹配，则会添加一层 ProxiedFilterChain 代理。这里看到，如果 `pathMatches` 方法匹配，将会进行 return，因此配置的顺序也很重要。
 
-![](https://oss.javasec.org/images/1641301764041.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641301764041.png)
 
 也就是说，Shiro 不会向 Servlet Context 中添加其他的 Filter，而是使用嵌套 ProxiedFilterChain 代理的方式扩展 FilterChain，并在自身 Filter 都处理结束之后继续执行原 FilterChain。
 
-![](https://oss.javasec.org/images/1641301141206.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641301141206.png)
 
 
 这里对于 Servlet Filter/FilterChain 以及 Shiro Filter/FilterChain 的区分描述可能不清晰，其实只需要自己下个断点跟一下流程就能明白了。
@@ -195,15 +195,15 @@ Shiro 默认提供了一些 Filter，名称及对应处理类如下表格，如�
 
 此时如果想要将 Shiro 逻辑注入其中，就用到了关键类：`ShiroFilterFactoryBean`。这是 Shiro 为 Spring 生态提供的工厂类，由它在 spring 中承担了之前 ShiroFilter 的角色。内部类 SpringShiroFilter 继承了 AbstractShiroFilter，实现了类似的逻辑。 
 
-![](https://oss.javasec.org/images/1641350389722.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641350389722.png)
 
 可以结合 `spring-web` 包中的 DelegatingFilterProxy 配置使用，其作用就是一个 filter 的代理，被它代理的 filter 将由 spring 来管理其生命周期。
 
-![](https://oss.javasec.org/images/1641349677712.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641349677712.png)
 
 ShiroFilterFactoryBean 还是 BeanPostProcessor 的子类，实现了对于 Filter 子类自动发现和处理的技术，所以我们可以通过配置 ShiroFilterFactoryBean 的方式来注册 SpringShiroFilter。
 
-![](https://oss.javasec.org/images/1641362172288.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641362172288.png)
 
 其他的配置也可以全部交由 Spring 管理，我们只需要对 ShiroFilterFactoryBean 进行配置即可，简单的示例代码如下：
 
@@ -278,19 +278,19 @@ public class ShiroConfig {
 
 之前提到过，Shiro 使用 `PathMatchingFilterChainResolver#getChain` 方法获取和调用要执行的 Filter，逻辑如下：
 
-![](https://oss.javasec.org/images/1641375097048.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641375097048.png)
 
 `getPathWithinApplication()` 方法调用 `WebUtils.getPathWithinApplication()` 方法，用来获取请求路径。通过如下逻辑可看到，方法获取 Context 路径以及 URI 路径，然后使用字符串截取的方式去掉 Context 路径。
 
-![](https://oss.javasec.org/images/1641375566139.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641375566139.png)
 
 获取 URI 路径的方法 `getRequestUri()` 获取 `javax.servlet.include.request_uri` 的值，并调用 `decodeAndCleanUriString()` 处理。
 
-![](https://oss.javasec.org/images/1641376070079.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641376070079.png)
 
 `decodeAndCleanUriString()` 是 URL Decode 及针对 JBoss/Jetty 等中间件在 url 处添加 `;jsessionid` 之类的字符串的适配，对 `;` 进行了截取。
 
-![](https://oss.javasec.org/images/1641376084763.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641376084763.png)
 
 处理之后的请求 URL 将会使用 `AntPathMatcher#doMatch` 进行匹配尝试。
 
@@ -309,22 +309,22 @@ public class ShiroConfig {
 
 正常访问：`/audit`，会由于需要认证和权限被 Shiro 的 Filter 拦截并跳转至登录 URL。
 
-![](https://oss.javasec.org/images/1641379616250.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641379616250.png)
 
 访问 `/./audit`，由于其不能与配置文件匹配，导致进入了 `/**` 的匹配范围，导致可以越权访问。
 
-![](https://oss.javasec.org/images/1641379805906.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641379805906.png)
 
 
 ### 漏洞修复
 
 Shiro 在 [ab82949](https://github.com/apache/shiro/commit/ab8294940a19743583d91f0c7e29b405d197cc34) 更新中添加了标准化路径函数。
 
-![](https://oss.javasec.org/images/1641380817492.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641380817492.png)
 
 对 `/`、`//`、`/./`、`/../` 等进行了处理。
 
-![](https://oss.javasec.org/images/1641380876074.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641380876074.png)
 
 
 ## CVE-2014-0074
@@ -393,31 +393,31 @@ adRealm.searchBase = "cn=config,dc=su18,dc=org"
 
 首先访问 `/login` 接口登陆，在我搭建的测试环境中，访问链接：[http://localhost:8080/login?username=cn=test,dc=su18,dc=org&password=test](http://localhost:8080/login?username=cn=test,dc=su18,dc=org&password=test)，成功登陆后，页面跳转至 `/user`，显示认证后才会看到的页面，并打印出了当前用户的 principal。
 
-![](https://oss.javasec.org/images/1641538804036.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641538804036.png)
 
 此时一切认证状态正常。随后访问 `/logout` 接口登出，页面跳转回 `/login` 登陆页面。
 
-![](https://oss.javasec.org/images/1641539107475.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641539107475.png)
 
 接下来就是见证奇迹的时刻，再次尝试登陆，使用空用户名及空密码，访问链接：[http://localhost:8080/login?username=&password=](http://localhost:8080/login?username=&password=)，发现成功认证，页面跳转至 `/user`，可以访问到需要认证才展示的页面，而 `SecurityUtils.getSubject().getPrincipal()` 的结果为 `""`。
 
-![](https://oss.javasec.org/images/1641540309350.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641540309350.png)
 
 其他需要认证的页面也可以直接访问，如 `/admin`。
 
-![](https://oss.javasec.org/images/1641541425343.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641541425343.png)
 
 #### 场景 2
 
 首先修改 openldap 的配置文件开启未授权 bind，如下图配置：
 
-![](https://oss.javasec.org/images/1641570704028.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641570704028.png)
 
 接下来使用空用户名+任意密码的组合尝试登陆，访问链接：[http://localhost:8080/login?username=&password=123](http://localhost:8080/login?username=&password=123)，
 
 发现同样会成功登陆，页面跳转至 `/user`，同样 principal 为空字符串。
 
-![](https://oss.javasec.org/images/1641574562828.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641574562828.png)
 
 这个漏洞的调用我从头到尾跟了好几次，但这里并不打算列举出来调用链，或分析判断逻辑，因为从两个场景来说，漏洞本质上应该是 ldap 的配置问题，并不应作为 Shiro 的安全漏洞被列举出来，因为不同机制的实现肯定有差异。但官方还是出了更新补丁，甚至给了 CVE，很让人费解。
 
@@ -429,11 +429,11 @@ Shiro 在 [f988846](https://github.com/apache/shiro/commit/f988846207f98c98ff242
 
 官方在 `DefaultLdapContextFactory` 和 `JndiLdapContextFactory` 中均加入了 `validateAuthenticationInfo` 方法用来校验 principal 和 credential 为空的情况。可以看到这里的逻辑是只有 principal 不为空的情况下，才会对 credential 进行校验。
 
-![](https://oss.javasec.org/images/1641561909725.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641561909725.png)
 
 并在 `getLdapContext` 方法创建 InitialLdapContext 前执行了校验，如果为空，将会抛出异常。
 
-![](https://oss.javasec.org/images/1641561902474.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1641561902474.png)
 
 修复看到这里就让人有些摸不到头脑，正常来讲，本次漏洞的修复应该针对 BUG 提交者提到的空用户名绕过的安全问题，也就是如下两种场景：
 - ldap unauthenticated bind enabled 的情况下，可以使用空用户名+任意密码进行认证。

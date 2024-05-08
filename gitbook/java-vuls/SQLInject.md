@@ -127,7 +127,7 @@ SQL注入是网络攻击中最为常见的攻击方式，通过向服务器端�
 
 访问示例中的后台登陆地址：[http://localhost:8000/modules/jdbc/login.jsp](http://localhost:8000/modules/jdbc/login.jsp)，如下图：
 
-![img](https://oss.javasec.org/images/image-20200920235228799.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920235228799.png)
 
 攻击者通过在密码参数处输入：`'=0#`即可使用SQL注入的方式改变查询逻辑，绕过密码认证并登陆系统，因此用于检测用户账号密码是否存在的SQL语句变成了：
 
@@ -135,13 +135,13 @@ SQL注入是网络攻击中最为常见的攻击方式，通过向服务器端�
 
 其中的`password`的值预期是传入用户密码，但是实际上被攻击者传入了可改变查询逻辑的SQL语句，将运算结果改变为`true`，从而攻击者可以使用错误的用户及密码登陆系统，如下图：
 
-![img](https://oss.javasec.org/images/image-20200920235312260.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920235312260.png)
 
 毫无疑问因为攻击者输入的信息足够的短小简洁，但是对于用户网站系统来说却有极强的杀伤性，绝大多数的`WAF`或者`RASP`产品都无法精准辨别`'=0#`的威胁性，无法正确做到精准防御。
 
 **万能密码登陆注入原理图解：**
 
-![image-20201114153113439](https://oss.javasec.org/images/image-20201114153113439.png)
+![image-20201114153113439](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201114153113439.png)
 
 
 
@@ -237,7 +237,7 @@ SQL注入是网络攻击中最为常见的攻击方式，通过向服务器端�
 
 访问示例程序并传入参数`id=100001`后会显示文章详情，请求：[http://localhost:8000/modules/jdbc/article.jsp?id=100001](http://localhost:8000/modules/jdbc/article.jsp?id=100001)，如下图：
 
-![img](https://oss.javasec.org/images/image-20200920235726634.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920235726634.png)
 
 
 
@@ -245,7 +245,7 @@ SQL注入是网络攻击中最为常见的攻击方式，通过向服务器端�
 
 攻击者在ID处构造并传入恶意的SQL注入语句后，可以轻松的读取出数据库信息，如将请求中的`id`参数值改为`100001 and 1=2 union select 1,2,user(),version(),database(),6,7`,服务器端将会返回数据库名称、请求：[http://localhost:8000/modules/jdbc/article.jsp?id=100001%20and%201=2%20union%20select%201,2,user(),version(),database(),6,7](http://localhost:8000/modules/jdbc/article.jsp?id=100001%20and%201=2%20union%20select%201,2,user(),version(),database(),6,7)，如下图：
 
-![image-20200921000001434](https://oss.javasec.org/images/image-20200921000001434.png)
+![image-20200921000001434](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200921000001434.png)
 
 由于攻击的Payload中包含了`union、select、user()、version()、database()`敏感关键字，大部分的`WAF`都能够识别此类SQL注入。
 
@@ -255,7 +255,7 @@ SQL注入是网络攻击中最为常见的攻击方式，通过向服务器端�
 
 但如果攻击者将注入语句改为检测语句:`100001-1`的时候页面会输出文章`id`为`100000`的文章，由于`id`参数存在注入，数据库最终查询到的文章`id`为`100001-1`也就是`id`为`100000`的文章，请求：[http://localhost:8000/modules/jdbc/article.jsp?id=100001-1](http://localhost:8000/modules/jdbc/article.jsp?id=100001-1)，如下图：
 
-![img](https://oss.javasec.org/images/image-20200921000100433.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200921000100433.png)
 
 几乎可以绕过`99%`的`WAF`和大部分的`RASP`产品了，此类SQL注入攻击属于不具有攻击性的探测性攻击。
 
@@ -267,11 +267,11 @@ SQL注入是网络攻击中最为常见的攻击方式，通过向服务器端�
 
 例如上述示例中攻击者传入的`id`参数值为:`(100001-1)`或者`(100001)`用于探测数据表中是否存在`id`值为`100000`的文章，请求：[http://localhost:8000/modules/jdbc/article.jsp?id=(100001)](http://localhost:8000/modules/jdbc/article.jsp?id=(100001))，如下图：
 
-![img](https://oss.javasec.org/images/image-20200921000250818.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200921000250818.png)
 
 或者传入的`id`参数值为:`(select 100000)`来探测数据库是否存在`id`值为`100000`的文章，请求：[http://localhost:8000/modules/jdbc/article.jsp?id=(select%20100000)](http://localhost:8000/modules/jdbc/article.jsp?id=(select%20100000))，如下图：
 
-![image-20200921000501695](https://oss.javasec.org/images/image-20200921000501695.png)
+![image-20200921000501695](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200921000501695.png)
 
 大多数数据库支持使用`()`来包裹一个整数型的字段值，但是`99%`的`WAF`和极大多数的`RASP`产品是无法识别此类型的注入攻击的。
 
@@ -366,7 +366,7 @@ SQL注入是网络攻击中最为常见的攻击方式，通过向服务器端�
 
 如果应用系统本身通过JSON格式传参，传统的`WAF`可能无法识别，如果后端将参数进行SQL语句的拼接，则将会导致SQL注入漏洞。攻击者通过篡改JSON中对应参数的数据，达到SQL注入攻击的目的，如下图：
 
-![img](https://oss.javasec.org/images/image-20201114130337178.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201114130337178.png)
 
 
 
@@ -513,11 +513,11 @@ SQL注入是网络攻击中最为常见的攻击方式，通过向服务器端�
 
 访问示例中的后台登陆地址：[http://localhost:8000/modules/jdbc/multipart.jsp](http://localhost:8000/modules/jdbc/multipart.jsp)，如下图：
 
-![img](https://oss.javasec.org/images/image-20201114205310711.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201114205310711.png)
 
 提交万能密码`'=0#`即可绕过登陆验证获取到`admin`用户信息：
 
-![img](https://oss.javasec.org/images/image-20201114210148830.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201114210148830.png)
 
 **Spring MVC Multipart请求解析示例**
 
@@ -642,15 +642,15 @@ public class SQLInjectionController {
 
 访问示例中的后台登陆地址：[http://localhost:8000/SQLInjection/Login.php?formType=multipart](http://localhost:8000/SQLInjection/Login.php?formType=multipart)，如下图：
 
-![img](https://oss.javasec.org/images/image-20201114220526648.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201114220526648.png)
 
 发送Multipart请求，登陆测试Spring MVC：
 
-![img](https://oss.javasec.org/images/image-20201114220814376.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201114220814376.png)
 
 使用万能密码登陆成功：
 
-![img](https://oss.javasec.org/images/image-20201114220410465.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201114220410465.png)
 
 
 
@@ -678,7 +678,7 @@ RASP是基于行为的方式来实现SQL注入检测的，如果请求的参数�
 
 **示例 - com.mysql.jdbc.ConnectionImpl 类继承关系图：**
 
-![img](https://oss.javasec.org/images/image-20201114173131757.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201114173131757.png)
 
 灵蜥内置了JDBC接口的Hook方法，如下：
 
@@ -795,7 +795,7 @@ RASP与Web应用融为了一体，可以无视Https加密、无需手动解析Ht
 
 **示例 - RASP防御SQL注入原理：**
 
-![img](https://oss.javasec.org/images/image-20201114190244229.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201114190244229.png)
 
 从上图可以看出，RASP将Hook到的SQL语句做词法解析，然后结合Http请求的参数做关联分析，得出password参数直接导致了SQL词法的语义变化，从而判定该SQL语句中包含了注入攻击，RASP会立即阻止SQL查询并阻断Http请求。
 
@@ -809,7 +809,7 @@ RASP通过词法解析可以得出SQL语句中使用的数据库函数、表名�
 
 灵蜥使用了SQL词法解析来检测SQL注入漏洞或攻击，对于SQL注入的检测能力精确而有效，比如可以轻松的识别出函数和算数运算类的SQL注入攻击，如图：
 
-![img](https://oss.javasec.org/images/image-20201114192036707.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201114192036707.png)
 
 RASP可以识别出参数id中的`100001-1`会在数据库中做算术运算，因为会被RASP拦截，通常攻击者非常喜欢使用这种方式来探测是否存在SQL注入，传统的WAF因为根本识别这个参数的具体业务含义，从而无法识别此类SQL注入攻击。
 
@@ -821,8 +821,8 @@ RASP可以识别出参数id中的`100001-1`会在数据库中做算术运算，�
 
 **示例 - Multipart请求拦截：**
 
-![img](https://oss.javasec.org/images/image-20201114210656031.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201114210656031.png)
 
 **示例 - JSON请求拦截：**
 
-![img](https://oss.javasec.org/images/image-20201114210928260.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201114210928260.png)

@@ -4,7 +4,7 @@ Java是一个依赖于`JVM`（Java虚拟机）实现的跨平台的开发语言�
 
 **JVM架构图：**
 
-![img](https://oss.javasec.org/images/JvmSpec7.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/JvmSpec7.png)
 
 
 
@@ -34,7 +34,7 @@ public class TestHelloWorld {
 
 我们可以通过JDK自带的`javap`命令反汇编`TestHelloWorld.class`文件对应的`com.anbai.sec.classloader.TestHelloWorld`类，以及使用Linux自带的`hexdump`命令查看`TestHelloWorld.class`文件二进制内容：
 
-![img](https://oss.javasec.org/images/image-20191217171821663.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191217171821663.png)
 
 JVM在执行`TestHelloWorld`之前会先解析class二进制内容，JVM执行的其实就是如上`javap`命令生成的字节码。
 
@@ -92,7 +92,7 @@ this.getClass().getClassLoader().loadClass("com.anbai.sec.classloader.TestHelloW
 
 **示例 - ClassLoader#loadClass：**
 
-![20230612144647](https://oss.javasec.org/images/20230612144647.png)
+![20230612144647](https://javasec.oss-cn-hongkong.aliyuncs.com/images/20230612144647.png)
 
 
 
@@ -281,7 +281,7 @@ README.md
 
 创建类加载器的时候可以指定该类加载的父类加载器，ClassLoader是有隔离机制的，不同的ClassLoader可以加载相同的Class（两者必须是非继承关系），同级ClassLoader跨类加载器调用方法时必须使用反射。
 
-![img](https://oss.javasec.org/images/202110251829223.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/202110251829223.png)
 
 
 
@@ -417,7 +417,7 @@ public java.lang.String com.anbai.sec.classloader.TestHelloWorld.hello()
 
 **示例 - 冰蝎命令执行类反编译：**
 
-![img](https://oss.javasec.org/images/202110251849324.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/202110251849324.png)
 
 
 
@@ -433,7 +433,7 @@ public java.lang.String com.anbai.sec.classloader.TestHelloWorld.hello()
 
 **示例 - BCEL类名解码：**
 
-![img](https://oss.javasec.org/images/202110251829177.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/202110251829177.png)
 
 
 
@@ -541,7 +541,7 @@ public static String bcelEncode(File classFile) throws IOException {
 
 当`getConnection()`方法被调用时就会使用注入进来的`org.apache.bcel.util.ClassLoader`类加载器加载注入进来恶意类字节码，如下图：
 
-![img](https://oss.javasec.org/images/202110251829173.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/202110251829173.png)
 
 因为使用了反射的方式加载`com.anbai.sec.classloader.TestBCELClass`类，而且还特意指定了需要初始化类（`Class.forName(driverClassName, true, driverClassLoader);`），因此该类的静态语句块（`static{...}`）将会被执行，完整的攻击示例代码如下：
 
@@ -648,7 +648,7 @@ Xalan和BCEL一样都经常被用于编写反序列化Payload，Oracle JDK默认
 
 **TemplatesImpl类：**
 
-![img](https://oss.javasec.org/images/202110251829988.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/202110251829988.png)
 
 **Xalan攻击示例代码：**
 
@@ -828,11 +828,11 @@ Fastjson会创建`com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl`类
 
 Fastjson在解析类成员变量（`com.alibaba.fastjson.parser.deserializer.JavaBeanDeserializer#parseField`）的时候会将`private Properties _outputProperties;`属性与`getOutputProperties()`关联映射（FastJson的`smartMatch()`会忽略`_`、`-`、`is`（仅限boolean/Boolean类型），所以能够匹配到`getOutputProperties()`方法），因为`_outputProperties`是Map类型（Properties是Map的子类）所以不需要通过set方法映射值（`fieldInfo.getOnly`），因此在setValue的时候会直接调用`getOutputProperties()`方法，如下图：
 
-![img](https://oss.javasec.org/images/202110251829689.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/202110251829689.png)
 
 调用`getOutputProperties()`方法后会触发类创建和实例化，如下图：
 
-![img](https://oss.javasec.org/images/202110251829680.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/202110251829680.png)
 
 **defineClass TestAbstractTranslet调用链：**
 
@@ -850,7 +850,7 @@ java.lang.ClassLoader.defineClass(ClassLoader.java:794)
 
 创建`TestAbstractTranslet`类实例，如下图：
 
-![img](https://oss.javasec.org/images/202110251829828.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/202110251829828.png)
 
 创建`TestAbstractTranslet`类实例时就会触发`TestAbstractTranslet`构造方法中的命令执行代码，调用链如下：
 

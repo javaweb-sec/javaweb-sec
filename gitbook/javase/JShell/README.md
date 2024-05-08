@@ -4,7 +4,7 @@
 
 命令行执行`jshell`即可进入`jshell`模式：
 
-![img](https://oss.javasec.org/images/image-20191219163053592.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191219163053592.png)
 
 输入:`/help`可以查看具体的命令:
 
@@ -95,4 +95,4 @@ new String(Runtime.getRuntime().exec("pwd").getInputStream().readAllBytes())
 
 程序执行结果：
 
-![img](https://oss.javasec.org/images/image-20191219170956644.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191219170956644.png)

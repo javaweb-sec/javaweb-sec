@@ -14,6 +14,7 @@
 
   },
   "plugins": [
+    "-livereload",
     "-lunr",
     "-search",
     "search-pro",
@@ -45,7 +46,7 @@
       ]
     },
     "donate": {
-      "alipay": "https://oss.javasec.org/images/wechat.jpg",
+      "alipay": "https://javasec.oss-cn-hongkong.aliyuncs.com/images/wechat.jpg",
       "title": "",
       "button": "微信群",
       "alipayText": "微信群"

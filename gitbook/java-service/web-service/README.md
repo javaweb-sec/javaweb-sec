@@ -220,27 +220,27 @@ public class FileService {
 
 使用IDEA创建`Web Service`项目默认会创建管理`Web Service`的API:`/servlet/AxisServlet`、`/services`、`SOAPMonitor`、`/servlet/AdminServlet`，`*.jws`以及用监控`Web Service`的端口`5001`或`5101`。
 
-![img](https://oss.javasec.org/images/image-20201112113542471.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201112113542471.png)
 
 访问`Web Service`的`FileService`服务加上`?wsdl`参数可以看到`FileService`提供的服务方法和具体的参数信息。
 
-![img](https://oss.javasec.org/images/image-20201112113717152.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201112113717152.png)
 
 使用SOAP-UI调用`Web Service`接口示例：
 
-![img](https://oss.javasec.org/images/24.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/24.png)
 
 需要注意的是`Web Service`也是可以设置授权认证的,如实现了`WS-Security`的`WSS4J`。
 
-![img](https://oss.javasec.org/images/29.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/29.png)
 
 使用IDEA根据wsdl生成`Web Service`客户端代码：
 
-![img](https://oss.javasec.org/images/image-20201112114841669.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201112114841669.png)
 
 设置wsdl地址、包名:
 
-![img](https://oss.javasec.org/images/image-20201112114951164.png)
+![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201112114951164.png)
 
 新建`FileServiceTest`类测试接口调用:
 

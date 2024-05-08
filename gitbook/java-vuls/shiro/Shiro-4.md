@@ -27,7 +27,7 @@
 
 由此可见，Shiro 匹配的路径和 Spring 匹配的路径相差了一个字符 "."，将造成绕过。此时依旧借助单个 "*" 的通配符以及 `PathVariable` 注解 String 类型的参数的场景触发漏洞。
 
-![](https://oss.javasec.org/images/1643104107679.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643104107679.png)
 
 
 可以使用的 payload 包括：
@@ -44,15 +44,15 @@ Shiro 在 [Commit-6acaaee](https://github.com/apache/shiro/commit/6acaaee9bb3a27
 
 在本次修复中可以看到，Shiro 的思路再次转变，不再按照 Spring 和 Tomcat 改自己的处理代码，也不再给自己加代码来适配 Spring，而是创建了 UrlPathHelper 的子类 ShiroUrlPathHelper，并重写了 `getPathWithinApplication` 和 `getPathWithinServletMapping` 两个方法，全部使用 Shiro 自己的逻辑 `WebUtils#getPathWithinApplication` 进行返回。 
 
-![](https://oss.javasec.org/images/1643097638169.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643097638169.png)
 
 在之前的分析中我们知道，Spring 与 Shiro 处理逻辑之间的差异就在这个位置，而现在 Shiro 直接把代码逻辑重写，通过注入自己的代码来修改 Spring 的相关逻辑，用来保证二者没有差异。究竟是怎么注入的呢？在配置类中 import 了 `ShiroRequestMappingConfig` 类。
 
-![](https://oss.javasec.org/images/1643097999114.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643097999114.png)
 
 `ShiroRequestMappingConfig` 类会向 `RequestMappingHandlerMapping#urlPathHelper` 设置为 `ShiroUrlPathHelper`。
 
-![](https://oss.javasec.org/images/1643098610269.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643098610269.png)
 
 设置后，Spring 匹配 handler 时获取路径的逻辑就会使用 Shiro 提供的逻辑，保持了二者逻辑的一致。从而避免了绕过的情况。
 
@@ -70,11 +70,11 @@ Shiro 在 [Commit-6acaaee](https://github.com/apache/shiro/commit/6acaaee9bb3a27
 
 这个修复在当时来看，如果配置正确，防御能力是 OK 的，整个思路都没问题，但是随着 Spring 自身代码的迭代，却又将安全问题暴露了出来。在高版本的 Spring 中，由于 `alwaysUseFullPath` 默认为 true ，导致应用程序使用 `UrlPathHelper.defaultInstance` 来处理，而不是 Shiro 实现的 `ShiroUrlPathHelper` 来处理。
 
-![](https://oss.javasec.org/images/1643096936792.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643096936792.png)
 
 这样就导致这个修复补丁又被完美的绕过了。
 
-![](https://oss.javasec.org/images/1643097189106.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643097189106.png)
 
 
 # CVE-2020-17523
@@ -99,19 +99,19 @@ Shiro 在 [Commit-6acaaee](https://github.com/apache/shiro/commit/6acaaee9bb3a27
 
 之前讲过，在匹配访问路径与配置鉴权路径时，在 `AntPathMatcher#doMatch` 方法中，首先会调用 `org.apache.shiro.util.StringUtils#tokenizeToStringArray` 方法将 pattern 以及 path 处理成 String 数组，再进行比对。
 
-![](https://oss.javasec.org/images/1643108121514.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643108121514.png)
 
 这个方法会继续调用有四个参数的重写方法，并且后两个参数的值均为 true。其实这部分也是抄的 spring 的代码。
 
-![](https://oss.javasec.org/images/1643108220835.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643108220835.png)
 
 可以看到后两个布尔类型参数的意义是对 StringTokenizer 结果的处理的标志 flag，代表是否对 token 进行 trim 操作，以及是否忽略空的 token。
 
-![](https://oss.javasec.org/images/1643108468671.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643108468671.png)
 
 因此，在被 `WebUtils#getPathWithinApplication`  方法处理过的 URI，再与配置路径匹配时，又会处理空格。
 
-![](https://oss.javasec.org/images/1643108941676.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643108941676.png)
 
 因此对于 "/audit/%20" 这种访问，可以理解为会被 shiro 处理成 "/audit/" 这种格式去匹配。
 
@@ -119,11 +119,11 @@ Shiro 在 [Commit-6acaaee](https://github.com/apache/shiro/commit/6acaaee9bb3a27
 
 依旧是依赖单个 "*" 的通配符以及 `PathVariable` 注解 String 类型的参数的场景触发漏洞。复现如下，`%20` 随便加。 
 
-![](https://oss.javasec.org/images/1643109660920.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643109660920.png)
 
 由于之前的安全修复，URL 中的非 ASCII 字符会被 filter 干掉，因此，我 FUZZ 了
  %00-ff  的全部字符，发现只有 %20 能用。
-![](https://oss.javasec.org/images/1643167384780.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643167384780.png)
 
 
 ## 漏洞修复
@@ -132,19 +132,19 @@ Shiro 在  [Commit-ab1ea4a](https://github.com/apache/shiro/commit/ab1ea4a2006f6
 
 可以看到是指定了 `StringUtils#tokenizeToStringArray` 方法的第三个参数 trimTokens 为 false，也就是说不再去除空格，从而消除了本次漏洞的影响。
 
-![](https://oss.javasec.org/images/1643108044903.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643108044903.png)
 
 其实即使不报安全漏洞， shiro 也应该修复这个逻辑，因为 spring 本身可以支持以空格作为 RequestMapping。
 
-![](https://oss.javasec.org/images/1643111008009.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643111008009.png)
 
 而 shiro 对其处理逻辑则有问题，配置后访问将不生效。
 
-![](https://oss.javasec.org/images/1643111002243.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643111002243.png)
 
 如下：
 
-![](https://oss.javasec.org/images/1643110977704.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643110977704.png)
 
 
 # CVE-2021-41303
@@ -167,17 +167,17 @@ Shiro 在  [Commit-ab1ea4a](https://github.com/apache/shiro/commit/ab1ea4a2006f6
 
 第一是匹配路径的方法 `PathMatchingFilter#pathsMatch`，在曾经 SHIRO-682 的更新中针对这个方法进行了修改，为了兼容 Spring 对访问路径最后一个 "/" 的支持。
 
-![](https://oss.javasec.org/images/1643172673662.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643172673662.png)
 
 在本次版本更新中，添加了一层判断逻辑，即先使用原始请求判断，如果没有匹配成功，再使用去掉 "/" 的路径尝试匹配。
 
 第二是在 `PathMatchingFilterChainResolver` 中新增了一个 `removeTrailingSlash` 方法，用来去除请求路径中的最后的 "/"。
 
-![](https://oss.javasec.org/images/1643174895873.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643174895873.png)
 
 并在 `getChain` 方法中更改逻辑，依旧是先使用原来的请求匹配，匹配不到再使用去除请求路径之后的 "/" 来匹配。 
 
-![](https://oss.javasec.org/images/1643174983680.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643174983680.png)
 
 原本的逻辑是，拿到 URI ，直接判断最后是不是 “/”，如果是直接去掉，然后匹配和处理，但改过之后，直接拿过来匹配，如果没匹配到，再尝试去掉 “/” 在匹配，这种情况下，对于带 “/” 的请求将会匹配两次。
 
@@ -213,15 +213,15 @@ public class AuditController {
 
 此时访问 "/audit/aaa" 正常：
 
-![](https://oss.javasec.org/images/1643179339365.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643179339365.png)
 
 但是访问 "/audit/aaa/" 报错：
 
-![](https://oss.javasec.org/images/1643179406759.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643179406759.png)
 
 原因就是，shiro 会用处理过的用户请求路径去配置文件里找对应的路径，自然找不到就抛异常的。
 
-![](https://oss.javasec.org/images/1643179722258.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643179722258.png)
 
 那这个 BUG 是如何延伸成为漏洞的呢？不难想到，如果 shiro 在配置文件中找到了这个路径，那逻辑就正常了。我们再来配置一下场景，现在改为如下配置：
 
@@ -232,14 +232,14 @@ chainDefinition.addPathDefinition("/audit/list", "anon");
 
 现在的逻辑是，配置了 `/audit/*` 需要认证，而 `/audit/list` 不需要认证，注意配置的顺序，正常逻辑下，对于 `/audit/list` 对应的路径，是需要鉴权的，因为他会被 `/audit/*` 匹配到，但是 `/audit/*` 不能匹配 `/audit/list/`，会去掉 "/" 进行匹配，能匹配到，且在后续的逻辑中也可以找到对应的路径，就可以绕过鉴权。
 
-![](https://oss.javasec.org/images/1643181257015.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643181257015.png)
 
 
 ## 漏洞修复
 
 Shiro 在 [Commit-4a20bf0](https://github.com/apache/shiro/commit/4a20bf0e995909d8fda58f9c0485ea9eb2d43f0e)  中修复了此问题。可以看到修改后正确的传入了 pathPattern。
 
-![](https://oss.javasec.org/images/1643176045349.png)
+![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643176045349.png)
 
 
 ## 思考
