@@ -504,7 +504,7 @@ public class TestServlet extends HttpServlet {
 
 浏览器请求[http://localhost:8080/TestServlet/](http://localhost:8080/TestServlet/):
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200910201502285.png)
+![img](https://oss.javasec.org/images/image-20200910201502285.png)
 
 **CMDServlet示例代码：**
 
@@ -544,14 +544,14 @@ public class CMDServlet extends HttpServlet {
 
 浏览器请求[http://localhost:8080/CMD/?cmd=whoami](http://localhost:8080/CMD/?cmd=whoami):
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200910201725672.png)
+![img](https://oss.javasec.org/images/image-20200910201725672.png)
 
 使用`curl`发送POST请求:`curl -i localhost:8080/CMD/ -d "cmd=pwd"`，服务器可以正常接收POST参数，处理结果如图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200910203406943.png)
+![img](https://oss.javasec.org/images/image-20200910203406943.png)
 
 **请求一个错误服务：**
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200910203858328.png)
+![img](https://oss.javasec.org/images/image-20200910203858328.png)
 
 至此，我们已经实现了一个非常初级的`Servlet容器`了。

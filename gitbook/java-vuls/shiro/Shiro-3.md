@@ -22,23 +22,23 @@
 
 接下来简单复现一下，如下图配置请求路径 "/admin/list" 需要认证和授权。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642061487808.png)
+![](https://oss.javasec.org/images/1642061487808.png)
 
 正常访问会提示跳转到登陆页面。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642062990920.png)
+![](https://oss.javasec.org/images/1642062990920.png)
 
 此时在请求路径后添加 "/"，即 "/admin/list/"，即可绕过权限校验
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642063221748.png)
+![](https://oss.javasec.org/images/1642063221748.png)
 
 这个漏洞的原理在前面 Issues 的描述中已经说的很明白了，其实就是 spring 在分发请求时，会从 `DispatcherServlet#handlerMappings` 找到能匹配路径的 Handler，会遍历匹配路径，负责匹配的 `PathPattern#match` 方法对 "/admin/list/" 和 "/admin/list" 的匹配会返回 true。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642069355239.png)
+![](https://oss.javasec.org/images/1642069355239.png)
 
 而 shiro 用来匹配的 `PathMatchingFilterChainResolver#pathMatches` 则会返回 false。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642070527036.png)
+![](https://oss.javasec.org/images/1642070527036.png)
 
 这一差异导致了校验的绕过。
 
@@ -48,24 +48,24 @@
 
 还是先来复现一下，直接扔截图。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642082062877.png)
+![](https://oss.javasec.org/images/1642082062877.png)
 
 很显然，绕过的原理就是访问 `/aaaadawdadaws;/..;wdadwadadw/;awdwadwa/audit/list` 这个请求的时候会被 shiro 和 spring 解析成不同的结果。
 
 先来看下 shiro，之前提到过，shiro 会用自己处理过的 RequestURI 和配置的路径进行匹配，具体的方法就是 `WebUtils#getRequestUri`，方法先调用 `decodeAndCleanUriString` 方法处理请求路径，再调用 normalize 方法标准化路径。`decodeAndCleanUriString` 方法逻辑如下，可以看到，对 URL 中存在 ";" 的处理是直接截断后面的内容。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642077803111.png)
+![](https://oss.javasec.org/images/1642077803111.png)
 
 那 Spring 是怎么处理的呢？方法是 `UrlPathHelper#decodeAndCleanUriString` ，方法名也叫 `decodeAndCleanUriString`，你说巧不巧？其实一点也不巧，这分明就是 shiro 抄 spring 的作业。
 
 方法里一次执行了 3 个动作：removeSemicolonContent 移除分号，decodeRequestString 解码，getSanitizedPath 清理路径，具体描述如下图：
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642083274083.png)
+![](https://oss.javasec.org/images/1642083274083.png)
 
 
 其中出现差异的点就在于 `UrlPathHelper#removeSemicolonContent` ，逻辑如下图：
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642077812198.png)
+![](https://oss.javasec.org/images/1642077812198.png)
 
 可以看到，spring 处理了每个 / / 之间的分号，均把 ";" 及之后的内容截取掉了。所以当请求 `/aaaadawdadaws;/..;wdadwadadw/;awdwadwa/audit/list` 进入到 `UrlPathHelper#decodeAndCleanUriString` 方法时，会逐渐被处理：
 - removeSemicolonContent："/aaaadawdadaws/..//audit/list"
@@ -76,7 +76,7 @@
 
 这种思路是哪里来的呢？其实又是抄了 Tomcat 的处理思想，处理逻辑位于 `org.apache.catalina.connector.CoyoteAdapter#parsePathParameters` 如下图
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642087561486.png)
+![](https://oss.javasec.org/images/1642087561486.png)
 
 也就说，在 Tomcat 的实现下，对于访问 URL 为 "/aaaadawdadaws;/..;wdadwadadw/;awdwadwa/audit/list"  的请求，使用 `request.getServletPath()` 就会返回 "/audit/list"。
 
@@ -89,7 +89,7 @@ http://127.0.0.1:8080/123;/..;345/;../.;/su18/..;/;/;///////;/;/;awdwadwa/audit/
 ```
 依然可以绕过校验：
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642088051819.png)
+![](https://oss.javasec.org/images/1642088051819.png)
 
 经测试，上面这个 payload 只能在较低版本的 Spring Boot 上使用。为什么呢？直接引用
  Ruil1n 师傅的[原文](http://rui0.cn/archives/1643):
@@ -109,19 +109,19 @@ http://127.0.0.1:8080/audit//;aaaa/;...///////;/;/;awdwadwa/list
 
 首先是针对  [SHIRO-682](https://issues.apache.org/jira/browse/SHIRO-682) 的修复，共提交了两次，第一次为 [Commit-589f10d](https://github.com/apache/shiro/commit/589f10d40414a815dbcaf1f1500a51f41258ef70) ，如下图，可以看到是在 `PathMatchingFilter#pathsMatch` 方法中添加了对访问路径后缀为 "/" 的支持。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642063615932.png)
+![](https://oss.javasec.org/images/1642063615932.png)
 
 同时在 `PathMatchingFilterChainResolver#getChain` 也添加了同样的逻辑。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642063507064.png)
+![](https://oss.javasec.org/images/1642063507064.png)
 
 第二次是 [Commit-9762f97](https://github.com/apache/shiro/commit/9762f97926ba99ac0d958e088cae3be8b657948d)，是修复由于上一次提交，导致访问路径为 "/" 时抛出的异常。可以看到除了 `endsWith` 还添加了 `equals` 的判断。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642089975752.png)
+![](https://oss.javasec.org/images/1642089975752.png)
 
 然后是对使用 ";" 绕过的修复 [Commit-3708d79](https://github.com/apache/shiro/commit/3708d7907016bf2fa12691dff6ff0def1249b8ce)， 可以看到 shiro 不再使用 `request.getRequestURI()` 来获取用户妖魔鬼怪的请求路径，而是使用 `request.getContextPath()`、`request.getServletPath()`、`request.getPathInfo()` 进行拼接，直接获取中间件处理后的内容。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642063523718.png)
+![](https://oss.javasec.org/images/1642063523718.png)
 
 
 # CVE-2020-11989
@@ -162,44 +162,44 @@ Shiro 对于 Ant 风格路径表达式解析的支持位于 `AntPathMatcher#doMa
 
 首先判断配置的表达式 pattern 和访问路径 path 起始是否均为 `/` 或均不是，如果不同则直接返回 false。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642996128791.png)
+![](https://oss.javasec.org/images/1642996128791.png)
 
 然后将 pattern 和 path 均切分为 String 类型的数组。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642996235532.png)
+![](https://oss.javasec.org/images/1642996235532.png)
 
 然后开始循环判断 pattern 和 path 对应位置的配置和路径是否有匹配，判断使用 `AntPathMatcher#matchStrings` 方法。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642996454160.png)
+![](https://oss.javasec.org/images/1642996454160.png)
 
 `AntPathMatcher#matchStrings` 方法又把字符拆分成 char 数组，来进行匹配尝试，并支持 `*` 以及 `?` 类型的通配符的匹配。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1642996917256.png)
+![](https://oss.javasec.org/images/1642996917256.png)
 
 本次漏洞涉及到的配置则是使用 `*` 配置。再再次重温一下 shiro 的处理逻辑：
 
 `WebUtils#getRequestUri` 方法使用 `request.getContextPath()/request.getServletPath()/request.getPathInfo()` 获取用户请求路径，然后调用 `decodeAndCleanUriString` 方法解码并取出 `;` 之后的内容，然后调用 normalize 标准化路径。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643002359360.png)
+![](https://oss.javasec.org/images/1643002359360.png)
 
 `decodeAndCleanUriString` 方法逻辑之前贴过，这里再贴一次。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643002184283.png)
+![](https://oss.javasec.org/images/1643002184283.png)
 
 而漏洞就出在此逻辑处，各位看官集中注意力，我来描述一下：
 - 以前的 shiro 使用 `request.getRequestURI()` 获取用户请求路径，并自行处理，此时 shiro 默认Servlet 容器（中间件）不会对路径进行 URL 解码操作，通过其注释可以看到；
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643003287277.png)
+![](https://oss.javasec.org/images/1643003287277.png)
 - 在 1.5.2 版本的 shiro 更新中，为了修复 CVE-2020-1957 ，将  `request.getRequestURI()`  置换为了 `valueOrEmpty(request.getContextPath()) + "/" + valueOrEmpty(request.getServletPath()) + valueOrEmpty(request.getPathInfo());`，而对于 `request.getContextPath()`  以及 `request.getPathInfo()`，以 Tomcat 为例的中间件是会对其进行 URL 解码操作的，此时 shiro 再进行 `decodeAndCleanUriString`，就相当于进行了两次的  URL 解码，而与之后的 Spring 的相关处理产生了差异。
 
 这其中细节，可以查看 mi1k7ea 师傅发表在先知上的[文章](https://xz.aliyun.com/t/7544)，我这里截取其中的一小段。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643003877308.png)
+![](https://oss.javasec.org/images/1643003877308.png)
 
 至此已经发现了 shiro 中的路径处理差异问题，由于 shiro 会二次解码路径，因此 `%25%32%66` 将会被 shiro 解码为 `/`，而如果只解码一次， `%25%32%66` 只会被处理成 `%2f`。
 
 此时如果使用了单个 "\*" 的通配符，将产生差异化问题，例如如下配置，配置了 `/audit/*`：
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643004321211.png)
+![](https://oss.javasec.org/images/1643004321211.png)
 
 此时访问 `/audit/list`，`/audit/aaa` 之类的请求，都会被 shiro 拦截，需要进行权限校验。
 
@@ -207,15 +207,15 @@ Shiro 对于 Ant 风格路径表达式解析的支持位于 `AntPathMatcher#doMa
 
 找到了差异点，接下来就要找场景了，Ruil1n 师傅找到了当 Spring 在参数中使用 `PathVariable` 注解从 RequestMapping 中的占位符中取数据的场景，可以满足上面的情况，如下图：
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643007755058.png)
+![](https://oss.javasec.org/images/1643007755058.png)
 
 漏洞复现如下，正常访问：`/audit/aaaa` 会跳转至登录页面：
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643009508411.png)
+![](https://oss.javasec.org/images/1643009508411.png)
 
 使用 `%25%32%66` 绕过，可以发现绕过：
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643009611555.png)
+![](https://oss.javasec.org/images/1643009611555.png)
 
 这里还有一个限制，由 PathVariable 注解的参数只能是 String 类型，如果是其他类型的参数，将会由于类型不匹配而无法找到对应的处理方法。
 
@@ -231,7 +231,7 @@ Shiro 对于 Ant 风格路径表达式解析的支持位于 `AntPathMatcher#doMa
 
 淚笑提供了他的[漏洞环境](https://github.com/l3yx/springboot-shiro)。复现如下：
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643016729873.png)
+![](https://oss.javasec.org/images/1643016729873.png)
 
 同样，上面这个 payload 只能在较低版本的 Spring Boot 上使用，原因与之前提到过的一致。
 
@@ -241,15 +241,15 @@ Shiro 在 [Commit-01887f6](https://github.com/apache/shiro/commit/01887f645f92d2
 
 首先 shiro 回退了 `WebUtils#getRequestUri` 的代码，并将其标记为 `@Deprecated`。并建议使用 `getPathWithinApplication()` 方法获取路径减去上下文路径，或直接调用 `HttpServletRequest.getRequestURI()` 方法获取。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643018792706.png)
+![](https://oss.javasec.org/images/1643018792706.png)
 
 其次是在 `WebUtils#getPathWithinApplication` 方法，修改了使用 RequestUri 去除 ContextPath 的减法思路，改为使用 servletPath + pathInfo 的加法思路。加法过后使用 `removeSemicolon` 方法处理分号，`normalize` 方法标准化路径。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643019122710.png)
+![](https://oss.javasec.org/images/1643019122710.png)
 
 `getServletPath` 和 `getPathInfo` 方法逻辑如下：
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643019260964.png)
+![](https://oss.javasec.org/images/1643019260964.png)
 
 更新后，shiro 不再处理 contextPath，不会导致绕过，同时也避免了二次 URL 解码的问题。
 
@@ -288,7 +288,7 @@ Shiro 在 [Commit-01887f6](https://github.com/apache/shiro/commit/01887f645f92d2
 
 漏洞复现如下：
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643036234269.png)
+![](https://oss.javasec.org/images/1643036234269.png)
 
 
 ## 漏洞修复
@@ -302,14 +302,14 @@ Shiro 创建了一个 global 的 filter：`InvalidRequestFilter`，这个类继�
 
 这个类是根据 spring-security 中的 [StrictHttpFirewall](https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/web/firewall/StrictHttpFirewall.html) 类编写而来。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643077038950.png)
+![](https://oss.javasec.org/images/1643077038950.png)
 
 其中关键的 `isAccessAllowed` 方法会进行逐个校验。
 
 shiro 将 `InvalidRequestFilter` 配置在 Global Filter 中。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643078412941.png)
+![](https://oss.javasec.org/images/1643078412941.png)
 
 并使其默认匹配 "/**"，使其可以全局匹配进行过滤校验。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/1643079290890.png)
+![](https://oss.javasec.org/images/1643079290890.png)

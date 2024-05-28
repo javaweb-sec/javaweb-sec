@@ -18,13 +18,13 @@ RASP防御的核心就是在Web应用程序执行关键的Java API之前插入�
 
 **示例 - Web攻击原理：**
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201115214755444.png)
+![img](https://oss.javasec.org/images/image-20201115214755444.png)
 
 当Web应用接入RASP防御后，RASP会在Java语言底层重要的API（如：文件读写、命令执行等API）中设置防御点（API Hook方式），攻击者一旦发送Web攻击请求就会被RASP监控并拦截，从而有效的防御Web攻击。
 
 **示例 - RASP防御原理：**
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201104172033466.png)
+![img](https://oss.javasec.org/images/image-20201104172033466.png)
 
 
 
@@ -38,6 +38,6 @@ RASP的防御能力是基于“行为实现”的，RASP会根据Hook点触发�
 
 **RASP Agent架构图：**
 
-![image-20201121235014247](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201121235014247.png)
+![image-20201121235014247](https://oss.javasec.org/images/image-20201121235014247.png)
 
 Agent机制和Hook机制是RASP实现防御的必要条件，RASP会使用Hook机制防御容易被攻击的Java类（如：Java SE、Web应用），当被防御的类方法被调用时会自动触发RASP的防御代码。

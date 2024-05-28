@@ -4,7 +4,7 @@
 
 **RMI架构：**
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/java-rmi.jpg)
+![img](https://oss.javasec.org/images/java-rmi.jpg)
 
 `RMI`底层通讯采用了`Stub(运行在客户端)`和`Skeleton(运行在服务端)`机制，`RMI`调用远程方法的大致如下：
 
@@ -385,13 +385,13 @@ public class RMIExploit {
 
 **RMI客户端端`bind`序列化：**
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191231154833818.png)
+![img](https://oss.javasec.org/images/image-20191231154833818.png)
 
 上图可以看到我们构建的恶意`Remote对象`会通过`RemoteCall`序列化然后通过`RemoteRef`发送到远程的`RMI服务端`。
 
 **RMI服务端`bind`反序列化：**
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191231155509069.png)
+![img](https://oss.javasec.org/images/image-20191231155509069.png)
 
 具体的实现代码在：`sun.rmi.registry.RegistryImpl_Skel`类的`dispatch`方法，其中的`$param_Remote_2`就是我们`RMIExploit`传入的恶意`Remote`的序列化对象。
 

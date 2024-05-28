@@ -2,7 +2,7 @@
 
 实现一个简单的Web服务器非常容易，使用`ServerSocket`在服务器端监听端口并等待浏览器请求，一旦接收到浏览器数据后就开始解析Http协议，最后将服务器端请求处理完后通过`Socket`返回给浏览器即可。
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200909171226930.png)
+![img](https://oss.javasec.org/images/image-20200909171226930.png)
 
 V1版本，我们先实现一个简单的读取服务器静态文件的功能，在后续版逐渐完善。
 
@@ -111,10 +111,10 @@ public class BinCatServerV1 {
 
 浏览器请求[localhost:8080](http://localhost:8080)即可在浏览器中输出当前请求的文件是否存在:
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200909172152042.png)
+![img](https://oss.javasec.org/images/image-20200909172152042.png)
 
 请求一个不存在的文件地址，浏览器将会输出错误信息，如请求[localhost:8080/test](http://localhost:8080/test)：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200909213525425.png)
+![img](https://oss.javasec.org/images/image-20200909213525425.png)
 
 从上图中我们可以看到响应的状态码和body都能够正确的被浏览器解析。

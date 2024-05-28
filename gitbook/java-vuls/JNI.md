@@ -192,4 +192,4 @@ Java语言是基于C语言实现的，Java底层的很多API都是通过`JNI(Jav
 
 访问：[http://localhost:8000/modules/jni/loadlibrary.jsp?cmd=ls](http://localhost:8000/modules/jni/loadlibrary.jsp?cmd=ls)，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920234706459.png)
+![img](https://oss.javasec.org/images/image-20200920234706459.png)

@@ -43,7 +43,7 @@
 
 攻击者通过传入恶意的`name`参数可以读取服务器中的任意文件:[http://localhost:8000/modules/filesystem/FileInputStream.jsp?name=./index.jsp](http://localhost:8000/modules/filesystem/FileInputStream.jsp?name=./index.jsp)，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920222742568.png)
+![img](https://oss.javasec.org/images/image-20200920222742568.png)
 
 
 
@@ -51,7 +51,7 @@
 
 当攻击者通过传入恶意的`name`参数值为`WEB-INF/web.xml`时可以读取Web应用的配置信息，请求：[http://localhost:8000/modules/filesystem/FileInputStream.jsp?name=WEB-INF/web.xml](http://localhost:8000/modules/filesystem/FileInputStream.jsp?name=WEB-INF/web.xml)，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920223143227.png)
+![img](https://oss.javasec.org/images/image-20200920223143227.png)
 
 
 
@@ -61,7 +61,7 @@
 
 请求：[http://localhost:8000/modules/filesystem/FileInputStream.jsp?name=../../../../../../../../../../../../etc/passwd](http://localhost:8000/modules/filesystem/FileInputStream.jsp?name=../../../../../../../../../../../../etc/passwd)，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920223741823.png)
+![img](https://oss.javasec.org/images/image-20200920223741823.png)
 
 
 
@@ -93,7 +93,7 @@
 
 请求：[http://localhost:8000/modules/filesystem/file-w.jsp?f=../../a.rar&c=aaa](http://localhost:8000/modules/filesystem/file-w.jsp?f=../../a.rar&c=aaa)，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920224145502.png)
+![img](https://oss.javasec.org/images/image-20200920224145502.png)
 
 
 
@@ -101,7 +101,7 @@
 
 攻击者通过传入恶意的参数`f`和`c`参数可以使用绝对路径在服务器上写入恶意的`WebShell`后门或其他文件，请求：[http://localhost:8000/modules/filesystem/file-w.jsp?f=/tmp/2.txt&c=webshell](http://localhost:8000/modules/filesystem/file-w.jsp?f=/tmp/2.txt&c=webshell)，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920224445145.png)
+![img](https://oss.javasec.org/images/image-20200920224445145.png)
 
 
 
@@ -122,7 +122,7 @@
 
 攻击者通过参入`file`参数即可删除服务器中的任意文件：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920224910717.png)
+![img](https://oss.javasec.org/images/image-20200920224910717.png)
 
 
 
@@ -150,7 +150,7 @@
 
 攻击者通过参入`file`参数即可删除服务器中的任意文件：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920225130413.png)
+![img](https://oss.javasec.org/images/image-20200920225130413.png)
 
 攻击者通过反射调用 Filesystem 并执行` delete`方法，用来绕过对 File 对象 `delete`方法的防御。
 
@@ -181,11 +181,11 @@
 
 攻击者传入恶意的`source`和`dest`参数可以实现复制任何文件到任意的目录，比如攻击者可以在用户中心上传一张内容为`WebShell`恶意代码的`1.jpg`图片文件，然后通过漏洞将`1.jpg`图片文件，复制到同级目录并更新名称为`1.jsp`的可解析脚本文件，访问`1.jsp`文件即可实现控制服务器的目的，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920225531504.png)
+![img](https://oss.javasec.org/images/image-20200920225531504.png)
 
 在实际环境中，应用系统可能根据需求在配置文件如`web.xml`中或代码层面如`filter`设置某些目录（如上传目录、资源目录等）禁止对 `.jsp` 脚本文件等可执行文件进行解析，因此，攻击者需要将恶意文件移动或复制到其他能够执行的目录进行解析。请求：[http://localhost:8000/modules/filesystem/files-copy.jsp?source=/tmp/1.jsp&dest=/Users/yz/Desktop/apache-tomcat-8.5.31/webapps/ROOT/1.jsp](http://localhost:8000/modules/filesystem/files-copy.jsp?source=/tmp/1.jsp&dest=/Users/yz/Desktop/apache-tomcat-8.5.31/webapps/ROOT/1.jsp)，如下图：
 
-![image-20200920225852244](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920225852244.png)
+![image-20200920225852244](https://oss.javasec.org/images/image-20200920225852244.png)
 
 
 
@@ -211,7 +211,7 @@
 
 攻击者传入恶意的`s`和`d`参数即可将文件名为`1.txt`的文本文件重命名为`1.jsp`可执行脚本文件，请求：[http://localhost:8000/modules/filesystem/file-rename.jsp?s=/tmp/1.txt&d=/tmp/1.jsp](http://localhost:8000/modules/filesystem/file-rename.jsp?s=/tmp/1.txt&d=/tmp/1.jsp)，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920230047497.png)
+![img](https://oss.javasec.org/images/image-20200920230047497.png)
 
 攻击者会使用重命名的方式将（txt、jpg等资源文件）重命名为可执行脚本文件（jsp）来获得`webshell`从而控制Web应用系统，并绕过某些安全防护机制。常见的攻击手段是在文件上传时，上传包含恶意代码的图片文件，再利用重命名将其转为可执行的脚本文件。
 
@@ -244,7 +244,7 @@
 
 攻击者传入`dir`参数即可遍历出对应目录的所有文件，[http://localhost:8000/modules/filesystem/file-list.jsp?dir=../](http://localhost:8000/modules/filesystem/file-list.jsp?dir=../)，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920230351094.png)
+![img](https://oss.javasec.org/images/image-20200920230351094.png)
 
 由于攻击者传入的`dir`参数值为相对路径，可能是多级目录名称，也可能只是一个非常简单的`../`上级目录，大部分的`WAF`并不能精准识别这类攻击。
 
@@ -254,7 +254,7 @@
 
 当攻击者可以传入绝对路径进行攻击时，路径中将不会存在`../`等穿越目录特征，很多WAF将无法攻击阻拦，请求：[http://localhost:8000/modules/filesystem/file-list.jsp?dir=/etc](http://localhost:8000/modules/filesystem/file-list.jsp?dir=/etc)，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920230839578.png)
+![img](https://oss.javasec.org/images/image-20200920230839578.png)
 
 ## 7. IO和NIO.2的文件系统支持
 
@@ -281,7 +281,7 @@
 
 攻击者传入恶意的`file`即可读取服务器中的任意文件：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920231108351.png)
+![img](https://oss.javasec.org/images/image-20200920231108351.png)
 
 
 
@@ -338,7 +338,7 @@
 
 请求遍历非系统限制的目录示例：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20191204185103785.png)
+![img](https://oss.javasec.org/images/image-20191204185103785.png)
 
 ### 8.2 RASP防御恶意文件访问攻击
 
@@ -366,15 +366,15 @@ RASP可以使用Agent机制实现Hook任意的Java类API，因此可以轻易的
 
 **Java IO 底层API关系图**
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201113121413510.png)
+![img](https://oss.javasec.org/images/image-20201113121413510.png)
 
 **RASP防御思路：**
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201112225033039.png)
+![img](https://oss.javasec.org/images/image-20201112225033039.png)
 
 当RASP检测到恶意的文件访问后会立即阻断文件读取：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201113223619874.png)
+![img](https://oss.javasec.org/images/image-20201113223619874.png)
 
 
 

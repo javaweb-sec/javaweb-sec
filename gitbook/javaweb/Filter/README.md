@@ -8,4 +8,4 @@ Filter是一个接口，实现一个Filter只需要重写`init`、`doFilter`、`
 
 **基于注解实现的Filter示例:**
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/18.png)
+![img](https://oss.javasec.org/images/18.png)

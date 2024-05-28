@@ -476,18 +476,18 @@ public class BinCatServerV4 {
 <?php phpinfo();?>
 ```
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200911163413630.png)
+![img](https://oss.javasec.org/images/image-20200911163413630.png)
 
 启动BinCat V4后访问[http://localhost:8080/info.php](http://localhost:8080/info.php):
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200911150900145.png)
+![img](https://oss.javasec.org/images/image-20200911150900145.png)
 
 复制一个最新版本的`Discuz`到`javaweb-sec`目录，尝试安装`Discuz`，访问：[http://localhost:8080/discuz/install/index.php](http://localhost:8080/discuz/install/index.php)
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200911150712040.png)
+![img](https://oss.javasec.org/images/image-20200911150712040.png)
 
 `Discuz`环境检测正常：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200911150754241.png)
+![img](https://oss.javasec.org/images/image-20200911150754241.png)
 
 测试`BinCat`的`PHP`解析功能正常，只是开始安装`Discuz`时无法下一步，无异常和错误卡了，无法完成安装。

@@ -4,7 +4,7 @@
 
 尽管我在写文章的时候已尽可能的避免出现错误或问题，但难免会有描述不清或者错误的地方，如果您在阅读文章的时候发现任何问题都可以通过微信或提`issue`与我们联系，也欢迎大家加入`javasec`微信群一起交流。
 
-[![微信](https://javasec.oss-cn-hongkong.aliyuncs.com/images/wechat.png)](https://javasec.oss-cn-hongkong.aliyuncs.com/images/wechat.jpg)
+[![微信](https://oss.javasec.org/images/wechat.png)](https://oss.javasec.org/images/wechat.jpg)
 
 @Author [安百科技](http://www.anbai.com/) [su18](https://su18.org/) [园长](http://yzmm.net/) [iiusky](http://www.03sec.com/)
 

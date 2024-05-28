@@ -36,7 +36,7 @@ Java源码就是未经编译的`.java`文件，我们可以很轻松的阅读其
 
 可根据javap命令控制输出信息，如：`javap -c -l TestHelloWorld.class`可显示类方法的字节码信息，如下图：
 
-![image-20201019180336096](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019180336096.png)
+![image-20201019180336096](https://oss.javasec.org/images/image-20201019180336096.png)
 
 如果想要获取到详细的类信息可使用`-v`参数。
 
@@ -46,19 +46,19 @@ Java源码就是未经编译的`.java`文件，我们可以很轻松的阅读其
 
 `JD-GUI`使用纯Java编写，使用的反编译实现是[jd-core](https://github.com/java-decompiler/jd-core)，支持`JDK 1.1.8 - Java 12`，支持`Lambda表达式`、`方法引用`、`默认方法`等特性，是一款非常简单易用的反编译工具。
 
-![image-20201019111635786](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019111635786.png)
+![image-20201019111635786](https://oss.javasec.org/images/image-20201019111635786.png)
 
 `JD-GUI`在反编译的时候还会主动关联`Maven`仓库，如果反编译的jar在maven仓库中存在会自动下载类源码，如下图：
 
-![image-20201019111844349](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019111844349.png)
+![image-20201019111844349](https://oss.javasec.org/images/image-20201019111844349.png)
 
 字符串搜索：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019142922249.png)
+![img](https://oss.javasec.org/images/image-20201019142922249.png)
 
 `JD-GUI`支持批量反编译，在菜单中点击`File`-->`Save All Sources`即可反编译整个jar文件，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019152122562.png)
+![img](https://oss.javasec.org/images/image-20201019152122562.png)
 
 
 
@@ -82,25 +82,25 @@ Github：https://github.com/java-decompiler/jd-gui
 
 `Recaf`默认使用的是反编译模式，可根据需求选择为Hex或者Table模式，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019140224424.png)
+![img](https://oss.javasec.org/images/image-20201019140224424.png)
 
 #### 反编译模式
 
 `Recaf`的默认编辑视图是反编译模式，如果使用的是JDK运行的`Recaf`，还可以直接编辑反编译后的class文件，如下图：
 
-![image-20201019113213048](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019113213048.png)
+![image-20201019113213048](https://oss.javasec.org/images/image-20201019113213048.png)
 
 #### Hex模式编辑
 
-![image-20201019135516449](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019135516449.png)
+![image-20201019135516449](https://oss.javasec.org/images/image-20201019135516449.png)
 
 #### Table模式/字节码编辑
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019135811893.png)
+![img](https://oss.javasec.org/images/image-20201019135811893.png)
 
 字节码编辑：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019135923429.png)
+![img](https://oss.javasec.org/images/image-20201019135923429.png)
 
 ### Java Agent/Attach模式
 
@@ -110,27 +110,27 @@ Github：https://github.com/java-decompiler/jd-gui
 
 在菜单栏中点击`注入`菜单，选择`Running process`可以看到本机所有运行的Java进程，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019142224784.png)
+![img](https://oss.javasec.org/images/image-20201019142224784.png)
 
 `attach`模式可附加`Recaf`到一个指定的JVM进程：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019140022294.png)
+![img](https://oss.javasec.org/images/image-20201019140022294.png)
 
 #### Agent模式
 
 [Agent模式](https://github.com/Col-E/Recaf/issues/31)需要在启动`Recaf`的时候指定`-javaagent:`参数，如下图，以`Agent模式`启动`Recaf`，启动完成后会弹出一个`Recaf Instrumentation`的窗体：
 
-![image-20201019142104679](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019142104679.png)
+![image-20201019142104679](https://oss.javasec.org/images/image-20201019142104679.png)
 
 ### 字符串搜索
 
 `Recaf`支持很多种搜索方式，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019143255436.png)
+![img](https://oss.javasec.org/images/image-20201019143255436.png)
 
 字符串搜索测试：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019143217542.png)
+![img](https://oss.javasec.org/images/image-20201019143217542.png)
 
 
 
@@ -168,7 +168,7 @@ java -jar /Users/yz/Desktop/javaweb-decomplier/javaweb-decomplier.jar -dgs=1 $(f
 
 执行上面的命令后会在`jcms-decomplier`目录下看到所有的jar已经被`Fernflower`反编译了。
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/4.2.png)
+![img](https://oss.javasec.org/images/4.2.png)
 
 依赖的jar: [javaweb-decomplier](https://github.com/javaweb-sec/javaweb-decomplier)、[Intellij java-decompiler](https://github.com/JetBrains/intellij-community/tree/master/plugins/java-decompiler/engine)。
 
@@ -182,14 +182,14 @@ Fernflower文档：https://the.bytecode.club/fernflower.txt
 
 `IDEA`自带的反编译工具`FernFlower`，在IDEA中可以直接打开class文件，默认将使用`FernFlower`反编译，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019143701601.png)
+![img](https://oss.javasec.org/images/image-20201019143701601.png)
 
 IDEA支持class文件名(`⇧⌘F`)、类方法名称(`⇧⌘O`)搜索。
 
 
 ## Bytecode Viewer
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019145310008.png)
+![img](https://oss.javasec.org/images/image-20201019145310008.png)
 
 `Bytecode Viewer`是一个基于`FernFlower`实现的轻量级，用户友好的Java字节码可视化工具，`Bytecode Viewer`具备了如下强大功能：
 
@@ -216,17 +216,17 @@ IDEA支持class文件名(`⇧⌘F`)、类方法名称(`⇧⌘O`)搜索。
 
 `Bytecode Viewer`提供了多种视图可供选择，在`View`菜单中可选择不同的视图或反编译引擎（默认使用的是反编译和字节码视图），当选择了`Editable`后可编辑反编译后的class文件，如下图：
 
-![image-20201019151037905](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019151037905.png)
+![image-20201019151037905](https://oss.javasec.org/images/image-20201019151037905.png)
 
 ### 代码搜索功能
 
 代码搜索功能支持字符串、正则表达式、调用方法和调用字段搜索，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019154032388.png)
+![img](https://oss.javasec.org/images/image-20201019154032388.png)
 
 ### 反编译安卓APK
 
-![image-20201019151742200](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019151742200.png)
+![image-20201019151742200](https://oss.javasec.org/images/image-20201019151742200.png)
 
 Github：https://github.com/Konloch/bytecode-viewer
 
@@ -240,7 +240,7 @@ Github：https://github.com/Konloch/bytecode-viewer
 
 反编译示例：`jad TestHelloWorld.class`
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019160840290.png)
+![img](https://oss.javasec.org/images/image-20201019160840290.png)
 
 `JAD`参数如下：
 
@@ -306,27 +306,27 @@ Jad accepts the following options:
 
 添加常量池对象：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019164255758.png)
+![img](https://oss.javasec.org/images/image-20201019164255758.png)
 
 ### 删除常量池对象
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019164424942.png)
+![img](https://oss.javasec.org/images/image-20201019164424942.png)
 
 ### 删除类成员变量
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019164800876.png)
+![img](https://oss.javasec.org/images/image-20201019164800876.png)
 
 ### 查看字节码
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019164619458.png)
+![img](https://oss.javasec.org/images/image-20201019164619458.png)
 
 ### 编辑字节码
 
-![image-20201019163143075](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019163143075.png)
+![image-20201019163143075](https://oss.javasec.org/images/image-20201019163143075.png)
 
 ### 删除类方法
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019164705299.png)
+![img](https://oss.javasec.org/images/image-20201019164705299.png)
 
 
 
@@ -336,7 +336,7 @@ Jad accepts the following options:
 
 `jclasslib`是一个有20年历史的java字节码浏览工具，可以非常方便的查看class的常量池、字节码等信息，非常适合学习解析class字节码。新版本的`jclasslib`支持中文，改用了`Kotlin`编写。
 
-![image-20201019163424897](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019163424897.png)
+![image-20201019163424897](https://oss.javasec.org/images/image-20201019163424897.png)
 
 Github：https://github.com/ingokegel/jclasslib
 
@@ -346,21 +346,21 @@ Github：https://github.com/ingokegel/jclasslib
 
 ## Cafebabe Lite
 
-![image-20201019171226961](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019171226961.png)
+![image-20201019171226961](https://oss.javasec.org/images/image-20201019171226961.png)
 
 `Cafebabe`是一个用户友好的Java字节码编辑器。
 
 ### 反编译
 
-![image-20201019170742769](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019170742769.png)
+![image-20201019170742769](https://oss.javasec.org/images/image-20201019170742769.png)
 
 ### 字节码编辑
 
-![image-20201019171439589](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019171439589.png)
+![image-20201019171439589](https://oss.javasec.org/images/image-20201019171439589.png)
 
 ### 字节码可视化
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019170935681.png)
+![img](https://oss.javasec.org/images/image-20201019170935681.png)
 
 **Cafebabe / JByteMod / other比较：**
 
@@ -403,23 +403,23 @@ Github：https://github.com/GraxCode/Cafebabe/
 
 ### 反编译
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019173646644.png)
+![img](https://oss.javasec.org/images/image-20201019173646644.png)
 
 ### 字节码编辑
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019173107619.png)
+![img](https://oss.javasec.org/images/image-20201019173107619.png)
 
 ### 字节码分析
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019174255460.png)
+![img](https://oss.javasec.org/images/image-20201019174255460.png)
 
 ### 方法信息编辑
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019173815788.png)
+![img](https://oss.javasec.org/images/image-20201019173815788.png)
 
 ### 方法添加/编辑
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201019173247265.png)
+![img](https://oss.javasec.org/images/image-20201019173247265.png)
 
 
 

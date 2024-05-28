@@ -13,7 +13,7 @@ Web服务器通过TCP连接与servlet容器进行通信。为了减少昂贵的�
 
 在Tomcat的`server.xml` 中默认配置了两种连接器：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200925172240547.png)
+![img](https://oss.javasec.org/images/image-20200925172240547.png)
 
 一种是使用的HTTP Connector，监听8080端口，还有一个AJP Connector，监听了8009端口。在Tomcat中这个协议的监听的一直都是默认开启的。
 
@@ -68,11 +68,11 @@ LoadModule proxy_ajp_module modules/mod_proxy_ajp.so
 
 正常启动Tomcat，把我们命令执行的 `test.jsp` 放在ROOT中，使用8080端口正常以HTTP协议直接访问项目：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200927182058312.png)
+![img](https://oss.javasec.org/images/image-20200927182058312.png)
 
 使用 apache 监听的 81 端口进行 AJP 协议转发也可以正常访问：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200927182041920.png)
+![img](https://oss.javasec.org/images/image-20200927182041920.png)
 
 
 
@@ -81,7 +81,7 @@ LoadModule proxy_ajp_module modules/mod_proxy_ajp.so
 
 在看AJP协议数据包处理之前，先来了解一下Tomcat处理一个请求的过程。大致如下流程：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201013113437489.png)
+![img](https://oss.javasec.org/images/image-20201013113437489.png)
 
 一次请求的处理可以划分为Connector及Container进行处理，经历的过程大致如下：
 
@@ -96,11 +96,11 @@ LoadModule proxy_ajp_module modules/mod_proxy_ajp.so
 
 这个接口里定义了一些重要的方法：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201013120233058.png)
+![img](https://oss.javasec.org/images/image-20201013120233058.png)
 
 这里主要还是针对于HTTP协议和AJP协议，抽象类`AbstractProcessorLight`及其子类` AbstractProcessor`还是对共有特性的封装。
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201013120649828.png)
+![img](https://oss.javasec.org/images/image-20201013120649828.png)
 
 ` AbstractProcessor`具有三个子类，`AjpProcessor` 用来处理AJP协议，`Http11Processor` 用来处理HTTP/1.1，`StreamProcessor`用来处理HTTP/2，我们先来看看针对平常使用的HTTP协议的处理。
 
@@ -108,27 +108,27 @@ LoadModule proxy_ajp_module modules/mod_proxy_ajp.so
 
 解析请求行和请求头部分：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201013150323668.png)
+![img](https://oss.javasec.org/images/image-20201013150323668.png)
 
 在Tomcat 8.5 之后，加入了判断是否需要HTTP协议升级：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201013145153619.png)
+![img](https://oss.javasec.org/images/image-20201013145153619.png)
 
 调用`prepareRequest()`，将相关信息放入`Http11InputBuffer`对象中
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201013150607226.png)
+![img](https://oss.javasec.org/images/image-20201013150607226.png)
 
 然后调用Adapter将请求交给Container处理：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201013145055762.png)
+![img](https://oss.javasec.org/images/image-20201013145055762.png)
 
 然后接下来是一些收尾工作。在了解了这个过程后，我们再来看一下 `AjpProcessor` 中`service()`方法，大体上是一致的流程，只是具体的细节不同，首先是一些解析数据包读取字节的操作，这里不是重点，暂且不提，然后也是调用 `prepareRequest()` 方法进行预处理：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201013155203542.png)
+![img](https://oss.javasec.org/images/image-20201013155203542.png)
 
 处理之后同样的调用Adapter将请求交给Container处理
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201014141337514.png)
+![img](https://oss.javasec.org/images/image-20201014141337514.png)
 
 而AJP协议的任意文件读取/任意文件包含漏洞，则出现在上面提到的 `prepareRequest()` 方法中。
 
@@ -140,7 +140,7 @@ LoadModule proxy_ajp_module modules/mod_proxy_ajp.so
 
 在`switch/case` 判断中,当`attributeCode=10` 时，将调用 `request.setAttribute` 方法存入。
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201013155520803.png)
+![img](https://oss.javasec.org/images/image-20201013155520803.png)
 
 所以在此攻击者拥有了可控的点，这个点该如何利用呢？
 
@@ -148,27 +148,27 @@ LoadModule proxy_ajp_module modules/mod_proxy_ajp.so
 
 在`$CATALINA_BASE/conf/web.xml` 中默认配置了如下内容：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201013165533770.png)
+![img](https://oss.javasec.org/images/image-20201013165533770.png)
 
 可以看到这是一个默认的Servlet，这个 `DefaultServlet` 服务于全部应用，当客户端请求不能匹配其他所有Servlet时，将由此Servlet处理，主要用来处理静态资源。使用 `serveResource()` 方法提供资源文件内容：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201013170955488.png)
+![img](https://oss.javasec.org/images/image-20201013170955488.png)
 
 会调用 `getRelativePath()` 方法获取请求资源路径：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201013171255971.png)
+![img](https://oss.javasec.org/images/image-20201013171255971.png)
 
 这个方法存在一个判断，如图中红框位置标出：如果 `request.getAttribute()` 中`javax.servlet.include.request_uri` 不为空，则会取 `javax.servlet.include.path_info` 和`javax.servlet.include.servlet_path` 的值，并进行路径拼接，返回路径结果。
 
 这个结果 path 会被带入到 `getResource()` 方法中返回结果，只要文件存在，即可读取其中内容。
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201013171943132.png)
+![img](https://oss.javasec.org/images/image-20201013171943132.png)
 
 由此可见，配合AJP协议中的缺陷，可以控制attribute中的内容，造成任意文件读取漏洞。
 
 但是需要注意的是，在读取资源文件的过程中，会调用`org.apache.tomcat.util.http.RequestUtil.normalize()` 方法来对路径的合法性进行校验，如果存在 `./` 或 `../` 则会返回 `null` ，在后续流程中会抛出一个非法路径的异常终止文件读取操作。
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201014110343428.png)
+![img](https://oss.javasec.org/images/image-20201014110343428.png)
 
 因此我们无法使用 `../` 跳出目录，只能读取Web应用目录下的文件。
 
@@ -178,15 +178,15 @@ LoadModule proxy_ajp_module modules/mod_proxy_ajp.so
 
 同样的在`$CATALINA_BASE/conf/web.xml` 中，对访问以 `.jsp/*.jspx` 后缀结尾的请求，调用 `JspServlet` 处理请求。
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201014101016408.png)
+![img](https://oss.javasec.org/images/image-20201014101016408.png)
 
 看一下重点的 `service()`，代码如下图，在attribute中含有如下 `javax.servlet.include.servlet_path`，`javax.servlet.include.path_info` 时，将会取出并拼接为文件路径 `jspUri`。
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201014102154103.png)
+![img](https://oss.javasec.org/images/image-20201014102154103.png)
 
 拼接成 `jspUri` 后，调用 `serviceJspFile()` ，将此文件解析为jsp文件并执行。
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201014104235407.png)
+![img](https://oss.javasec.org/images/image-20201014104235407.png)
 
 因此这就构成了一个文件包含漏洞。在文件内容可控的情况下，就可以延伸为任意代码执行漏洞，所以网上有的分析文章也出现了任意代码执行、任意命令执行漏洞的字眼。
 
@@ -216,11 +216,11 @@ javaweb-sec/javaweb-sec-source/javasec-test/javasec-tomcat-ajp
 
 如下图配置：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201014190817620.png)
+![img](https://oss.javasec.org/images/image-20201014190817620.png)
 
 可以看到成功返回了文件内容：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201014191218553.png)
+![img](https://oss.javasec.org/images/image-20201014191218553.png)
 
 
 
@@ -228,15 +228,15 @@ javaweb-sec/javaweb-sec-source/javasec-test/javasec-tomcat-ajp
 
 假设我们在web目录下具有可控的文件，比如我们上传了一个`aaa.jpg`，文件里是一个执行`whoami`命令并返回结果的jsp恶意文件。
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201014184822525.png)
+![img](https://oss.javasec.org/images/image-20201014184822525.png)
 
 这是我们需要控制的是访问的地址（target）是一个`.jsp`结尾的文件，并且 servlet_path、path_info 拼接起来是我们可控的文件路径。
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201014185022126.png)
+![img](https://oss.javasec.org/images/image-20201014185022126.png)
 
 运行返回结果，可以看到我们的 jpg 文件以 jsp 解析并执行成功：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201014190642641.png)
+![img](https://oss.javasec.org/images/image-20201014190642641.png)
 
 
 

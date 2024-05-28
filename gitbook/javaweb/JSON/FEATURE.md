@@ -89,7 +89,7 @@ static final long SPACE = (1L << ' ') | (1L << '\n') | (1L << '\r') | (1L << '\f
 
 除此之外，还有`\uFFFE`（编码为65534）和`\uFEFF`（编码为65279），这两个字符可以当做空白符（这两个特殊字符是用来表示UTF16中的BOM，`byte order mark` 字节序标记），如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20221213025856196.png)
+![img](https://oss.javasec.org/images/image-20221213025856196.png)
 
 在[UTF-16](https://zh.wikipedia.org/wiki/UTF-16)中，字节顺序标记被放置为文件或文字符串流的第一个字符，以标示在此文件或文字符串流中，以所有十六比特为单位的字码的端序（[字节顺序](https://zh.wikipedia.org/wiki/字节顺序)）。如果试图用错误的字节顺序来读取这个流，字节将被调换，从而产生字符`U+FFFE`，这个字符被Unicode定义为“非字符”，不应该出现在文本中。例如，值为`U+FFFE`的码位被保证将不会被指定成一个统一码字符。这意味着`0xFF`、`0xFE`将只能被解释成小端序中的`U+FEFF`（因为不可能是大端序中的`U+FFFE`）。
 
@@ -119,17 +119,17 @@ dsl-json使用的是boolean[256]来存储所有空白符，对应的是byte（-1
 
 **图 - dsl-json空白符取值范围：**
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20221213215124002.png)
+![img](https://oss.javasec.org/images/image-20221213215124002.png)
 
 由上图可知，dsl-json只是约束了部分的byte字符为空白符，看似并不存在任何问题，但是JSON必须是一个字符串，而字符串本质上是由char组成的，而char又是由byte数组编码而来的，而一个UTF-8字符是由多个字节组成的，因此当我们使用一个大于127的Unicode字符时会由多个字节所表示。
 
 比如：Unicode字符`က`（char，对应的编码为4096），`က`这个字符转换成byte后变成了3位的byte数组，即：`-31 -128 -128`，而dsl-json解析时会将byte位作为最小单元而不是char（char），而`-31`这个字节正好符合了第一个if判断，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20221213213614713.png)
+![img](https://oss.javasec.org/images/image-20221213213614713.png)
 
 显然，`wasWhiteSpace`这个方法的逻辑关系到是否会将`က`处理，因为目前只是处理了`-31`，后面的`-128 -128`因此需要进入该方法进一步的分析，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20221213234056064.png)
+![img](https://oss.javasec.org/images/image-20221213234056064.png)
 
 分析`-31`的处理逻辑后得知，后面的两个byte位必须是`-102和-128`（也就是编码为5760的字符）才能被当做是空白符，而`-31 -128 -128`并不符合这个条件，因此`က`并不能当做空白符使用。
 
@@ -214,11 +214,11 @@ fastjson1支持Unicode字符解析，使用的是将Unicode字符转换成整型
 
 **图 - com.alibaba.fastjson.parser.JSONLexerBase#scanString Unicode解码\u႐꘠31**
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20221220134727524.png)
+![img](https://oss.javasec.org/images/image-20221220134727524.png)
 
 `႐`、`꘠`对应的`4240`、`42528`经过`Integer#parseInt`转换后都是0，具体的转换逻辑在`java.lang.CharacterData00#digit`，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20221220143704326.png)
+![img](https://oss.javasec.org/images/image-20221220143704326.png)
 
 `3`、`1`对应的`51`、`49`会使用`java.lang.CharacterDataLatin1#digit`处理。
 
@@ -439,7 +439,7 @@ public static int charToHex(int ch) {
 
 将`൦（3430）`的`3430`转换成二进制：`110101100110`，然后将`0xFF`的`255`转换成二进制：`000011111111`，使用`&`，按位运算：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20221220153849136.png)
+![img](https://oss.javasec.org/images/image-20221220153849136.png)
 
 得到结果：`000001100110`，转换成十进制：`102`，然后在`sHexValues`中查看对应的值：`15`，然后再通过`(value << 4) | digit`为value赋值，因为value此时为`0`，因此`0 <<4`还是`0`，所以此时的value值为`0 | 15`也就是`15`。
 
@@ -527,7 +527,7 @@ public static int charToHex(int ch) {
 
 **图 - fastjson2转义字符解析：**
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20221219113708915.png)
+![img](https://oss.javasec.org/images/image-20221219113708915.png)
 
 
 

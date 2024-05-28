@@ -29,7 +29,7 @@
 
 攻击者通过向 `cmd` 参数传入恶意的代码即可在服务器上执行任意系统命令，请求：[http://localhost:8000/modules/cmd/cmd.jsp?cmd=ls](http://localhost:8000/modules/cmd/cmd.jsp?cmd=ls)，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920232032191.png)
+![img](https://oss.javasec.org/images/image-20200920232032191.png)
 
 由于传入的`cmd`参数仅仅是一个两位的英文字母，传统的WAF基本都不具备对该类型的攻击检测，所以如果没有RASP的本地命令执行防御会导致攻击者可以在服务器中执行恶意的命令从而控制服务器。
 
@@ -135,11 +135,11 @@
 
 Linux系统，请求：[http://localhost:8000/modules/cmd/linux-cmd.jsp?cmd=ls](http://localhost:8000/modules/cmd/linux-cmd.jsp?cmd=ls)，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920232507347.png)
+![img](https://oss.javasec.org/images/image-20200920232507347.png)
 
 Windows系统，请求：[http://localhost:8000/windows-cmd.jsp?cmd=cmd%20/c%20dir%20](http://localhost:8000/windows-cmd.jsp?cmd=cmd%20/c%20dir%20)，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20200920233748774.png)
+![img](https://oss.javasec.org/images/image-20200920233748774.png)
 
 
 
@@ -155,7 +155,7 @@ Windows系统，请求：[http://localhost:8000/windows-cmd.jsp?cmd=cmd%20/c%20d
 
 **示例 - Java本地命令执行API：**
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201115200801836.png)
+![img](https://oss.javasec.org/images/image-20201115200801836.png)
 
 使用RASP的Hook机制捕获当前正在执行的系统命令，不过不同的API获取执行的命令参数的方式不太一样。
 
@@ -212,5 +212,5 @@ public static class ProcessImplHook extends RASPMethodAdvice {
 
 **示例 - 禁止在HTTP请求时执行本地系统命令：**
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201115203039369.png)
+![img](https://oss.javasec.org/images/image-20201115203039369.png)
 

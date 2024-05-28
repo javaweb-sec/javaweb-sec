@@ -13,7 +13,7 @@
 
 这次实验的整体逻辑如果相比真正的IAST，肯定会有很多缺少的细节部分完善，所以仅仅适合用来学习了解被动IAST实现的大致流程，整体逻辑图如下:
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16394506343329.jpg)
+![](https://oss.javasec.org/images/16394506343329.jpg)
 
 
 
@@ -113,7 +113,7 @@ public class HttpClassVisitorHandler implements Handler {
 ```
 
 上面的代码将对所有实现**javax.servlet.Servlet#service**的方法进行了埋点处理(接口、抽象类除外)，真正编译到jvm中的类如下:
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393858968816.jpg)
+![](https://oss.javasec.org/images/16393858968816.jpg)
 可以看到，在对进入方法的时候调用了IAST中的方法`cn.org.javaweb.iast.core.Http#enterHttp`，在离开方法的时候，调用了`cn.org.javaweb.iast.core.Http#leaveHttp`
 其中`enterHttp`具体代码如下:
 ```java
@@ -230,7 +230,7 @@ public class SourceClassVisitorHandler implements Handler {
 
 ```
 其实以上代码的逻辑，只是简单的对于`getParameter`进行了埋点处理，让其调用IAST的处理逻辑，编译到JVM的Class内容如下：
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393858968837.jpg)
+![](https://oss.javasec.org/images/16393858968837.jpg)
 
 可以看到，在进入方法后调用了`cn.org.javaweb.iast.core.Source#enterSource`，具体内容如下
 ```java
@@ -254,7 +254,7 @@ public static void enterSource(Object[] argumentArray,
 其实就是对参数、类名、方法名、描述符等信息添加到了callChain中.
 在方法结束前获取了返回值，并且调用了`cn.org.javaweb.iast.core.Source#leaveSource`方法，将返回值传入了进去，那么在处理的时候，就将其结果放到了`callChain.returnObject`。
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393858968856.jpg)
+![](https://oss.javasec.org/images/16393858968856.jpg)
 
 ## 实现Propagator埋点
 传播点的选择是非常关键的，传播点规则覆盖的越广得到的传播链路就会更清晰。比如简单粗暴的对`String`、`Byte`等类进行埋点，因为中间调用这些类的太多了,所以可能导致一个就是结果堆栈太长，不好对调用链进行分析，但是对于传播点的选择，可以更精细化一些去做选择，比如`Base64`的`decode`、`encode`也可以作为传播点进行埋点，以及执行命令的`java.lang.Runtime#exec`也是可以作为传播点的，因为最终执行命令是最底层在不同系统封装的调用执行命令JNI方法的类，如`java.lang.UNIXProcess`等，所以将`java.lang.Runtime#exec`作为传播点也是一个选择。为了方便演示污点传播的效果，对`Base64`的`decode`以及`encode`和`java.lang.Runtime`进行了埋点处理，具体实现代码如下（示例代码为了便于理解未考虑异常处理）:
@@ -343,11 +343,11 @@ public class PropagatorClassVisitorHandler implements Handler {
 真正运行在JVM中的类如下:
 `java.util.Base64$Decoder#decode`
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393858968879.jpg)
+![](https://oss.javasec.org/images/16393858968879.jpg)
 
 
 `java.lang.Runtime`
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393858968898.jpg)
+![](https://oss.javasec.org/images/16393858968898.jpg)
 
 可以看到其实也是在方法进入后和方法离开前插入了IAST的代码逻辑，以便可以直观的观察到入参值以及返回值发生的变化。
 
@@ -410,7 +410,7 @@ public class SinkClassVisitorHandler implements Handler {
 在这次实验中，选择了对所有方法名为`start`且方法描述为`()Ljava/lang/Process;`的类进行埋点，其实也就是对`java.lang.ProcessBuilder#start`进行埋点处理。
 最终运行在JVM中的class如下：
 
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393858968915.jpg)
+![](https://oss.javasec.org/images/16393858968915.jpg)
 
 可以看到在方法进去后调用了IAST的`cn.org.javaweb.iast.core.Sink#enterSink`方法，以此来确定一个调用链是否已经到达危险函数执行点。对于Sink，除了整体处理逻辑与`Propagator`以及`Source`相似，多了一个`setStackTraceElement`的操作，目的是将在触发`Sink`点的堆栈将其保存下来，方便后面使用分析。
 具体代码如下
@@ -460,29 +460,29 @@ public static void enterSink(Object[] argumentArray,
 </pre>
 ```
 接着编译agent，将其加入到tomcat的启动命令中，部署jsp页面，访问看看结果
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393858968933.jpg)
+![](https://oss.javasec.org/images/16393858968933.jpg)
 
 可以看到，首先触发了`getParameter`方法中的Source埋点，传入的参数为`cmd`，获取到的结果为`CHdK`，接着连续触发了5次Propagator点。
 
 第一次触发的Propagator点位`Base64`类中`decode`方法，传入的参数是`CHdK`，返回值为`pwd`(原始返回为[]byte,为了方便展示，对其转为了字符串)，这时候已经可以初步看到了参数的获取到base64解码，也就是原始source点已经发生了变化。
 
 第二次触发的埋点信息为获取一个`Runtime`对象，调用的是`java.lang.Runtime#getRuntime`,传入的参数为空，返回的结果为一个Runtime的对象信息，其实就是实例化了一个`java.lang.Runtime`对象，这次可以观察到一个小细节，就是这个返回对象发生了变化，但是并没有传入任何参数。
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393858968949.jpg)
+![](https://oss.javasec.org/images/16393858968949.jpg)
 
 第三次触发的埋点信息为调用`java.lang.Runtime#exec`方法(接收参数类型为:`String`)，传入的值是`pwd`，在这次调用中可以看到，第一次Propagator点的返回值作为了入参传入了这次调用，但是紧接着并触发没有想象中的`leavePropagator`方法，而是调用了另一个`exec`方法。
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393858968964.jpg)
+![](https://oss.javasec.org/images/16393858968964.jpg)
 第四次触发的埋点信息为调用`java.lang.Runtime#exec`方法(接收参数类型为:`String、String[]、File`)，其中第一个参数的值为`pwd`，而其它参数为`null`(本文不讨论如何确定第几个参数是污染点的问题，这个可以通过加规则去逐步完善)。在这次调用中可以看到，第三次中传递过来的`pwd`没有发生变化，然而也没有触发`leavePropagator`方法，由此可以推测出来这个方法内部继续调用了在规则里面预先匹配到的方法。
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393858968979.jpg)
+![](https://oss.javasec.org/images/16393858968979.jpg)
 
 第五次触发的埋点信息为调用`java.lang.Runtime#exec`方法(接收参数类型为:`String[]、String[]、File`)，传入的值是`[[Ljava.lang.String;@58ed07d8, null, null] `，这时候就看到了在传入的值由`pwd`变为了一个`String`数组类型的对象，返回到第四次触发的埋点看，其实就可以看到`var`6其实是最开始是由`var1`，也就是入参值`pwd`转换得到的。然后可以看到在当前调用的方法里面，又调用了规则中的Sink点（`java.lang.ProcessBuilder#start`）方法。
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393858968993.jpg)
+![](https://oss.javasec.org/images/16393858968993.jpg)
 
 以上就是大概从Srouce点(`getParameter`)，经过中间的Propagator点(`java.util.Base64$Decoder#decode、java.lang.Runtime#getRuntime、java.lang.Runtime#exec`)到最终Sink点(`java.lang.ProcessBuilder#start`)的整体大概流程了。
 
 ## 总结
 
 在本次实验中，将`java.lang.Runtime`作为了传播点，其实在整体流程访问结束后，这个传播点才会有返回值返回回来，他是在传播的过程中调用到了Sink点。
-![](https://javasec.oss-cn-hongkong.aliyuncs.com/images/16393858969006.jpg)
+![](https://oss.javasec.org/images/16393858969006.jpg)
 
 那么对于这种情况，是否应该摒弃将`java.lang.Runtime`作为传播点呢？这其实应该就是仁者见仁智者见智了，对于整体IAST的流程，其实和RASP流程差不多，但是对于传播点的选择，目前大家更多的是基于规则(正则or继承类)判断去覆盖其中的传播链，或者更简单粗暴的对`String`、`Byte`进行埋点，但是需要处理的细节也就更多了，以及对于在整条链路中的无用调用也需要处理。是否有一种一劳永逸的办法可以完整的拿到整条污点传播链路，从而抛弃基于规则的对传播点进行人为覆盖，这个可能就需要进行更加深入的研究了。
 

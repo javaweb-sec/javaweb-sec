@@ -175,7 +175,7 @@ public class JavassistClassModifyTest {
 
 程序执行后结果如下：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201027174632764.png)
+![img](https://oss.javasec.org/images/image-20201027174632764.png)
 
 ## 动态创建Java类二进制
 

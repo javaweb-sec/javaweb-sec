@@ -32,7 +32,7 @@ Premain-Class: com.anbai.sec.agent.CrackLicenseAgent
 
 **`Instrumentation`类方法如下：**
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/07EC4F97-CD49-41E6-95CE-FEB000325E33.png)
+![img](https://oss.javasec.org/images/07EC4F97-CD49-41E6-95CE-FEB000325E33.png)
 
 
 
@@ -488,7 +488,7 @@ mvn clean install
 
 `Maven`构建完成后在`javaweb-sec/javaweb-sec-source/javasec-agent/target`目录会自动生成一个`javasec-agent.jar`文件。
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201029205623321.png)
+![img](https://oss.javasec.org/images/image-20201029205623321.png)
 
 
 
@@ -503,11 +503,11 @@ java -javaagent:target/javasec-agent.jar -classpath target/test-classes/ com.anb
 
 程序执行结果：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201101010058593.png)
+![img](https://oss.javasec.org/images/image-20201101010058593.png)
 
 生成的`CrackLicenseTest.class`如下：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201103103324443.png)
+![img](https://oss.javasec.org/images/image-20201103103324443.png)
 
 由上示例可以看到`CrackLicenseTest`类的`checkExpiry`方法字节码已经被我们修改成功了 。
 
@@ -563,11 +563,11 @@ java -classpath $JAVA_HOME/lib/tools.jar:target/javasec-agent.jar com.anbai.sec.
 
 程序执行结果如下：
 
-![image-20201101013153908](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201101013153908.png)
+![image-20201101013153908](https://oss.javasec.org/images/image-20201101013153908.png)
 
 当Attach成功后我们可以看到原来的进程输出结果也已经不在输出授权过期提示信息了，如下图：
 
-![img](https://javasec.oss-cn-hongkong.aliyuncs.com/images/image-20201101013416799.png)
+![img](https://oss.javasec.org/images/image-20201101013416799.png)
 
 使用Attach模式需要特别的需要注意和Agent模式的区别，因为Attach是运行在Java程序启动后，所以我们需要修改的Java类很有可能已经被JVM加载了，而已加载的Java类是不会再被Agent处理的，这时候我们需要在Attach到目标进程后`retransformClasses`，让JVM重新该Java类，这样我们就可以使用Agent机制修改该类的字节码了。
 

@@ -2,7 +2,7 @@
 
 大家好，我是`BinCat`，一个基于`JavaEE API`实现的超简单(不安全的非标准的​​，仅用于学习Java容器原理)的`Web Server`。
 
-![temp_paste_image_060b117e682e40715171017c22358241](https://javasec.oss-cn-hongkong.aliyuncs.com/images/temp_paste_image_060b117e682e40715171017c22358241.png)
+![temp_paste_image_060b117e682e40715171017c22358241](https://oss.javasec.org/images/temp_paste_image_060b117e682e40715171017c22358241.png)
 
 ## Http请求协议解析
 
