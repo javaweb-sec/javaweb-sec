@@ -7,11 +7,11 @@ public static void premain(String args, Instrumentation inst) {}
 public static void agentmain(String args, Instrumentation inst) {}
 ```
 
-Java Agent还限制了我们必须以jar包的形式运行或加载，我们必须将编写好的Agent程序打包成一个jar文件。除此之外，Java Agent还强制要求了所有的jar文件中必须包含`/META-INF/MANIFEST.MF`文件，且该文件中必须定义好`Premain-Class`（Agent模式）或`Agent-Class:`（Agent模式）配置，如：
+Java Agent还限制了我们必须以jar包的形式运行或加载，我们必须将编写好的Agent程序打包成一个jar文件。除此之外，Java Agent还强制要求了所有的jar文件中必须包含`/META-INF/MANIFEST.MF`文件，且该文件中必须定义好`Premain-Class`（Agent模式）或`Agent-Class:`（Attach模式）配置，如：
 
 ```java
 Premain-Class: com.anbai.sec.agent.CrackLicenseAgent
-        Agent-Class: com.anbai.sec.agent.CrackLicenseAgent
+Agent-Class: com.anbai.sec.agent.CrackLicenseAgent
 ```
 
 如果我们需要修改已经被JVM加载过的类的字节码，那么还需要设置在`MANIFEST.MF`中添加`Can-Retransform-Classes: true`或`Can-Redefine-Classes: true`。
