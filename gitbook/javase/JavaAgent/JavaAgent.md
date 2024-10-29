@@ -11,7 +11,7 @@ Java Agent还限制了我们必须以jar包的形式运行或加载，我们必�
 
 ```java
 Premain-Class: com.anbai.sec.agent.CrackLicenseAgent
-        Agent-Class: com.anbai.sec.agent.CrackLicenseAgent
+Agent-Class: com.anbai.sec.agent.CrackLicenseAgent
 ```
 
 如果我们需要修改已经被JVM加载过的类的字节码，那么还需要设置在`MANIFEST.MF`中添加`Can-Retransform-Classes: true`或`Can-Redefine-Classes: true`。
