@@ -53,13 +53,13 @@ Mod_JK是Apache的一个模块，其通过AJP协议实现Apache与Tomcat之间�
 
 首先在 `/conf/httpd.conf` 中添加模块：
 
-```conf
+```
 LoadModule proxy_ajp_module modules/mod_proxy_ajp.so
 ```
 
 在虚拟主机中设置代理转发
 
-```apache2
+```
 <VirtualHost *:81>
     ProxyPass / ajp://localhost:8009/
     ProxyPassReverse / ajp://localhost:8009/

@@ -389,7 +389,7 @@ execute stmt using @username;
 
 查询结果如下：
 
-```mysql
+```sql
 mysql> prepare stmt from 'select host,user from mysql.user where user = ?';
 Query OK, 0 rows affected (0.00 sec)
 Statement prepared

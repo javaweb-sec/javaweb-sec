@@ -1,0 +1,16 @@
+{
+  "devDependencies": {
+    "gitbook-plugin-anchor-navigation-ex": "^1.0.14",
+    "gitbook-plugin-anchors": "^0.7.1",
+    "gitbook-plugin-chapter-fold": "^0.0.4",
+    "gitbook-plugin-donate": "^1.0.2",
+    "gitbook-plugin-expandable-chapters-small": "^0.1.7",
+    "gitbook-plugin-favicon": "^0.0.2",
+    "gitbook-plugin-github": "^3.0.0",
+    "gitbook-plugin-github-buttons": "^3.0.0",
+    "gitbook-plugin-search-pro": "^2.0.2",
+    "gitbook-plugin-sharing-plus": "^0.0.2",
+    "gitbook-plugin-toggle-chapters": "^0.0.3",
+    "honkit": "^6.0.2"
+  }
+}

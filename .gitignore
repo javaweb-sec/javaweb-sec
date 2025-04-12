@@ -43,3 +43,6 @@ gitbook/*.log
 gitbook/node_modules
 
 logs/
+
+node_modules
+_book
