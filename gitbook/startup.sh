@@ -1,5 +1,5 @@
-GITBOOK_DIR=/data/javasec
+GITBOOK_DIR=/data/wwwroot/javaweb-sec/gitbook/
 cd $GITBOOK_DIR
-gitbook install
-gitbook build
-nohup gitbook serve --port 23340 --no-live & >$GITBOOK_DIR/gitbook.log
+npm install
+npx honkit build
+nohup npx honkit serve --port 23340 & >$GITBOOK_DIR/gitbook.log
